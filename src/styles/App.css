@@ -23,17 +23,18 @@ main {
 
 .content {
   flex: 1;
-  padding-left: 100px; /* 왼쪽에 100px 패딩 추가 */
   max-width: 50%;
 }
 
 h1 {
   font-size: 48px;
   margin-bottom: 20px;
+  padding-left: 100px; /* 제목에 왼쪽 패딩 추가 */
 }
 
 p {
   margin-bottom: 30px;
+  padding-left: 100px; /* 문단에 왼쪽 패딩 추가 */
 }
 
 .image {
@@ -54,7 +55,10 @@ p {
   }
   
   .content {
-    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
     max-width: 100%;
+  }
+
+  h1, p, .content > form {
+    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
   }
 }
