@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import '../styles/SearchForm.css';
 
 const SearchForm = () => {
+  const [customer, setCustomer] = useState('');
+  const [accountZone, setAccountZone] = useState('');
+  const [endpoint, setEndpoint] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [results, setResults] = useState(null);
@@ -10,63 +14,87 @@ const SearchForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setResults(null);
+
+    console.log('Search params:', { customer, accountZone, endpoint, startDate, endDate });
+
     if (!startDate || !endDate) {
-      alert('Please select both start and end dates');
+      alert('시작 기간과 종료 기간을 모두 선택해주세요.');
+      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
 
     try {
-      const response = await fetch(`https://hakang.cflare.kr/coupang-usage?start=${formattedStartDate}&end=${formattedEndDate}`);
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+      if (customer === '쿠팡') {
+        const response = await fetch(`https://hakang.cflare.kr/coupang-usage?start=${formattedStartDate}&end=${formattedEndDate}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.text();
+        setResults(data);
+      } else {
+        setResults(`${customer}에 대한 API 요청은 아직 구현되지 않았습니다.`);
       }
-      const data = await response.text();
-      setResults(data);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResults('Error fetching data. Please try again.');
+      setResults('데이터 조회 중 오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Start Date:</label>
+    <div>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
+        <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
+          <option value="">고객사</option>
+          <option value="쿠팡">쿠팡</option>
+          <option value="두나무">두나무</option>
+          <option value="빗썸">빗썸</option>
+        </select>
+        <select value={accountZone} onChange={(e) => setAccountZone(e.target.value)} required>
+          <option value="">Account/zone 선택</option>
+          <option value="Account">Account</option>
+          <option value="Zone">Zone</option>
+        </select>
+        <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
+          <option value="">Endpoint</option>
+          <option value="Ent available zone">Ent available zone</option>
+          <option value="zone list">zone list</option>
+          <option value="zone setting">zone setting</option>
+        </select>
         <DatePicker
           selected={startDate}
-          onChange={date => setStartDate(date)}
+          onChange={(date) => setStartDate(date)}
           selectsStart
           startDate={startDate}
           endDate={endDate}
+          placeholderText="시작 기간"
         />
-      </div>
-      <div>
-        <label>End Date:</label>
         <DatePicker
           selected={endDate}
-          onChange={date => setEndDate(date)}
+          onChange={(date) => setEndDate(date)}
           selectsEnd
           startDate={startDate}
           endDate={endDate}
           minDate={startDate}
+          placeholderText="종료 기간"
         />
-      </div>
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Loading...' : 'Search'}
-      </button>
+        <button type="submit" style={{ padding: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }} disabled={isLoading}>
+          {isLoading ? '로딩 중...' : '검색'}
+        </button>
+      </form>
       {results && (
-        <div>
-          <h2>Results:</h2>
-          <pre>{results}</pre>
+        <div style={{ marginTop: '20px', maxWidth: '600px', margin: '20px auto' }}>
+          <h2>결과:</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{results}</pre>
         </div>
       )}
-    </form>
+    </div>
   );
 };
 
