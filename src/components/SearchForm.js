@@ -11,6 +11,12 @@ const SearchForm = () => {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const customerAccounts = {
+    '쿠팡': '539bda1f40d4bbf3a799f870d7a43bb5',
+    '두나무': 'dummy_account_id_for_dunamu',
+    '빗썸': 'dummy_account_id_for_bithumb'
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -25,29 +31,28 @@ const SearchForm = () => {
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
 
-    try {
-      if (customer === '쿠팡') {
-        const response = await fetch('https://hakang.cflare.kr/coupang-usage', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            start: formattedStartDate,
-            end: formattedEndDate,
-            customer,
-            endpoint
-          }),
-        });
+    const accountTag = customerAccounts[customer];
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.text();
-        setResults(data);
-      } else {
-        setResults(`${customer}에 대한 API 요청은 아직 구현되지 않았습니다.`);
+    try {
+      const response = await fetch('https://your-worker-url.workers.dev', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountTag,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          endpoint
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
+
+      const data = await response.json();
+      setResults(JSON.stringify(data, null, 2));
     } catch (error) {
       console.error('Error fetching data:', error);
       setResults('데이터 조회 중 오류가 발생했습니다. 다시 시도해 주세요.');
