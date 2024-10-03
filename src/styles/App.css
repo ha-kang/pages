@@ -63,7 +63,8 @@ main {
 .content {
   flex: 1;
   padding-right: 50px;
-  text-align: left; /* 텍스트를 왼쪽 정렬 */
+  text-align: left;
+  max-width: 50%; /* 내용의 최대 너비 설정 */
 }
 h1 {
   font-size: 48px;
