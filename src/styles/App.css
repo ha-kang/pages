@@ -6,16 +6,22 @@ body {
   padding: 0;
   background-color: #1a1a2e;
   color: white;
+  min-height: 100vh; /* 최소 높이를 뷰포트 높이로 설정 */
+  display: flex;
+  flex-direction: column;
 }
 
 .app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 header {
-  margin-bottom: 50px;
+  margin-bottom: 30px;
 }
 
 nav {
@@ -64,12 +70,16 @@ nav ul li.active {
 
 main {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  flex: 1;
 }
 
 .content {
-  flex: 1;
-  padding-right: 50px;
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
 }
 
 h1 {
@@ -82,21 +92,43 @@ p {
 }
 
 .image {
-  flex: 1;
+  margin-top: 30px;
 }
 
 .image img {
-  width: 100%;
+  max-width: 100%;
   border-radius: 10px;
 }
 
+/* SearchForm 컴포넌트에 대한 스타일 */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.search-form select,
+.search-form input,
+.search-form button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+}
+
+.search-form button {
+  background-color: #26c6da;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
-  main {
-    flex-direction: column;
-  }
-  
   .content {
-    padding-right: 0;
-    margin-bottom: 30px;
+    padding: 0 20px;
   }
 }
