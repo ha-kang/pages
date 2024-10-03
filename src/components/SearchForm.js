@@ -12,7 +12,7 @@ const SearchForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const customerAccounts = {
-    '쿠팡': '539bda1f40d4bbf3a799f870d7a43bb5',
+    '쿠팡': '1d1ca21566108092c27471a6e97b047f',
     '두나무': 'dummy_account_id_for_dunamu',
     '빗썸': 'dummy_account_id_for_bithumb'
   };
