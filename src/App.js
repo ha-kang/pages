@@ -1,7 +1,6 @@
 import React from 'react';
 import SearchForm from './components/SearchForm';
 import './styles/App.css';
-import cloudflareImage from './images/cloudflare.png';
 
 const App = () => {
   return (
@@ -29,7 +28,7 @@ const App = () => {
           <SearchForm />
         </div>
         <div className="image">
-          <img src={cloudflareImage} alt="Cloudflare logo" />
+          <img src="./images/cloudflare.png" alt="Cloudflare logo" />
         </div>
       </main>
     </div>
