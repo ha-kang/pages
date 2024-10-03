@@ -53,11 +53,14 @@ nav ul li.active {
 }
 main {
   display: flex;
-  align-items: center;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center; /* 가로 중앙 정렬 */
+  height: 100vh; /* 페이지 높이를 100%로 하여 중앙 정렬 */
 }
 .content {
   flex: 1;
   padding-right: 50px;
+  text-align: left; /* 텍스트를 왼쪽 정렬 */
 }
 h1 {
   font-size: 48px;
@@ -68,6 +71,8 @@ p {
 }
 .image {
   flex: 1;
+  display: flex;
+  justify-content: center; /* 이미지 컨테이너 내에서 중앙 정렬 (필요한 경우) */
 }
 .image img {
   width: 100%;
