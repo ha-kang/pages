@@ -64,11 +64,6 @@ const SearchForm = () => {
           <option value="두나무">두나무</option>
           <option value="빗썸">빗썸</option>
         </select>
-        <select value={accountZone} onChange={(e) => setAccountZone(e.target.value)} required>
-          <option value="">Account/zone 선택</option>
-          <option value="Account">Account</option>
-          <option value="Zone">Zone</option>
-        </select>
         <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
           <option value="">Endpoint</option>
           <option value="Ent available zone">Ent available zone</option>
