@@ -34,7 +34,7 @@ const SearchForm = () => {
     const accountTag = customerAccounts[customer];
 
     try {
-      const response = await fetch('https://your-worker-url.workers.dev', {
+      const response = await fetch('https://hakang.cflare.kr/pages-call', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
