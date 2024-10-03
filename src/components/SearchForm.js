@@ -17,8 +17,6 @@ const SearchForm = () => {
     setIsLoading(true);
     setResults(null);
 
-    console.log('Search params:', { customer, accountZone, endpoint, startDate, endDate });
-
     if (!startDate || !endDate) {
       alert('시작 기간과 종료 기간을 모두 선택해주세요.');
       setIsLoading(false);
@@ -37,10 +35,7 @@ const SearchForm = () => {
           },
           body: JSON.stringify({
             start: formattedStartDate,
-            end: formattedEndDate,
-            customer,
-            accountZone,
-            endpoint
+            end: formattedEndDate
           }),
         });
 
