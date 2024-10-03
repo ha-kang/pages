@@ -41,6 +41,8 @@ nav ul li.active {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  display: flex;
+  justify-content: flex-start; /* 버튼 왼쪽 정렬 */
 }
 .login {
   background-color: transparent;
