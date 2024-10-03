@@ -28,7 +28,7 @@ const App = () => {
           <SearchForm />
         </div>
         <div className="image">
-          <img src="./images/cloudflare.png" alt="Cloudflare logo" />
+          <img src="/images/cloudflare.png" alt="Cloudflare logo" />
         </div>
       </main>
     </div>
