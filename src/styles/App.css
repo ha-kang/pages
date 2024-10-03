@@ -9,6 +9,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
+  align-items: center; /* 세로 중앙 배치 */
   padding: 20px;
 }
 header {
