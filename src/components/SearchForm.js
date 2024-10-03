@@ -5,7 +5,6 @@ import '../styles/SearchForm.css';
 
 const SearchForm = () => {
   const [customer, setCustomer] = useState('');
-  const [accountZone, setAccountZone] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -35,7 +34,9 @@ const SearchForm = () => {
           },
           body: JSON.stringify({
             start: formattedStartDate,
-            end: formattedEndDate
+            end: formattedEndDate,
+            customer,
+            endpoint
           }),
         });
 
