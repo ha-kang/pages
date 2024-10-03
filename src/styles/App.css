@@ -83,12 +83,17 @@ p {
   border-radius: 10px;
 }
 @media (max-width: 768px) {
+  .app {
+    padding: 20px; /* 모바일에서는 패딩 줄임 */
+  }
+  
   main {
     flex-direction: column;
   }
-
+  
   .content {
     padding-right: 0;
     margin-bottom: 30px;
+    max-width: 100%; /* 모바일에서는 전체 너비 사용 */
   }
 }
