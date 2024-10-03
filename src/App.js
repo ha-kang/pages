@@ -1,5 +1,6 @@
 import React from 'react';
 import SearchForm from './components/SearchForm';
+import cloudflareImage from '../src/images/cloudflare.png'; // 이미지 import 추가
 import './styles/App.css';
 
 const App = () => {
@@ -14,7 +15,7 @@ const App = () => {
           <SearchForm />
         </div>
         <div className="image">
-          <img src="/images/cloudflare.png" alt="Cloudflare logo" />
+          <img src={cloudflareImage} alt="Cloudflare logo" />
         </div>
       </main>
     </div>
