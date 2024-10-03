@@ -72,7 +72,7 @@ const SearchForm = () => {
         </select>
         <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
           <option value="">Endpoint</option>
-          <option value="Ent available zone">Ent available zone</option>
+          <option value="Ent available zone">DT/Request</option>
           <option value="zone list">zone list</option>
           <option value="zone setting">zone setting</option>
         </select>
