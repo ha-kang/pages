@@ -7,9 +7,10 @@ body {
   color: white;
 }
 .app {
-  display: flex;
-  align-items: center; /* 세로 중앙 배치 */
-  height: 100vh; /* 화면 전체 높이를 사용 */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+
 }
 header {
   margin-bottom: 50px;
