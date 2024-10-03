@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -6,94 +7,54 @@ body {
   background-color: #1a1a2e;
   color: white;
 }
+
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 20px 20px 100px; /* 왼쪽 패딩 100px 추가 */
+  padding: 20px;
   box-sizing: border-box;
 }
-header {
-  margin-bottom: 50px;
-}
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-}
-nav ul {
-  display: flex;
-  list-style-type: none;
-}
-nav ul li {
-  margin: 0 15px;
-  cursor: pointer;
-}
-nav ul li.active {
-  color: #26c6da;
-}
-.auth-buttons button {
-  margin-left: 10px;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  justify-content: flex-start; /* 버튼 왼쪽 정렬 */
-}
-.login {
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
-}
-.signup {
-  background-color: #090e1a;
-  color: white;
-}
+
 main {
   display: flex;
-  align-items: center; /* 세로 중앙 정렬 */
-  justify-content: center; /* 가로 중앙 정렬 */
-  box-sizing: border-box; /* 패딩 및 보더를 포함한 높이 계산 */
-  overflow: hidden; /* 스크롤을 없앰 */
+  align-items: flex-start;
+  justify-content: space-between;
 }
+
 .content {
   flex: 1;
-  padding-right: 50px;
-  text-align: left;
-  max-width: 50%; /* 내용의 최대 너비 설정 */
+  padding-left: 100px; /* 왼쪽에 100px 패딩 추가 */
+  max-width: 50%;
 }
+
 h1 {
   font-size: 48px;
   margin-bottom: 20px;
 }
+
 p {
   margin-bottom: 30px;
 }
+
 .image {
   flex: 1;
   display: flex;
-  justify-content: center; /* 이미지 컨테이너 내에서 중앙 정렬 (필요한 경우) */
+  justify-content: center;
+  align-items: center;
 }
+
 .image img {
-  width: 100%;
-  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
 }
+
 @media (max-width: 768px) {
-  .app {
-    padding: 20px; /* 모바일에서는 패딩 줄임 */
-  }
-  
   main {
     flex-direction: column;
   }
   
   .content {
-    padding-right: 0;
-    margin-bottom: 30px;
-    max-width: 100%; /* 모바일에서는 전체 너비 사용 */
+    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
+    max-width: 100%;
   }
 }
