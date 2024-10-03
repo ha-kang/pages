@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 100px 20px 20px 20px; /* 상단 패딩을 100px로 설정 */
+  padding: 200px 20px 20px 20px; /* 상단 패딩을 100px로 설정 */
   box-sizing: border-box;
 }
 
