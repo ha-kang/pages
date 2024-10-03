@@ -28,14 +28,12 @@ main {
 
 h1 {
   font-size: 48px;
-  margin-bottom: 20px;
   padding-left: 80px; /* 제목에 왼쪽 패딩 추가 */
   white-space: nowrap;
 }
 
 p {
-  margin-bottom: 30px;
-  padding-left: 80px; /* 문단에 왼쪽 패딩 추가 */
+  padding-left: 90px; /* 문단에 왼쪽 패딩 추가 */
 }
 
 .image {
