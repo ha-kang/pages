@@ -20,7 +20,7 @@ const SearchForm = () => {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
       <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
-        <option value="">고객사 선택</option>
+        <option value="">고객사</option>
         <option value="쿠팡">쿠팡</option>
         <option value="두나무">두나무</option>
         <option value="빗썸">빗썸</option>
@@ -33,7 +33,7 @@ const SearchForm = () => {
       </select>
 
       <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
-        <option value="">조회 엔드포인트 선택</option>
+        <option value="">Endpoint</option>
         <option value="Ent available zone">Ent available zone</option>
         <option value="zone list">zone list</option>
         <option value="zone setting">zone setting</option>
