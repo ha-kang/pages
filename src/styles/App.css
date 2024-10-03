@@ -55,7 +55,9 @@ main {
   display: flex;
   align-items: center; /* 세로 중앙 정렬 */
   justify-content: center; /* 가로 중앙 정렬 */
-  height: 100vh; /* 페이지 높이를 100%로 하여 중앙 정렬 */
+  min-height: 100vh; /* 페이지 최소 높이를 100%로 설정 */
+  box-sizing: border-box; /* 패딩 및 보더를 포함한 높이 계산 */
+  overflow: hidden; /* 스크롤을 없앰 */
 }
 .content {
   flex: 1;
