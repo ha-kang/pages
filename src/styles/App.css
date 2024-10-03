@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -7,42 +6,34 @@ body {
   background-color: #1a1a2e;
   color: white;
 }
-
 .app {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
-
 header {
   margin-bottom: 50px;
 }
-
 nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .logo {
   font-size: 24px;
   font-weight: 700;
 }
-
 nav ul {
   display: flex;
   list-style-type: none;
 }
-
 nav ul li {
   margin: 0 15px;
   cursor: pointer;
 }
-
 nav ul li.active {
   color: #26c6da;
 }
-
 .auth-buttons button {
   margin-left: 10px;
   padding: 8px 15px;
@@ -50,51 +41,42 @@ nav ul li.active {
   border-radius: 5px;
   cursor: pointer;
 }
-
 .login {
   background-color: transparent;
   color: white;
   border: 1px solid white;
 }
-
 .signup {
-  background-color: #26c6da;
+  background-color: #090e1a;
   color: white;
 }
-
 main {
   display: flex;
   align-items: center;
 }
-
 .content {
   flex: 1;
   padding-right: 50px;
 }
-
 h1 {
   font-size: 48px;
   margin-bottom: 20px;
 }
-
 p {
   margin-bottom: 30px;
 }
-
 .image {
   flex: 1;
 }
-
 .image img {
   width: 100%;
   border-radius: 10px;
 }
-
 @media (max-width: 768px) {
   main {
     flex-direction: column;
   }
-  
+
   .content {
     padding-right: 0;
     margin-bottom: 30px;
