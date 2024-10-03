@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
@@ -6,79 +7,60 @@ body {
   background-color: #1a1a2e;
   color: white;
 }
+
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 200px 20px 20px 20px; /* 상단 패딩을 100px로 설정 */
+  box-sizing: border-box;
 }
-header {
-  margin-bottom: 50px;
-}
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.logo {
-  font-size: 24px;
-  font-weight: 700;
-}
-nav ul {
-  display: flex;
-  list-style-type: none;
-}
-nav ul li {
-  margin: 0 15px;
-  cursor: pointer;
-}
-nav ul li.active {
-  color: #26c6da;
-}
-.auth-buttons button {
-  margin-left: 10px;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.login {
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
-}
-.signup {
-  background-color: #090e1a;
-  color: white;
-}
+
 main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
 }
+
 .content {
   flex: 1;
-  padding-right: 50px;
+  max-width: 50%;
 }
+
 h1 {
   font-size: 48px;
-  margin-bottom: 20px;
+  padding-left: 80px;
+  white-space: nowrap;
+  margin-bottom: 10px; /* 제목 아래 마진 줄임 */
 }
+
 p {
-  margin-bottom: 30px;
+  padding-left: 90px;
+  margin-top: 0; /* 문단 위 마진 제거 */
+  line-height: 1.4; /* 줄 간격 조정 (필요에 따라) */
 }
+
 .image {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .image img {
-  width: 100%;
-  border-radius: 10px;
+  max-width: 100%;
+  height: auto;
 }
+
 @media (max-width: 768px) {
   main {
     flex-direction: column;
   }
-
+  
   .content {
-    padding-right: 0;
-    margin-bottom: 30px;
+    max-width: 100%;
+  }
+
+  h1, p, .content > form {
+    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
   }
 }

@@ -1,13 +1,11 @@
 import React from 'react';
 import SearchForm from './components/SearchForm';
-import cloudflareImage from '../src/images/cloudflare.png'; // 이미지 import 추가
 import './styles/App.css';
+import cloudflareImage from './images/cloudflare.png';
 
 const App = () => {
   return (
     <div className="app">
-      <header>
-      </header>
       <main>
         <div className="content">
           <h1>Cloudflare API Query</h1>
