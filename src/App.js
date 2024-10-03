@@ -6,20 +6,6 @@ const App = () => {
   return (
     <div className="app">
       <header>
-        <nav>
-          <div className="logo">HA</div>
-          <ul>
-            <li className="active">Home</li>
-            <li>Properties</li>
-            <li>About</li>
-            <li>Contact</li>
-            <li>Pages</li>
-          </ul>
-          <div className="auth-buttons">
-            <button className="login">Login</button>
-            <button className="signup">Sign Up</button>
-          </div>
-        </nav>
       </header>
       <main>
         <div className="content">
