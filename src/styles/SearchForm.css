@@ -1,9 +1,24 @@
+.search-form {
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-left: 3vw; /* 왼쪽 마진 조정 */
+  width: calc(100% - 3vw); /* 전체 너비에서 왼쪽 마진 뺀 만큼 */
+}
+
+.select-wrapper {
+  width: 100%;
+  margin-bottom: 1.5vw;
+}
+
 select {
   width: 100%;
   padding: 15px;
   border: none;
   background-color: white;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 14px;
   color: #333;
   cursor: pointer;
@@ -13,32 +28,18 @@ select:focus {
   outline: none;
 }
 
-.search-form {
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-left: 8vw; /* Responsive left margin */
-}
-
-.select-wrapper {
-  width: 100%;
-  margin-bottom: 1.5vw; /* Spacing between fields */
-}
-
 .search-button {
   padding: 1vw 2vw;
   background-color: #26c6da;
   color: white;
   border: none;
-  font-family: 'Poppins', sans-serif;
-  font-size: 1.2vw; /* Responsive font size */
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 1.2vw;
   cursor: pointer;
-  margin-left: 8vw; /* Align with the form */
   transition: background-color 0.3s;
+  width: calc(100% - 3vw); /* 버튼 너비 조정 */
+  margin-left: 3vw; /* 버튼 왼쪽 마진 */
 }
-
 
 .search-button:hover {
   background-color: #00bcd4;
@@ -46,15 +47,13 @@ select:focus {
 
 @media (max-width: 768px) {
   .search-form {
-    flex-direction: column;
+    margin-left: 20px; /* 모바일에서 마진 줄임 */
+    width: calc(100% - 40px); /* 양쪽 마진 고려 */
   }
   
-  .select-wrapper {
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .select-wrapper:last-child {
-    border-bottom: none;
+  .search-button {
+    width: calc(100% - 40px); /* 모바일에서 버튼 너비 조정 */
+    margin-left: 20px; /* 모바일에서 버튼 마진 줄임 */
+    font-size: 16px; /* 모바일에서 폰트 크기 고정 */
   }
 }
