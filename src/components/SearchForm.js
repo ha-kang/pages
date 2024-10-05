@@ -1,13 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
-
-const customerAccounts = {
-  '쿠팡': '1d1ca21566108092c27471a6e97b047f',
-  '두나무': 'dummy_account_id_for_dunamu',
-  '빗썸': 'dummy_account_id_for_bithumb'
-};
 
 const formatBytes = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -31,6 +25,7 @@ const formatSeconds = (seconds) => {
 };
 
 const SearchForm = () => {
+  const [customers, setCustomers] = useState([]);
   const [customer, setCustomer] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [startDate, setStartDate] = useState(null);
@@ -39,6 +34,13 @@ const SearchForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+  useEffect(() => {
+    fetch('https://hakang.cflare.kr/kv-data-retrieval')
+      .then(response => response.json())
+      .then(data => setCustomers(data))
+      .catch(error => console.error('Error fetching customers:', error));
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,7 +54,8 @@ const SearchForm = () => {
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
-    const accountTag = customerAccounts[customer];
+    const selectedCustomer = customers.find(c => c.name === customer);
+    const accountTag = selectedCustomer ? selectedCustomer.id : '';
 
     try {
       const response = await fetch('https://hakang.cflare.kr/pages-call', {
@@ -92,14 +95,13 @@ const SearchForm = () => {
     }
   };
 
-
   return (
     <div className="search-form-container">
       <form onSubmit={handleSubmit} className="search-form">
         <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
           <option value="">고객사</option>
-          {Object.keys(customerAccounts).map(name => (
-            <option key={name} value={name}>{name}</option>
+          {customers.map(c => (
+            <option key={c.id} value={c.name}>{c.name}</option>
           ))}
         </select>
         <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
