@@ -20,6 +20,7 @@
 select, input[type="date"] {
   width: 100%;
   padding: 15px;
+  margin-top: 10px;
   border: none;
   background-color: white;
   font-family: 'Noto Sans KR', sans-serif;
