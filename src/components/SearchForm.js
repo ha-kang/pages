@@ -9,6 +9,10 @@ const customerAccounts = {
   '빗썸': 'dummy_account_id_for_bithumb'
 };
 
+const secondsToDays = (seconds) => {
+  return Math.ceil(seconds / (24 * 60 * 60));
+};
+
 const formatBytes = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   if (bytes === 0) return '0 Byte';
@@ -54,19 +58,34 @@ const SearchForm = () => {
         body: JSON.stringify({ accountTag, startDate: formattedStartDate, endDate: formattedEndDate, endpoint }),
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
-
       const data = await response.json();
-      
-      if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
+
+      if (!response.ok) {
+        if (data.errors && data.errors[0]) {
+          const errorMessage = data.errors[0].message;
+          if (errorMessage.includes("query time range is too large")) {
+            const seconds = errorMessage.match(/\d+/g)[1];
+            const days = secondsToDays(parseInt(seconds));
+            setResults(`조회 가능한 최대 기간은 ${days}일입니다. 조회 기간을 줄여주세요.`);
+          } else if (errorMessage.includes("cannot request data older than")) {
+            const seconds = errorMessage.match(/\d+/g)[0];
+            const days = secondsToDays(parseInt(seconds));
+            setResults(`${days}일 이전의 데이터는 조회할 수 없습니다. 더 최근의 기간을 선택해주세요.`);
+          } else {
+            setResults(`오류: ${errorMessage}`);
+          }
+        } else {
+          throw new Error('Network response was not ok');
+        }
+      } else if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
         const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
-        setResults(`DT: ${formatBytes(bytes)} (${bytes} bytes)\nRequests: ${formatMillions(requests)} (${requests})`);
+        setResults(`데이터 전송량: ${formatBytes(bytes)} (${bytes} bytes)\n요청 수: ${formatMillions(requests)} (${requests})`);
       } else {
-        setResults('데이터를 찾을 수 없습니다.');
+        setResults('데이터를 찾을 수 없습니다. 다른 기간이나 엔드포인트를 선택해보세요.');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResults('데이터 조회 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      setResults('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
     }
