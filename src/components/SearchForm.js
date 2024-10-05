@@ -116,7 +116,7 @@ const SearchForm = () => {
       </form>
       {results && (
         <div style={{ marginTop: '20px', maxWidth: '600px', margin: '20px auto' }}>
-          <h2>결과:</h2>
+          <h2>결과</h2>
           <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{results}</pre>
         </div>
       )}
