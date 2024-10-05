@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 0; /* 왼쪽 패딩 제거 */
+  padding: 10vw 0 2vw 3vw; /* 왼쪽 패딩 추가 */
   box-sizing: border-box;
 }
 
@@ -30,21 +30,21 @@ h1 {
   font-size: 48px;
   white-space: nowrap;
   margin-bottom: 1vw;
-  margin-left: 3vw; /* 패딩 대신 마진 사용 */
+  margin-left: 0; /* 마진 제거 */
 }
 
 p {
   margin-top: 0;
   line-height: 1.4;
-  margin-left: 3vw; /* 패딩 대신 마진 사용 */
+  margin-left: 0; /* 마진 제거 */
 }
 
 h2 {
-  margin-left: 3vw; /* 패딩 대신 마진 사용 */
+  margin-left: 0; /* 마진 제거 */
 }
 
 pre {
-  margin-left: 3vw; /* 패딩 대신 마진 사용 */
+  margin-left: 0; /* 마진 제거 */
   background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
@@ -75,7 +75,7 @@ pre {
     max-width: 100%;
   }
 
-  h1, p, .content > form, pre {
-    margin-left: 20px; /* 모바일에서는 마진 줄임 */
+  .app {
+    padding-left: 20px; /* 모바일에서 패딩 조정 */
   }
 }
