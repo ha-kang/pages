@@ -3,6 +3,21 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
+const customerAccounts = {
+  '쿠팡': '1d1ca21566108092c27471a6e97b047f',
+  '두나무': 'dummy_account_id_for_dunamu',
+  '빗썸': 'dummy_account_id_for_bithumb'
+};
+
+const formatBytes = (bytes) => {
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  if (bytes === 0) return '0 Byte';
+  const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1000)));
+  return Math.round(bytes / Math.pow(1000, i), 2) + ' ' + sizes[i];
+};
+
+const formatMillions = (num) => (num / 1000000).toFixed(2) + 'M';
+
 const SearchForm = () => {
   const [customer, setCustomer] = useState('');
   const [endpoint, setEndpoint] = useState('');
@@ -11,33 +26,15 @@ const SearchForm = () => {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const customerAccounts = {
-    '쿠팡': '1d1ca21566108092c27471a6e97b047f',
-    '두나무': 'dummy_account_id_for_dunamu',
-    '빗썸': 'dummy_account_id_for_bithumb'
-  };
-
-  const formatBytes = (bytes) => {
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes === 0) return '0 Byte';
-    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1000)));
-    return Math.round(bytes / Math.pow(1000, i), 2) + ' ' + sizes[i];
-  };
-
-  const formatMillions = (num) => {
-    return (num / 1000000).toFixed(2) + 'M';
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setResults(null);
-
     if (!startDate || !endDate) {
       alert('시작 기간과 종료 기간을 모두 선택해주세요.');
-      setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
+    setResults(null);
 
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
@@ -46,27 +43,17 @@ const SearchForm = () => {
     try {
       const response = await fetch('https://hakang.cflare.kr/pages-call', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          accountTag,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-          endpoint
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountTag, startDate: formattedStartDate, endDate: formattedEndDate, endpoint }),
       });
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
+      if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
       
-      if (data.data && data.data.viewer && data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0]) {
+      if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
         const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
-        const formattedResults = `DT: ${formatBytes(bytes)} (${bytes} bytes)\nRequests: ${formatMillions(requests)} (${requests})`;
-        setResults(formattedResults);
+        setResults(`DT: ${formatBytes(bytes)} (${bytes} bytes)\nRequests: ${formatMillions(requests)} (${requests})`);
       } else {
         setResults('데이터를 찾을 수 없습니다.');
       }
@@ -83,9 +70,9 @@ const SearchForm = () => {
       <form onSubmit={handleSubmit} className="search-form">
         <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
           <option value="">고객사</option>
-          <option value="쿠팡">쿠팡</option>
-          <option value="두나무">두나무</option>
-          <option value="빗썸">빗썸</option>
+          {Object.keys(customerAccounts).map(name => (
+            <option key={name} value={name}>{name}</option>
+          ))}
         </select>
         <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
           <option value="">Endpoint</option>
@@ -95,7 +82,7 @@ const SearchForm = () => {
         </select>
         <DatePicker
           selected={startDate}
-          onChange={(date) => setStartDate(date)}
+          onChange={setStartDate}
           selectsStart
           startDate={startDate}
           endDate={endDate}
@@ -104,7 +91,7 @@ const SearchForm = () => {
         />
         <DatePicker
           selected={endDate}
-          onChange={(date) => setEndDate(date)}
+          onChange={setEndDate}
           selectsEnd
           startDate={startDate}
           endDate={endDate}
