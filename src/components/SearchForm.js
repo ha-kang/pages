@@ -10,7 +10,7 @@ const customerAccounts = {
 };
 
 const secondsToDays = (seconds) => {
-  return Math.ceil(seconds / (24 * 60 * 60));
+  return Math.floor(seconds / (24 * 60 * 60));
 };
 
 const formatBytes = (bytes) => {
@@ -110,6 +110,7 @@ const SearchForm = () => {
           <div className="date-picker-wrapper">
             <label>시작 기간</label>
             <DatePicker
+              maxDate={new Date(Date.now() - 91 * 24 * 60 * 60 * 1000)} // 91일 전까지만 선택 가능
               selected={startDate}
               onChange={setStartDate}
               selectsStart
