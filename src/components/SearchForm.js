@@ -17,6 +17,17 @@ const SearchForm = () => {
     '빗썸': 'dummy_account_id_for_bithumb'
   };
 
+  const formatBytes = (bytes) => {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Byte';
+    const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+  };
+
+  const formatMillions = (num) => {
+    return (num / 1000000).toFixed(2) + 'M';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -30,7 +41,6 @@ const SearchForm = () => {
 
     const formattedStartDate = startDate.toISOString().split('T')[0];
     const formattedEndDate = endDate.toISOString().split('T')[0];
-
     const accountTag = customerAccounts[customer];
 
     try {
@@ -52,7 +62,14 @@ const SearchForm = () => {
       }
 
       const data = await response.json();
-      setResults(JSON.stringify(data, null, 2));
+      
+      if (data.data && data.data.viewer && data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0]) {
+        const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
+        const formattedResults = `DT: ${formatBytes(bytes)} (${bytes} bytes)\nRequests: ${formatMillions(requests)} (${requests})`;
+        setResults(formattedResults);
+      } else {
+        setResults('데이터를 찾을 수 없습니다.');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setResults('데이터 조회 중 오류가 발생했습니다. 다시 시도해 주세요.');
