@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
 
 body {
   font-family: 'Noto Sans KR', sans-serif;
@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 8vw; /* Top, right, and bottom with % values */
+  padding: 10vw 0 2vw 8vw;
   box-sizing: border-box;
 }
 
@@ -27,26 +27,42 @@ main {
 }
 
 h1 {
-  font-size: 48px; /* Responsive font size */
-  padding-left: 3vw; /* Responsive left padding for alignment */
+  font-size: 48px;
+  padding-left: 3vw;
   white-space: nowrap;
   margin-bottom: 1vw;
+  font-weight: 700;
 }
 
 p {
-  padding-left: 3vw; /* Responsive left padding */
+  padding-left: 3vw;
   margin-top: 0;
   line-height: 1.4;
 }
 
 h2 {
-  padding-left: 3vw; /* Responsive left padding for alignment */
+  padding-left: 3vw;
+  font-weight: 500;
 }
 
-pre {
-  padding-left: 3vw; /* Responsive left padding for alignment */
+.results {
+  margin-top: 20px;
+  padding-left: 3vw;
 }
-  
+
+.results pre {
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: 'Noto Sans KR', monospace;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
 .image {
   flex: 1;
   padding-top: 1vw;
@@ -60,6 +76,40 @@ pre {
   height: auto;
 }
 
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-left: 3vw;
+}
+
+select, .react-datepicker-wrapper, button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: 500;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   main {
     flex-direction: column;
@@ -69,7 +119,11 @@ pre {
     max-width: 100%;
   }
 
-  h1, p, .content > form {
-    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
+  h1, p, .content > form, .results {
+    padding-left: 20px;
+  }
+
+  .app {
+    padding: 5vw 20px;
   }
 }
