@@ -91,15 +91,38 @@ select:focus, .date-picker:focus {
 }
 
 @media (max-width: 768px) {
+  .search-form-container {
+    max-width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+  
   .search-form, .search-button {
     width: 100%;
   }
   
   .date-picker-container {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 10px;
   }
   
   .date-picker-wrapper {
-    width: 100%;
+    width: calc(50% - 5px);
+  }
+
+  select, .date-picker, .search-button {
+    font-size: 16px;
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .date-picker-wrapper label {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .search-button {
+    font-size: 18px;
+    padding: 15px;
   }
 }
