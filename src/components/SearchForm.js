@@ -110,12 +110,12 @@ const SearchForm = () => {
           <div className="date-picker-wrapper">
             <label>시작 기간</label>
             <DatePicker
-              maxDate={new Date(Date.now() - 91 * 24 * 60 * 60 * 1000)} // 91일 전까지만 선택 가능
               selected={startDate}
               onChange={setStartDate}
               selectsStart
               startDate={startDate}
               endDate={endDate}
+              maxDate={new Date(Math.min(Date.now(), Date.now() - 91 * 24 * 60 * 60 * 1000))}
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="date-picker"
@@ -130,6 +130,7 @@ const SearchForm = () => {
               startDate={startDate}
               endDate={endDate}
               minDate={startDate}
+              maxDate={new Date()}
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="date-picker"
