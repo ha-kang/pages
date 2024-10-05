@@ -28,13 +28,13 @@ main {
 
 h1 {
   font-size: 48px; /* Responsive font size */
-  padding-left: 1vw; /* Responsive left padding for alignment */
+  padding-left: 5vw; /* Responsive left padding for alignment */
   white-space: nowrap;
   margin-bottom: 1vw;
 }
 
 p {
-  padding-left: 1vw; /* Responsive left padding */
+  padding-left: 5vw; /* Responsive left padding */
   margin-top: 0;
   line-height: 1.4;
 }
