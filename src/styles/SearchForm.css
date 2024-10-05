@@ -9,9 +9,7 @@
 
 .search-form-container {
   width: 100%;
-  max-width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
+  max-width: 400px;
 }
 
 .search-form {
@@ -26,12 +24,11 @@
 select, .date-picker, .search-button {
   width: 100%;
   padding: 15px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   border: none;
   border-radius: 5px;
   font-family: var(--main-font);
-  font-size: 16px;
-  box-sizing: border-box;
+  font-size: 14px;
 }
 
 select, .date-picker {
@@ -46,12 +43,12 @@ select:focus, .date-picker:focus {
 
 .date-picker-container {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .date-picker-wrapper {
-  width: 100%;
+  flex: 1;
 }
 
 .date-picker-wrapper label {
@@ -64,7 +61,7 @@ select:focus, .date-picker:focus {
 .search-button {
   background-color: var(--button-bg-color);
   color: white;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -95,9 +92,23 @@ select:focus, .date-picker:focus {
 
 @media (max-width: 768px) {
   .search-form-container {
-    padding: 10px;
+    max-width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
   }
   
+  .search-form, .search-button {
+    width: 100%;
+  }
+  
+  .date-picker-container {
+    flex-direction: column;
+  }
+  
+  .date-picker-wrapper {
+    width: 100%;
+  }
+
   select, .date-picker, .search-button {
     font-size: 16px;
     padding: 12px;
