@@ -82,7 +82,7 @@ const SearchForm = () => {
         }
       } else if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
         const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
-        setResults(`데이터 전송량: ${formatBytes(bytes)} (${bytes} bytes)\n요청 수: ${formatMillions(requests)} (${requests})`);
+        setResults(`Data Transfer: ${formatBytes(bytes)} (${bytes} bytes)\nRequest: ${formatMillions(requests)} (${requests})`);
       } else {
         setResults('데이터를 찾을 수 없습니다. 다른 기간이나 엔드포인트를 선택해보세요.');
       }
