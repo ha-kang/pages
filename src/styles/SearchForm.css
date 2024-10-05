@@ -1,21 +1,10 @@
-.results {
-  margin-top: 20px;
-}
-
-.results h2 {
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.results pre {
-  font-family: 'Noto Sans KR', monospace;
-  font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-  word-break: break-word;
+:root {
+  --main-font: 'Noto Sans KR', sans-serif;
+  --input-bg-color: white;
+  --input-text-color: #333;
+  --button-bg-color: #26c6da;
+  --button-hover-color: #00bcd4;
+  --result-bg-color: rgba(255, 255, 255, 0.1);
 }
 
 .search-form-container {
@@ -26,59 +15,91 @@
 .search-form {
   display: flex;
   flex-direction: column;
-  background-color: transparent; /* 배경색 제거 */
+  width: 100%;
+  background-color: transparent;
   border-radius: 5px;
   overflow: hidden;
-  width: 100%; /* 전체 너비 사용 */
 }
 
-.select-wrapper {
-  width: 100%;
-  margin-bottom: 1.5vw;
-}
-
-select, input[type="date"] {
+select, .date-picker, .search-button {
   width: 100%;
   padding: 15px;
-  margin-top: 10px;
-  border: none;
-  background-color: white;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-  border-radius: 5px;
   margin-bottom: 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: var(--main-font);
+  font-size: 14px;
 }
 
-select:focus, input[type="date"]:focus {
+select, .date-picker {
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
+  cursor: pointer;
+}
+
+select:focus, .date-picker:focus {
   outline: none;
 }
 
+.date-picker-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.date-picker-wrapper {
+  flex: 1;
+}
+
+.date-picker-wrapper label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: var(--input-text-color);
+}
+
 .search-button {
-  padding: 15px;
-  background-color: #26c6da;
+  background-color: var(--button-bg-color);
   color: white;
-  border: none;
-  font-family: 'Noto Sans KR', sans-serif;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: 100%;
-  border-radius: 5px;
 }
 
 .search-button:hover {
-  background-color: #00bcd4;
+  background-color: var(--button-hover-color);
+}
+
+.results {
+  margin-top: 20px;
+}
+
+.results h2 {
+  font-family: var(--main-font);
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.results pre {
+  font-family: var(--main-font);
+  font-size: 14px;
+  background-color: var(--result-bg-color);
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 768px) {
-  .search-form {
+  .search-form, .search-button {
     width: 100%;
   }
   
-  .search-button {
+  .date-picker-container {
+    flex-direction: column;
+  }
+  
+  .date-picker-wrapper {
     width: 100%;
-    font-size: 16px;
   }
 }
