@@ -102,15 +102,20 @@ select:focus, .date-picker:focus {
   }
   
   .date-picker-container {
-    flex-direction: column;
+    flex-direction: row; /* 변경: column에서 row로 */
+    gap: 10px;
   }
   
   .date-picker-wrapper {
-    width: 100%;
+    width: calc(50% - 5px); /* 변경: 두 입력 필드가 동일한 너비를 가지도록 설정 */
   }
 
   select, .date-picker, .search-button {
     font-size: 16px;
     padding: 12px;
+  }
+
+  .date-picker-wrapper label {
+    font-size: 12px; /* 추가: 레이블 크기를 줄여 공간 확보 */
   }
 }
