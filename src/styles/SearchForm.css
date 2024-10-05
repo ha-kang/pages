@@ -1,10 +1,10 @@
 .search-form {
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background-color: transparent; /* 배경색 제거 */
   border-radius: 5px;
   overflow: hidden;
-
+  width: 100%; /* 전체 너비 사용 */
 }
 
 .select-wrapper {
@@ -12,7 +12,7 @@
   margin-bottom: 1.5vw;
 }
 
-select {
+select, input[type="date"] {
   width: 100%;
   padding: 15px;
   border: none;
@@ -21,23 +21,25 @@ select {
   font-size: 14px;
   color: #333;
   cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 10px;
 }
 
-select:focus {
+select:focus, input[type="date"]:focus {
   outline: none;
 }
 
 .search-button {
-  padding: 1vw 2vw;
+  padding: 15px;
   background-color: #26c6da;
   color: white;
   border: none;
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 1.2vw;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
-  width: calc(100% - 3vw); /* 버튼 너비 조정 */
-  margin-left: 3vw; /* 버튼 왼쪽 마진 */
+  width: 100%;
+  border-radius: 5px;
 }
 
 .search-button:hover {
@@ -46,13 +48,11 @@ select:focus {
 
 @media (max-width: 768px) {
   .search-form {
-    margin-left: 20px; /* 모바일에서 마진 줄임 */
-    width: calc(100% - 40px); /* 양쪽 마진 고려 */
+    width: 100%;
   }
   
   .search-button {
-    width: calc(100% - 40px); /* 모바일에서 버튼 너비 조정 */
-    margin-left: 20px; /* 모바일에서 버튼 마진 줄임 */
-    font-size: 16px; /* 모바일에서 폰트 크기 고정 */
+    width: 100%;
+    font-size: 16px;
   }
 }
