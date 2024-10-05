@@ -55,7 +55,7 @@ select:focus, .date-picker:focus {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
-  color: var(--input-text-color);
+  color: white;
 }
 
 .search-button {
