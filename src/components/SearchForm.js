@@ -9,8 +9,6 @@ const customerAccounts = {
   '빗썸': 'dummy_account_id_for_bithumb'
 };
 
-
-
 const formatBytes = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   if (bytes === 0) return '0 Byte';
@@ -25,6 +23,11 @@ const formatDate = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+const formatSeconds = (seconds) => {
+  const days = Math.floor(seconds / (24 * 3600));
+  return `${days}일`;
 };
 
 const SearchForm = () => {
@@ -61,14 +64,14 @@ const SearchForm = () => {
       const data = await response.json();
 
       if (data.errors && data.errors.length > 0) {
-        const errorMessage = data.errors[0];
+        const errorMessage = data.errors[0].message;
         if (typeof errorMessage === 'string' && errorMessage.includes("query time range is too large")) {
           const match = errorMessage.match(/Time range can't be wider than (\d+)s, but it's (\d+)s/);
           if (match) {
             const [, maxSeconds, actualSeconds] = match;
-            const maxDays = Math.ceil(parseInt(maxSeconds) / (24 * 60 * 60));
-            const actualDays = Math.ceil(parseInt(actualSeconds) / (24 * 60 * 60));
-            setResults(`조회 가능한 최대 기간은 ${maxDays}일입니다. 현재 선택된 기간은 ${actualDays}일입니다. 조회 기간을 줄여주세요.`);
+            const maxDays = formatSeconds(parseInt(maxSeconds));
+            const actualDays = formatSeconds(parseInt(actualSeconds));
+            setResults(`조회 가능한 최대 기간은 ${maxDays}입니다. 현재 선택된 기간은 ${actualDays}입니다. 조회 기간을 줄여주세요.`);
           } else {
             setResults(`조회 기간이 너무 깁니다. 더 짧은 기간을 선택해주세요.`);
           }
@@ -88,6 +91,7 @@ const SearchForm = () => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="search-form-container">
