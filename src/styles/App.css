@@ -80,13 +80,14 @@ pre {
   }
 
   h1 {
-    font-size: 36px;
+    font-size: 30px;
     text-align: center;
     white-space: normal;
   }
 
   p {
     text-align: center;
+    font-size: 20px;
   }
 
   .image {
