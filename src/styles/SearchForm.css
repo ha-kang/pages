@@ -4,7 +4,6 @@
   background-color: white;
   border-radius: 5px;
   overflow: hidden;
-  margin-left: 3vw; /* 왼쪽 마진 조정 */
   width: calc(100% - 3vw); /* 전체 너비에서 왼쪽 마진 뺀 만큼 */
 }
 
