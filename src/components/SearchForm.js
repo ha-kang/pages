@@ -80,25 +80,33 @@ const SearchForm = () => {
           <option value="zone list">zone list</option>
           <option value="zone setting">zone setting</option>
         </select>
-        <DatePicker
-          selected={startDate}
-          onChange={setStartDate}
-          selectsStart
-          startDate={startDate}
-          endDate={endDate}
-          placeholderText="시작 기간"
-          className="date-picker"
-        />
-        <DatePicker
-          selected={endDate}
-          onChange={setEndDate}
-          selectsEnd
-          startDate={startDate}
-          endDate={endDate}
-          minDate={startDate}
-          placeholderText="종료 기간"
-          className="date-picker"
-        />
+        <div className="date-picker-container">
+          <div className="date-picker-wrapper">
+            <label>시작 기간</label>
+            <DatePicker
+              selected={startDate}
+              onChange={setStartDate}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="시작 기간"
+              className="date-picker"
+            />
+          </div>
+          <div className="date-picker-wrapper">
+            <label>종료 기간</label>
+            <DatePicker
+              selected={endDate}
+              onChange={setEndDate}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              minDate={startDate}
+              placeholderText="종료 기간"
+              className="date-picker"
+            />
+          </div>
+        </div>
         <button type="submit" className="search-button" disabled={isLoading}>
           {isLoading ? '로딩 중...' : '검색'}
         </button>
