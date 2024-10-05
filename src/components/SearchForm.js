@@ -9,9 +9,7 @@ const customerAccounts = {
   '빗썸': 'dummy_account_id_for_bithumb'
 };
 
-const secondsToDays = (seconds) => {
-  return Math.ceil(seconds / (24 * 60 * 60));
-};
+
 
 const formatBytes = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
