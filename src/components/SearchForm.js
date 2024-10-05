@@ -26,7 +26,7 @@ const formatSeconds = (seconds) => {
 
 const SearchForm = () => {
   const [customers, setCustomers] = useState([]);
-  const [customer, setCustomer] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -54,8 +54,8 @@ const SearchForm = () => {
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
-    const selectedCustomer = customers.find(c => c.name === customer);
-    const accountTag = selectedCustomer ? selectedCustomer.id : '';
+    const selectedCustomerData = customers.find(c => c.name === selectedCustomer);
+    const accountTag = selectedCustomerData ? selectedCustomerData.accountTag : '';
 
     try {
       const response = await fetch('https://hakang.cflare.kr/pages-call', {
@@ -98,13 +98,23 @@ const SearchForm = () => {
   return (
     <div className="search-form-container">
       <form onSubmit={handleSubmit} className="search-form">
-        <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
+        <select 
+          value={selectedCustomer} 
+          onChange={(e) => setSelectedCustomer(e.target.value)} 
+          required
+        >
           <option value="">고객사</option>
-          {customers.map(c => (
-            <option key={c.id} value={c.name}>{c.name}</option>
+          {customers.map(customer => (
+            <option key={customer.name} value={customer.name}>
+              {customer.name}
+            </option>
           ))}
         </select>
-        <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
+        <select 
+          value={endpoint} 
+          onChange={(e) => setEndpoint(e.target.value)} 
+          required
+        >
           <option value="">Endpoint</option>
           <option value="DT/Request">DT/Request</option>
           <option value="zone list">zone list</option>
