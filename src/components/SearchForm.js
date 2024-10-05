@@ -89,7 +89,8 @@ const SearchForm = () => {
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              placeholderText="시작 기간"
+              dateFormat="yyyy/MM/dd"
+              placeholderText="YYYY/MM/DD"
               className="date-picker"
             />
           </div>
@@ -102,7 +103,8 @@ const SearchForm = () => {
               startDate={startDate}
               endDate={endDate}
               minDate={startDate}
-              placeholderText="종료 기간"
+              dateFormat="yyyy/MM/dd"
+              placeholderText="YYYY/MM/DD"
               className="date-picker"
             />
           </div>
