@@ -10,7 +10,7 @@ const customerAccounts = {
 };
 
 const secondsToDays = (seconds) => {
-  return Math.floor(seconds / (24 * 60 * 60));
+  return Math.ceil(seconds / (24 * 60 * 60));
 };
 
 const formatBytes = (bytes) => {
