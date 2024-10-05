@@ -36,6 +36,9 @@ const SearchForm = () => {
   const [endDate, setEndDate] = useState(null);
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const today = new Date();
+  const ninetyOneDaysAgo = new Date(today.getTime() - 91 * 24 * 60 * 60 * 1000);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -115,7 +118,8 @@ const SearchForm = () => {
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              maxDate={new Date(Math.min(Date.now(), Date.now() - 91 * 24 * 60 * 60 * 1000))}
+              minDate={ninetyOneDaysAgo}
+              maxDate={today}
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="date-picker"
@@ -129,8 +133,8 @@ const SearchForm = () => {
               selectsEnd
               startDate={startDate}
               endDate={endDate}
-              minDate={startDate}
-              maxDate={new Date()}
+              minDate={startDate || ninetyOneDaysAgo}
+              maxDate={today}
               dateFormat="yyyy-MM-dd"
               placeholderText="YYYY-MM-DD"
               className="date-picker"
