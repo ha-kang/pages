@@ -49,6 +49,7 @@ pre {
   
 .image {
   flex: 1;
+  padding-top: 1vw;
   display: flex;
   justify-content: center;
   align-items: center;
