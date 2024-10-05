@@ -63,22 +63,20 @@ const SearchForm = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        if (data.errors && data.errors[0]) {
-          const errorMessage = data.errors[0].message;
-          if (errorMessage.includes("query time range is too large")) {
-            const seconds = errorMessage.match(/\d+/g)[1];
-            const days = secondsToDays(parseInt(seconds));
-            setResults(`조회 가능한 최대 기간은 ${days}일입니다. 조회 기간을 줄여주세요.`);
-          } else if (errorMessage.includes("cannot request data older than")) {
-            const seconds = errorMessage.match(/\d+/g)[0];
-            const days = secondsToDays(parseInt(seconds));
-            setResults(`${days}일 이전의 데이터는 조회할 수 없습니다. 더 최근의 기간을 선택해주세요.`);
+      if (data.errors && data.errors.length > 0) {
+        const errorMessage = data.errors[0];
+        if (typeof errorMessage === 'string' && errorMessage.includes("query time range is too large")) {
+          const match = errorMessage.match(/Time range can't be wider than (\d+)s, but it's (\d+)s/);
+          if (match) {
+            const [, maxSeconds, actualSeconds] = match;
+            const maxDays = Math.ceil(parseInt(maxSeconds) / (24 * 60 * 60));
+            const actualDays = Math.ceil(parseInt(actualSeconds) / (24 * 60 * 60));
+            setResults(`조회 가능한 최대 기간은 ${maxDays}일입니다. 현재 선택된 기간은 ${actualDays}일입니다. 조회 기간을 줄여주세요.`);
           } else {
-            setResults(`오류: ${errorMessage}`);
+            setResults(`조회 기간이 너무 깁니다. 더 짧은 기간을 선택해주세요.`);
           }
         } else {
-          throw new Error('Network response was not ok');
+          setResults(`오류: ${errorMessage}`);
         }
       } else if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
         const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
