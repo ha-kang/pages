@@ -93,7 +93,7 @@ select:focus, .date-picker:focus {
 @media (max-width: 768px) {
   .search-form-container {
     max-width: 100%;
-    padding: 20px;
+    padding: 15px;
     box-sizing: border-box;
   }
   
@@ -102,20 +102,27 @@ select:focus, .date-picker:focus {
   }
   
   .date-picker-container {
-    flex-direction: row; /* 변경: column에서 row로 */
+    flex-direction: row;
     gap: 10px;
   }
   
   .date-picker-wrapper {
-    width: calc(50% - 5px); /* 변경: 두 입력 필드가 동일한 너비를 가지도록 설정 */
+    width: calc(50% - 5px);
   }
 
   select, .date-picker, .search-button {
     font-size: 16px;
     padding: 12px;
+    margin-bottom: 15px;
   }
 
   .date-picker-wrapper label {
-    font-size: 12px; /* 추가: 레이블 크기를 줄여 공간 확보 */
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .search-button {
+    font-size: 18px;
+    padding: 15px;
   }
 }
