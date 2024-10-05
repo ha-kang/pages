@@ -79,8 +79,8 @@ const SearchForm = () => {
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
+    <div className="search-form-container">
+      <form onSubmit={handleSubmit} className="search-form">
         <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
           <option value="">고객사</option>
           <option value="쿠팡">쿠팡</option>
@@ -100,6 +100,7 @@ const SearchForm = () => {
           startDate={startDate}
           endDate={endDate}
           placeholderText="시작 기간"
+          className="date-picker"
         />
         <DatePicker
           selected={endDate}
@@ -109,15 +110,16 @@ const SearchForm = () => {
           endDate={endDate}
           minDate={startDate}
           placeholderText="종료 기간"
+          className="date-picker"
         />
-        <button type="submit" style={{ padding: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }} disabled={isLoading}>
+        <button type="submit" className="search-button" disabled={isLoading}>
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
       {results && (
-        <div style={{ marginTop: '20px', maxWidth: '600px', margin: '20px auto' }}>
+        <div className="results">
           <h2>결과</h2>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{results}</pre>
+          <pre>{results}</pre>
         </div>
       )}
     </div>
