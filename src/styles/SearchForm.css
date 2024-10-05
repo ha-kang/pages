@@ -1,50 +1,26 @@
-:root {
-  --main-font: 'Noto Sans KR', sans-serif;
-  --input-bg-color: white;
-  --input-text-color: #333;
-  --button-bg-color: #26c6da;
-  --button-hover-color: #00bcd4;
-  --result-bg-color: rgba(255, 255, 255, 0.1);
-}
-
 .search-form-container {
   width: 100%;
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .search-form {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  background-color: transparent;
-  border-radius: 5px;
-  overflow: hidden;
+  gap: 15px;
 }
 
-select, .date-picker, .search-button {
+select, .search-button {
   width: 100%;
-  padding: 15px;
-  margin-bottom: 10px;
+  padding: 10px;
   border: none;
   border-radius: 5px;
-  font-family: var(--main-font);
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 14px;
-}
-
-select, .date-picker {
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  cursor: pointer;
-}
-
-select:focus, .date-picker:focus {
-  outline: none;
 }
 
 .date-picker-container {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 15px;
 }
 
 .date-picker-wrapper {
@@ -55,19 +31,31 @@ select:focus, .date-picker:focus {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
-  color: var(--input-text-color);
+  color: white;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 14px;
 }
 
 .search-button {
-  background-color: var(--button-bg-color);
+  background-color: #26c6da;
   color: white;
-  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .search-button:hover {
-  background-color: var(--button-hover-color);
+  background-color: #00bcd4;
 }
 
 .results {
@@ -75,31 +63,22 @@ select:focus, .date-picker:focus {
 }
 
 .results h2 {
-  font-family: var(--main-font);
-  font-size: 24px;
+  font-size: 20px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .results pre {
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--result-bg-color);
+  background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
   white-space: pre-wrap;
   word-break: break-word;
+  color: white;
 }
 
 @media (max-width: 768px) {
-  .search-form, .search-button {
-    width: 100%;
-  }
-  
   .date-picker-container {
     flex-direction: column;
-  }
-  
-  .date-picker-wrapper {
-    width: 100%;
   }
 }
