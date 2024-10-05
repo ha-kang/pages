@@ -1,60 +1,105 @@
+:root {
+  --main-font: 'Noto Sans KR', sans-serif;
+  --input-bg-color: white;
+  --input-text-color: #333;
+  --button-bg-color: #26c6da;
+  --button-hover-color: #00bcd4;
+  --result-bg-color: rgba(255, 255, 255, 0.1);
+}
+
+.search-form-container {
+  width: 100%;
+  max-width: 400px;
+}
+
 .search-form {
   display: flex;
-  background-color: white;
+  flex-direction: column;
+  width: 100%;
+  background-color: transparent;
   border-radius: 5px;
   overflow: hidden;
 }
 
-.select-wrapper {
-  flex: 1;
-  border-right: 1px solid #e0e0e0;
-}
-
-.select-wrapper:last-child {
-  border-right: none;
-}
-
-select {
+select, .date-picker, .search-button {
   width: 100%;
   padding: 15px;
+  margin-bottom: 10px;
   border: none;
-  background-color: white;
-  font-family: 'Poppins', sans-serif;
+  border-radius: 5px;
+  font-family: var(--main-font);
   font-size: 14px;
-  color: #333;
+}
+
+select, .date-picker {
+  background-color: var(--input-bg-color);
+  color: var(--input-text-color);
   cursor: pointer;
 }
 
-select:focus {
+select:focus, .date-picker:focus {
   outline: none;
 }
 
-.search-button {
-  padding: 15px 30px;
-  background-color: #26c6da;
+.date-picker-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.date-picker-wrapper {
+  flex: 1;
+}
+
+.date-picker-wrapper label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
   color: white;
-  border: none;
-  font-family: 'Poppins', sans-serif;
+}
+
+.search-button {
+  background-color: var(--button-bg-color);
+  color: white;
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .search-button:hover {
-  background-color: #00bcd4;
+  background-color: var(--button-hover-color);
+}
+
+.results {
+  margin-top: 20px;
+}
+
+.results h2 {
+  font-family: var(--main-font);
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.results pre {
+  font-family: var(--main-font);
+  font-size: 14px;
+  background-color: var(--result-bg-color);
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 768px) {
-  .search-form {
+  .search-form, .search-button {
+    width: 100%;
+  }
+  
+  .date-picker-container {
     flex-direction: column;
   }
   
-  .select-wrapper {
-    border-right: none;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .select-wrapper:last-child {
-    border-bottom: none;
+  .date-picker-wrapper {
+    width: 100%;
   }
 }
