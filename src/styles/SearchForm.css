@@ -4,7 +4,7 @@
   background-color: white;
   border-radius: 5px;
   overflow: hidden;
-  width: calc(100% - 3vw); /* 전체 너비에서 왼쪽 마진 뺀 만큼 */
+
 }
 
 .select-wrapper {
