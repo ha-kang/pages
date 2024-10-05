@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
 
 body {
   font-family: 'Noto Sans KR', sans-serif;
@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 8vw;
+  padding: 10vw 0 2vw 0; /* 왼쪽 패딩 제거 */
   box-sizing: border-box;
 }
 
@@ -28,39 +28,29 @@ main {
 
 h1 {
   font-size: 48px;
-  padding-left: 3vw;
   white-space: nowrap;
   margin-bottom: 1vw;
-  font-weight: 700;
+  margin-left: 3vw; /* 패딩 대신 마진 사용 */
 }
 
 p {
-  padding-left: 3vw;
   margin-top: 0;
   line-height: 1.4;
+  margin-left: 3vw; /* 패딩 대신 마진 사용 */
 }
 
 h2 {
-  padding-left: 3vw;
-  font-weight: 500;
+  margin-left: 3vw; /* 패딩 대신 마진 사용 */
 }
 
-.results {
-  margin-top: 20px;
-  padding-left: 3vw;
-}
-
-.results pre {
+pre {
+  margin-left: 3vw; /* 패딩 대신 마진 사용 */
   background-color: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: 'Noto Sans KR', monospace;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 10px;
 }
 
 .image {
@@ -76,40 +66,6 @@ h2 {
   height: auto;
 }
 
-.search-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding-left: 3vw;
-}
-
-select, .react-datepicker-wrapper, button {
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
-}
-
-button {
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  font-weight: 500;
-}
-
-button:hover {
-  background-color: #45a049;
-}
-
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
 @media (max-width: 768px) {
   main {
     flex-direction: column;
@@ -119,11 +75,7 @@ button:disabled {
     max-width: 100%;
   }
 
-  h1, p, .content > form, .results {
-    padding-left: 20px;
-  }
-
-  .app {
-    padding: 5vw 20px;
+  h1, p, .content > form, pre {
+    margin-left: 20px; /* 모바일에서는 마진 줄임 */
   }
 }
