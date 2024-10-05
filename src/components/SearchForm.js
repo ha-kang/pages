@@ -39,7 +39,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!startDate || !endDate) {
