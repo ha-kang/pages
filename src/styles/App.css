@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
 body {
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: 'Poppins', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #1a1a2e;
@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 3vw; /* 왼쪽 패딩 추가 */
+  padding: 200px 20px 20px 20px; /* 상단 패딩을 100px로 설정 */
   box-sizing: border-box;
 }
 
@@ -28,35 +28,19 @@ main {
 
 h1 {
   font-size: 48px;
+  padding-left: 80px;
   white-space: nowrap;
-  margin-bottom: 0.5vw;
-  margin-left: 0; /* 마진 제거 */
+  margin-bottom: 10px; /* 제목 아래 마진 줄임 */
 }
 
 p {
-  margin-top: 0;
-  line-height: 1.4;
-  margin-left: 0; /* 마진 제거 */
-  
-}
-
-h2 {
-  margin-left: 0; /* 마진 제거 */
-}
-
-pre {
-  margin-left: 0; /* 마진 제거 */
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 15px;
-  border-radius: 5px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
+  padding-left: 90px;
+  margin-top: 0; /* 문단 위 마진 제거 */
+  line-height: 1.4; /* 줄 간격 조정 (필요에 따라) */
 }
 
 .image {
   flex: 1;
-  padding-top: 1vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -76,7 +60,7 @@ pre {
     max-width: 100%;
   }
 
-  .app {
-    padding-left: 20px; /* 모바일에서 패딩 조정 */
+  h1, p, .content > form {
+    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
   }
 }
