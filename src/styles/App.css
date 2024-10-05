@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   margin: 0;
   padding: 0;
   background-color: #1a1a2e;
@@ -11,7 +11,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 200px 20px 20px 20px; /* 상단 패딩을 100px로 설정 */
+  padding: 50px 20px;
   box-sizing: border-box;
 }
 
@@ -27,16 +27,13 @@ main {
 }
 
 h1 {
-  font-size: 48px;
-  padding-left: 80px;
-  white-space: nowrap;
-  margin-bottom: 10px; /* 제목 아래 마진 줄임 */
+  font-size: 36px;
+  margin-bottom: 20px;
 }
 
 p {
-  padding-left: 90px;
-  margin-top: 0; /* 문단 위 마진 제거 */
-  line-height: 1.4; /* 줄 간격 조정 (필요에 따라) */
+  margin-bottom: 20px;
+  line-height: 1.4;
 }
 
 .image {
@@ -58,9 +55,5 @@ p {
   
   .content {
     max-width: 100%;
-  }
-
-  h1, p, .content > form {
-    padding-left: 20px; /* 모바일에서는 패딩 줄임 */
   }
 }
