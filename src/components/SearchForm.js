@@ -18,6 +18,13 @@ const formatBytes = (bytes) => {
 
 const formatMillions = (num) => (num / 1000000).toFixed(2) + 'M';
 
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 const SearchForm = () => {
   const [customer, setCustomer] = useState('');
   const [endpoint, setEndpoint] = useState('');
@@ -36,8 +43,8 @@ const SearchForm = () => {
     setIsLoading(true);
     setResults(null);
 
-    const formattedStartDate = startDate.toISOString().split('T')[0];
-    const formattedEndDate = endDate.toISOString().split('T')[0];
+    const formattedStartDate = formatDate(startDate);
+    const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
 
     try {
@@ -89,8 +96,8 @@ const SearchForm = () => {
               selectsStart
               startDate={startDate}
               endDate={endDate}
-              dateFormat="yyyy/MM/dd"
-              placeholderText="YYYY/MM/DD"
+              dateFormat="yyyy-MM-dd"
+              placeholderText="YYYY-MM-DD"
               className="date-picker"
             />
           </div>
@@ -103,8 +110,8 @@ const SearchForm = () => {
               startDate={startDate}
               endDate={endDate}
               minDate={startDate}
-              dateFormat="yyyy/MM/dd"
-              placeholderText="YYYY/MM/DD"
+              dateFormat="yyyy-MM-dd"
+              placeholderText="YYYY-MM-DD"
               className="date-picker"
             />
           </div>
