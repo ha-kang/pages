@@ -3,6 +3,7 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
+// 바이트 형식 변환 함수
 const formatBytes = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   if (bytes === 0) return '0 Bytes';
@@ -10,8 +11,10 @@ const formatBytes = (bytes) => {
   return (bytes / Math.pow(1000, i)).toFixed(2) + ' ' + sizes[i];
 };
 
+// 백만 단위 형식 변환 함수
 const formatMillions = (num) => (num / 1000000).toFixed(2) + 'M';
 
+// 날짜 형식 변환 함수
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -19,6 +22,7 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+// 초 단위를 일 단위로 변환하는 함수
 const formatSeconds = (seconds) => {
   const days = Math.floor(seconds / (24 * 3600));
   return `${days}일`;
@@ -47,6 +51,7 @@ const SearchForm = () => {
           headers: {
             'Content-Type': 'application/json',
           },
+          mode: 'cors', // CORS 모드를 명시적으로 설정
         });
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,7 +62,7 @@ const SearchForm = () => {
         }
         setCustomers(data);
       } catch (error) {
-        console.error('Error fetching customers:', error);
+        console.error('고객 데이터 가져오기 오류:', error);
         setErrorMessage('고객 데이터를 불러오는 중 오류가 발생했습니다. 페이지를 새로고침 해주세요.');
       } finally {
         setIsLoadingCustomers(false);
@@ -118,7 +123,7 @@ const SearchForm = () => {
         setResults('데이터를 찾을 수 없습니다. 다른 기간이나 엔드포인트를 선택해보세요.');
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('데이터 가져오기 오류:', error);
       setErrorMessage('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
