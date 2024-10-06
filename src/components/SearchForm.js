@@ -32,25 +32,51 @@ const SearchForm = () => {
   const [endDate, setEndDate] = useState(null);
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
-    fetch('https://hakang.cflare.kr/kv-data-retrieval')
-      .then(response => response.json())
-      .then(data => setCustomers(data))
-      .catch(error => console.error('Error fetching customers:', error));
+    const fetchCustomers = async () => {
+      setIsLoadingCustomers(true);
+      setErrorMessage('');
+      try {
+        const response = await fetch('https://hakang.cflare.kr/kv-data-retrieval', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        setCustomers(data);
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+        setErrorMessage('고객 데이터를 불러오는 중 오류가 발생했습니다. 페이지를 새로고침 해주세요.');
+      } finally {
+        setIsLoadingCustomers(false);
+      }
+    };
+
+    fetchCustomers();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!startDate || !endDate) {
-      alert('시작 기간과 종료 기간을 모두 선택해주세요.');
+      setErrorMessage('시작 기간과 종료 기간을 모두 선택해주세요.');
       return;
     }
 
     setIsLoading(true);
     setResults(null);
+    setErrorMessage('');
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
@@ -63,6 +89,10 @@ const SearchForm = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ accountTag, startDate: formattedStartDate, endDate: formattedEndDate, endpoint }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -89,7 +119,7 @@ const SearchForm = () => {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResults('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      setErrorMessage('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -97,19 +127,28 @@ const SearchForm = () => {
 
   return (
     <div className="search-form-container">
+      {errorMessage && (
+        <div className="error-message">
+          {errorMessage}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="search-form">
-        <select 
-          value={selectedCustomer} 
-          onChange={(e) => setSelectedCustomer(e.target.value)} 
-          required
-        >
-          <option value="">고객사</option>
-          {customers.map(customer => (
-            <option key={customer.name} value={customer.name}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
+        {isLoadingCustomers ? (
+          <p>고객 데이터 로딩 중...</p>
+        ) : (
+          <select 
+            value={selectedCustomer} 
+            onChange={(e) => setSelectedCustomer(e.target.value)} 
+            required
+          >
+            <option value="">고객사</option>
+            {customers.map(customer => (
+              <option key={customer.name} value={customer.name}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        )}
         <select 
           value={endpoint} 
           onChange={(e) => setEndpoint(e.target.value)} 
