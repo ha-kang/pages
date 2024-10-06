@@ -36,7 +36,7 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
-    fetch('https://kv-data-retrieval.megazone-cloud---partner-demo-account.workers.dev/')
+    fetch('https://hakang.cflare.kr/kv-data-retrieval')
       .then(response => response.json())
       .then(data => setCustomers(data))
       .catch(error => console.error('Error fetching customers:', error));
