@@ -26,6 +26,7 @@ const formatSeconds = (seconds) => {
 
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
+  const [endpoints, setEndpoints] = useState([]);
   const [customer, setCustomer] = useState('');
   const [endpoint, setEndpoint] = useState('');
   const [startDate, setStartDate] = useState(null);
@@ -59,7 +60,23 @@ const SearchForm = () => {
       }
     };
 
+    const fetchEndpoints = async () => {
+      try {
+        const response = await fetch('https://hakang.cflare.kr/endpoint-management');
+        if (!response.ok) {
+          throw new Error('Failed to fetch endpoints');
+        }
+        const data = await response.json();
+        setEndpoints(data);
+      } catch (error) {
+        console.error('Error fetching endpoints:', error);
+        // 에러 발생 시 기본 엔드포인트 목록 사용
+        setEndpoints(['DT/Request', 'zone list', 'zone setting']);
+      }
+    };
+
     fetchCustomerAccounts();
+    fetchEndpoints();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -125,9 +142,9 @@ const SearchForm = () => {
         </select>
         <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
           <option value="">Endpoint</option>
-          <option value="DT/Request">DT/Request</option>
-          <option value="zone list">zone list</option>
-          <option value="zone setting">zone setting</option>
+          {endpoints.map(ep => (
+            <option key={ep} value={ep}>{ep}</option>
+          ))}
         </select>
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
