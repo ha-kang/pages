@@ -38,7 +38,7 @@ const SearchForm = () => {
   useEffect(() => {
     const fetchCustomerAccounts = async () => {
       try {
-        const response = await fetch('https://hakang.cflare.kr/account-id-name-list');
+        const response = await fetch('https://hakang.cflare.kr/account-list');
         if (!response.ok) {
           throw new Error('Failed to fetch customer accounts');
         }
