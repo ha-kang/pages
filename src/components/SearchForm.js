@@ -153,4 +153,26 @@ const SearchForm = () => {
               selectsEnd
               startDate={startDate}
               endDate={endDate}
-              minDate={startDate || n
+              minDate={startDate || ninetyOneDaysAgo}
+              maxDate={today}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="YYYY-MM-DD"
+              className="date-picker"
+            />
+          </div>
+        </div>
+        <button type="submit" className="search-button" disabled={isLoading}>
+          {isLoading ? '로딩 중...' : '검색'}
+        </button>
+      </form>
+      {results && (
+        <div className="results">
+          <h2>결과</h2>
+          <pre>{results}</pre>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default SearchForm;
