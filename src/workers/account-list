@@ -1,0 +1,74 @@
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event));
+});
+
+async function handleRequest(event) {
+  console.log("Worker function called");
+
+  try {
+    // KV 네임스페이스에 직접 접근
+    const KV = account_id_name; // 바인딩된 KV 네임스페이스 이름
+
+    if (!KV) {
+      console.error("KV namespace not found");
+      return new Response(JSON.stringify({ error: "KV namespace not found", availableBindings: Object.keys(self) }), {
+        status: 500,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+      });
+    }
+    
+    console.log("Attempting to list KV keys");
+    const { keys } = await KV.list();
+    console.log(`KV list result: ${JSON.stringify(keys)}`);
+
+    if (!keys || keys.length === 0) {
+      console.log("No keys found in KV namespace");
+      return new Response(JSON.stringify({ message: "No data found" }), {
+        status: 200,
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        },
+      });
+    }
+
+    console.log(`Fetching values for ${keys.length} keys`);
+    const customers = await Promise.all(
+      keys.map(async (key) => {
+        try {
+          const value = await KV.get(key.name);
+          console.log(`Key: ${key.name}, Value: ${value}`);
+          return { name: key.name, accountTag: value };
+        } catch (error) {
+          console.error(`Error fetching value for key ${key.name}: ${error.message}`);
+          return { name: key.name, accountTag: null, error: error.message };
+        }
+      })
+    );
+
+    console.log(`Returning ${customers.length} customer(s)`);
+    return new Response(JSON.stringify(customers), {
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+    });
+  } catch (error) {
+    console.error(`Global error in worker: ${error.message}`);
+    console.error(error.stack);
+    return new Response(JSON.stringify({ 
+      error: error.message, 
+      stack: error.stack, 
+      availableBindings: Object.keys(self)
+    }), {
+      status: 500,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      },
+    });
+  }
+}
