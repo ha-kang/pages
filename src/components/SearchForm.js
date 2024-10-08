@@ -4,22 +4,6 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-/*
-const formatBytes = (bytes) => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (bytes === 0) return '0 Bytes';
-  const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1000)));
-  return (bytes / Math.pow(1000, i)).toFixed(2) + ' ' + sizes[i];
-};
-
-const formatMillions = (num) => (num / 1000000).toFixed(2) + 'M';
-
-const formatSeconds = (seconds) => {
-  const days = Math.floor(seconds / (24 * 3600));
-  return `${days}일`;
-};
-*/
-
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -27,30 +11,11 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const ENDPOINTS = [
-  { value: 'ent_zone_count', label: 'Enterprise Zone Count' },
-  { value: 'foundation_dns_queries', label: 'Foundation DNS Queries' },
-  { value: 'data_transfer_total', label: 'Data Transfer (Total, Country)' },
-  { value: 'china_ntw_data_transfer', label: 'China Ntw (data transfer)' },
-  { value: 'request', label: 'Request' },
-  { value: 'bot_management_request', label: 'Bot Management Request' },
-  { value: 'workers_std_requests', label: 'Workers Std Requests (MM)' },
-  { value: 'workers_std_cpu', label: 'Workers Std CPU (MM)' },
-  { value: 'workers_kv_read', label: 'Workers KV - Read (MM)' },
-  { value: 'workers_kv_storage', label: 'Workers KV - Storage (GB)' },
-  { value: 'workers_kv_write_list_delete', label: 'Workers KV - Write/list/delete (MM)' },
-  { value: 'stream_minutes_stored', label: 'Stream - Minutes stored (1k Minutes Stored)' },
-  { value: 'stream_minutes_viewed', label: 'Stream - Minutes viewed (1k Minutes Viewed)' },
-  { value: 'images_delivered', label: 'Images - Delivered' },
-  { value: 'images_stored', label: 'Images - Stored' },
-  { value: 'images_unique_transformations', label: 'Images - Unique Transformations' },
-  { value: 'zone_list', label: 'Zone List' }
-];
-
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
   const [customer, setCustomer] = useState('');
+  const [endpoints, setEndpoints] = useState([]);
   const [selectedEndpoints, setSelectedEndpoints] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
@@ -100,8 +65,31 @@ const SearchForm = () => {
       }
     };
 
+    const fetchEndpoints = async () => {
+      try {
+        const response = await fetch('https://hakang.cflare.kr/endpoint-management');
+        if (!response.ok) throw new Error('Failed to fetch endpoints');
+        const data = await response.json();
+        const formattedEndpoints = data.map(endpoint => ({
+          value: endpoint.value,
+          label: endpoint.label
+        }));
+        setEndpoints(formattedEndpoints);
+      } catch (error) {
+        console.error('Error fetching endpoints:', error);
+        // Fallback to hardcoded endpoints if API call fails
+        setEndpoints([
+          { value: 'foundation_dns_queries', label: 'Foundation DNS Queries' },
+          { value: 'china_ntw_data_transfer', label: 'China Ntw (data transfer)' },
+          { value: 'bot_management_request', label: 'Bot Management Request' },
+          { value: 'request', label: 'Request' }
+        ]);
+      }
+    };
+
     fetchCustomerAccounts();
     fetchCustomerZones();
+    fetchEndpoints();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -159,7 +147,7 @@ const SearchForm = () => {
         <Select
           isMulti
           name="endpoints"
-          options={ENDPOINTS}
+          options={endpoints}
           className="basic-multi-select"
           classNamePrefix="select"
           onChange={setSelectedEndpoints}
