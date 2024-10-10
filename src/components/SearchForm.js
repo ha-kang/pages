@@ -115,7 +115,7 @@ const SearchForm = () => {
     const zoneId = customerZones[customer];
 
     try {
-      const response = await fetch('https://hakang.cflare.kr/endpoint-management', {
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
