@@ -170,18 +170,24 @@ const SearchForm = () => {
       padding: '0',
     }),
   };
-  
+
+  const customerOptions = Object.keys(customerAccounts).map(name => ({
+    value: name,
+    label: name
+  }));
 
   return (
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
-        <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
-          <option value="">고객사</option>
-          {Object.keys(customerAccounts).map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
+        <Select
+          options={customerOptions}
+          onChange={(selectedOption) => setCustomer(selectedOption.value)}
+          placeholder="고객사"
+          className="basic-select"
+          classNamePrefix="select"
+          styles={customStyles}
+        />
         <Select
           isMulti
           name="endpoints"
@@ -194,6 +200,7 @@ const SearchForm = () => {
         />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
+            <label>시작 기간</label>
             <DatePicker
               selected={startDate}
               onChange={setStartDate}
@@ -203,11 +210,12 @@ const SearchForm = () => {
               minDate={ninetyOneDaysAgo}
               maxDate={today}
               dateFormat="yyyy-MM-dd"
-              placeholderText="시작 기간"
+              placeholderText="YYYY-MM-DD"
               className="date-picker"
             />
           </div>
           <div className="date-picker-wrapper">
+            <label>종료 기간</label>
             <DatePicker
               selected={endDate}
               onChange={setEndDate}
@@ -217,7 +225,7 @@ const SearchForm = () => {
               minDate={startDate || ninetyOneDaysAgo}
               maxDate={today}
               dateFormat="yyyy-MM-dd"
-              placeholderText="종료 기간"
+              placeholderText="YYYY-MM-DD"
               className="date-picker"
             />
           </div>
