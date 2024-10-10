@@ -113,34 +113,28 @@ select, .react-datepicker__input-container input, .search-button {
 /* Date picker styles */
 .date-picker-container {
   display: flex;
-  width: 100%;
   justify-content: space-between;
-  gap: 10px;  /* 두 date picker 사이의 간격 추가 */
-  margin-bottom: 10px;
 }
 
 .date-picker-wrapper {
-  flex: 1;  /* 각 date picker가 동일한 너비를 가지도록 설정 */
+  flex: 1;
 }
 
-.react-datepicker-wrapper,
-.react-datepicker__input-container {
+.date-picker-wrapper label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: white;
+}
+
+.react-datepicker-wrapper, .react-datepicker__input-container {
   width: 100%;
 }
 
 .react-datepicker__input-container input {
   width: 100%;
-  padding: 15px;
-  border: none;
-  border-radius: 5px;
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  cursor: pointer;
-  outline: none;
+  caret-color: transparent;  /* 깜빡이는 커서 제거 */
 }
-
 
 .search-button {
   background-color: var(--button-bg-color);
