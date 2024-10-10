@@ -80,7 +80,24 @@ const SearchForm = () => {
     }
   };
 
-  // fetchEndpoints 함수는 변경 없음
+  const fetchEndpoints = async () => {
+    try {
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const formattedEndpoints = data.map(endpoint => ({
+        value: endpoint.value,
+        label: endpoint.label
+      }));
+      setEndpoints(formattedEndpoints);
+    } catch (error) {
+      console.error('Error fetching endpoints:', error);
+      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
+      setEndpoints([]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
