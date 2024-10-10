@@ -67,36 +67,20 @@ const SearchForm = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      const zonesObject = data.reduce((acc, zone) => {
-        acc[zone.name] = zone.id;
-        return acc;
-      }, {});
-      setCustomerZones(zonesObject);
+      console.log('Received zone data:', data); // 데이터 구조 확인
+
+      // accountZones 객체를 그대로 사용
+      setCustomerZones(data.accountZones || {});
+      
+      console.log(`Total number of zones: ${data.totalZones}`);
     } catch (error) {
       console.error('Error fetching customer zones:', error);
-      setError('고객사 존 목록을 불러오는 데 실패했습니다.');
+      setError(`고객사 존 목록을 불러오는 데 실패했습니다. 오류: ${error.message}`);
       setCustomerZones({});
     }
   };
 
-  const fetchEndpoints = async () => {
-    try {
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      const formattedEndpoints = data.map(endpoint => ({
-        value: endpoint.value,
-        label: endpoint.label
-      }));
-      setEndpoints(formattedEndpoints);
-    } catch (error) {
-      console.error('Error fetching endpoints:', error);
-      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
-      setEndpoints([]);
-    }
-  };
+  // fetchEndpoints 함수는 변경 없음
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,7 +96,13 @@ const SearchForm = () => {
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneId = customerZones[customer];
+    const zoneId = customerZones[customer] ? Object.values(customerZones[customer])[0] : null;
+
+    if (!zoneId) {
+      setError('선택된 고객사에 대한 zone ID를 찾을 수 없습니다.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
