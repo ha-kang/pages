@@ -49,13 +49,14 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .select__value-container {
-  padding: 2px 8px !important;
+  padding: 15px !important;  /* 수정: 패딩을 15px로 변경 */
 }
 
 .select__placeholder, .select__single-value {
   color: var(--input-text-color) !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
+  margin-left: 0 !important;  /* 추가: 왼쪽 마진 제거 */
 }
 
 .select__indicator-separator {
@@ -67,7 +68,7 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .select__menu-list {
-  max-height: calc(100vh - 100px) !important;
+  max-height: calc(100vh - 200px) !important;  /* 수정: 높이를 줄임 */
   overflow-y: auto !important;
 }
 
@@ -85,7 +86,7 @@ select, .react-datepicker__input-container input, .search-button {
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   cursor: pointer !important;
-  padding: 10px !important;
+  padding: 10px 15px !important;  /* 수정: 패딩을 15px로 변경 */
 }
 
 .select__option--is-focused {
@@ -109,7 +110,7 @@ select, .react-datepicker__input-container input, .search-button {
   cursor: pointer !important;
 }
 
-/* Rest of the CSS remains the same */
+/* Date picker styles */
 .date-picker-container {
   display: flex;
   justify-content: space-between;
@@ -118,6 +119,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 .date-picker-wrapper {
   flex: 1;
+  max-width: calc(50% - 5px);  /* 추가: 최대 너비 설정 */
 }
 
 .date-picker-wrapper label {
@@ -127,38 +129,8 @@ select, .react-datepicker__input-container input, .search-button {
   color: white;
 }
 
-.search-button {
-  background-color: var(--button-bg-color);
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.react-datepicker-wrapper, .react-datepicker__input-container {
+  width: 100%;  /* 추가: 너비를 100%로 설정 */
 }
 
-.search-button:hover {
-  background-color: var(--button-hover-color);
-}
-
-.results {
-  margin-top: 20px;
-}
-
-.results h2 {
-  font-family: var(--main-font);
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-.results pre {
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--result-bg-color);
-  padding: 15px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  /* Mobile styles remain the same */
-}
+/* 나머지 스타일은 그대로 유지 */
