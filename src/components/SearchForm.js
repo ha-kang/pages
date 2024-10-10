@@ -43,7 +43,7 @@ const SearchForm = () => {
 
   const fetchCustomerAccounts = async () => {
     try {
-      const response = await fetch('https://api.cflare.kr/account-list');
+      const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
