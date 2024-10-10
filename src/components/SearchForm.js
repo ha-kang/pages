@@ -25,26 +25,25 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
-    const fetchCustomerAccounts = async () => {
-      try {
-        const response = await fetch('https://hakang.cflare.kr/account-list');
-        if (!response.ok) throw new Error('Failed to fetch customer accounts');
-        const data = await response.json();
-        const accountsObject = data.reduce((acc, customer) => {
-          acc[customer.name] = customer.accountTag;
-          return acc;
-        }, {});
-        setCustomerAccounts(accountsObject);
-      } catch (error) {
-        console.error('Error fetching customer accounts:', error);
-        setCustomerAccounts({
-          '쿠팡': '1d1ca21566108092c27471a6e97b047f',
-          '두나무': 'dummy_account_id_for_dunamu',
-          '빗썸': 'dummy_account_id_for_bithumb'
-        });
-      }
-    };
-
+      const fetchCustomerAccounts = async () => {
+        try {
+          const response = await fetch('https://hakang.cflare.kr/account-list');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          const accountsObject = data.reduce((acc, customer) => {
+            acc[customer.name] = customer.accountTag;
+            return acc;
+          }, {});
+          setCustomerAccounts(accountsObject);
+          setError(null);
+        } catch (error) {
+          console.error('Error fetching customer accounts:', error);
+          setError('고객사 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.');
+          setCustomerAccounts({});
+        }
+      };
     const fetchCustomerZones = async () => {
       try {
         const response = await fetch('https://hakang.cflare.kr/zone-list');
