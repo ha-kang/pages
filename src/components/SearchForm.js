@@ -27,7 +27,7 @@ const SearchForm = () => {
   useEffect(() => {
       const fetchCustomerAccounts = async () => {
         try {
-          const response = await fetch('https://hakang.cflare.kr/account-list');
+          const response = await fetch('https://api.cflare.kr/account-list');
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -46,7 +46,7 @@ const SearchForm = () => {
       };
     const fetchCustomerZones = async () => {
       try {
-        const response = await fetch('https://hakang.cflare.kr/zone-list');
+        const response = await fetch('https://api.cflare.kr/zone-list');
         if (!response.ok) throw new Error('Failed to fetch customer zones');
         const data = await response.json();
         const zonesObject = data.reduce((acc, zone) => {
@@ -66,7 +66,7 @@ const SearchForm = () => {
 
     const fetchEndpoints = async () => {
       try {
-        const response = await fetch('https://hakang.cflare.kr/endpoint-management');
+        const response = await fetch('https://api.cflare.kr/endpoint-management');
         if (!response.ok) throw new Error('Failed to fetch endpoints');
         const data = await response.json();
         const formattedEndpoints = data.map(endpoint => ({
