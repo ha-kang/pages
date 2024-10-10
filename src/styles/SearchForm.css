@@ -115,12 +115,10 @@ select, .react-datepicker__input-container input, .search-button {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  width: 100%;  /* 전체 너비 사용 */
 }
 
 .date-picker-wrapper {
   flex: 1;
-  width: 50%;  /* 각 date picker의 너비를 50%로 설정 */
 }
 
 .date-picker-wrapper label {
