@@ -3,46 +3,111 @@ addEventListener('fetch', event => {
 });
 
 async function handleRequest(request) {
-  const ACCOUNT_ID = '8a215d1828c45f48abeb1d966d35faa0';
-  const zoneInfo = await fetchZoneInfo();
-  const filteredZones = filterZones(zoneInfo, 'Coupang - Megazone');
-  
-  // zone 총 갯수 계산
-  const totalZones = Object.keys(filteredZones).length;
-  
-  // 필터링된 zone 정보를 KV에 저장 (worker에 KV namespace를 바인딩해야 합니다)
-  await ZONES.put('coupang_zones', JSON.stringify(filteredZones));
-
-  // 응답 객체 생성
-  const response = {
-    totalZones: totalZones,
-    zones: filteredZones
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   };
 
-  return new Response(JSON.stringify(response), {
-    headers: { 'Content-Type': 'application/json' }
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (request.method === 'GET') {
+    try {
+      const accountList = await fetchAllAccountsFromKV();
+      const allZones = await fetchAllZoneInfo();
+      const zonesByAccount = groupZonesByAccount(allZones, accountList);
+
+      // 총 zone 갯수 계산
+      const totalZones = Object.values(zonesByAccount).reduce((total, zones) => total + Object.keys(zones).length, 0);
+
+      // 콘솔에 총 zone 갯수 출력
+      console.log(`Total number of Enterprise Website zones: ${totalZones}`);
+
+      // KV에 저장
+      await Promise.all(Object.entries(zonesByAccount).map(([accountName, zones]) => 
+        ZONES.put(`zones_${accountName}`, JSON.stringify(zones))
+      ));
+
+      const response = {
+        totalAccounts: Object.keys(zonesByAccount).length,
+        totalZones: totalZones,
+        accountZones: zonesByAccount
+      };
+
+      return new Response(JSON.stringify(response), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } catch (error) {
+      console.error('Error in handleRequest:', error);
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+
+  return new Response('Method Not Allowed', { 
+    status: 405, 
+    headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
   });
 }
 
+async function fetchAllAccountsFromKV() {
+  const accountList = {};
+  let cursor;
+  do {
+    const { keys, list_complete, cursor: newCursor } = await ACCOUNT_LIST.list({ cursor });
+    for (const key of keys) {
+      const value = await ACCOUNT_LIST.get(key.name);
+      accountList[key.name] = value;
+    }
+    cursor = newCursor;
+    if (list_complete) break;
+  } while (cursor);
+  return accountList;
+}
 
-async function fetchZoneInfo() {
-  const response = await fetch('https://api.cloudflare.com/client/v4/zones?per_page=1000', {
-    headers: {
-      'X-Auth-Key': 'f6f652701a00dc80fc3c5e764adb1b84461e3',
-      'X-Auth-Email': 'hakang@mz.co.kr'
+async function fetchAllZoneInfo() {
+  let allZones = [];
+  let page = 1;
+  let hasMorePages = true;
+
+  while (hasMorePages) {
+    const response = await fetch(`https://api.cloudflare.com/client/v4/zones?page=${page}&per_page=1000`, {
+      headers: {
+        'X-Auth-Key': 'f6f652701a00dc80fc3c5e764adb1b84461e3',
+        'X-Auth-Email': 'hakang@mz.co.kr'
+      }
+    });
+
+    const data = await response.json();
+    allZones = allZones.concat(data.result);
+    hasMorePages = data.result_info.total_pages > page;
+    page++;
+  }
+
+  return allZones;
+}
+
+function groupZonesByAccount(zones, accountList) {
+  const zonesByAccount = {};
+
+  zones.forEach(zone => {
+    // Enterprise Website 플랜인 경우에만 처리
+    if (zone.plan && zone.plan.name === "Enterprise Website") {
+      for (const [accountName, accountId] of Object.entries(accountList)) {
+        if (zone.account.id === accountId) {
+          if (!zonesByAccount[accountName]) {
+            zonesByAccount[accountName] = {};
+          }
+          zonesByAccount[accountName][zone.name] = zone.id;
+          break;
+        }
+      }
     }
   });
 
-  const data = await response.json();
-  return data.result;
+  return zonesByAccount;
 }
-
-function filterZones(zones, accountName) {
-  return zones
-    .filter(zone => zone.account.name === accountName)
-    .reduce((acc, zone) => {
-      acc[zone.name] = zone.id;
-      return acc;
-    }, {});
-}
-
