@@ -114,7 +114,6 @@ select, .react-datepicker__input-container input, .search-button {
 .date-picker-container {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
 }
 
 .date-picker-wrapper {
