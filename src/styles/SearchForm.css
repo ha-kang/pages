@@ -111,7 +111,6 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 /* Date picker styles */
-/* Date picker styles */
 .date-picker-container {
   display: flex;
   width: 100%;
@@ -138,7 +137,8 @@ select, .react-datepicker__input-container input, .search-button {
   color: white;
 }
 
-.react-datepicker-wrapper, .react-datepicker__input-container {
+.react-datepicker-wrapper, 
+.react-datepicker__input-container {
   width: 100%;
 }
 
@@ -154,8 +154,13 @@ select, .react-datepicker__input-container input, .search-button {
   cursor: pointer;
   outline: none;
   caret-color: transparent;
+  box-sizing: border-box;
 }
 
+/* 추가: date picker 컨테이너의 너비를 다른 요소들과 맞춤 */
+.search-form > * {
+  width: 100%;
+}
 .search-button {
   background-color: var(--button-bg-color);
   color: white;
