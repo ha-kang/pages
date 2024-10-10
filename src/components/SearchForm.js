@@ -26,6 +26,7 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,6 +42,7 @@ const SearchForm = () => {
     fetchData();
   }, []);
 
+  
   const fetchCustomerAccounts = async () => {
     try {
       const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
@@ -148,6 +150,28 @@ const SearchForm = () => {
     }
   };
 
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '48px',
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: '15px',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      margin: '0',
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: '0',
+      padding: '0',
+    }),
+  };
+  
+
   return (
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
@@ -166,20 +190,10 @@ const SearchForm = () => {
           classNamePrefix="select"
           onChange={setSelectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
-          styles={{
-            control: (provided) => ({
-              ...provided,
-              cursor: 'pointer',
-            }),
-            option: (provided) => ({
-              ...provided,
-              cursor: 'pointer',
-            }),
-          }}
+          styles={customStyles}
         />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
-            <label>시작 기간</label>
             <DatePicker
               selected={startDate}
               onChange={setStartDate}
@@ -189,12 +203,11 @@ const SearchForm = () => {
               minDate={ninetyOneDaysAgo}
               maxDate={today}
               dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
+              placeholderText="시작 기간"
               className="date-picker"
             />
           </div>
           <div className="date-picker-wrapper">
-            <label>종료 기간</label>
             <DatePicker
               selected={endDate}
               onChange={setEndDate}
@@ -204,7 +217,7 @@ const SearchForm = () => {
               minDate={startDate || ninetyOneDaysAgo}
               maxDate={today}
               dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
+              placeholderText="종료 기간"
               className="date-picker"
             />
           </div>
