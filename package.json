@@ -5,12 +5,19 @@
   "dependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-datepicker": "^4.8.0"
+    "react-datepicker": "^4.8.0",
+    "react-select": "^5.7.0",
+    "react-scripts": "5.0.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.0"
   },
   "scripts": {
-  "prebuild": "npm install",
-  "build": "NODE_OPTIONS=--openssl-legacy-provider react-scripts build"
-},
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -28,8 +35,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "react-scripts": "4.0.3"    
   }
 }

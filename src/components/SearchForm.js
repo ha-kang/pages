@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
+import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
-
-const formatBytes = (bytes) => {
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (bytes === 0) return '0 Bytes';
-  const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1000)));
-  return (bytes / Math.pow(1000, i)).toFixed(2) + ' ' + sizes[i];
-};
-
-const formatMillions = (num) => (num / 1000000).toFixed(2) + 'M';
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -19,96 +11,138 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-const formatSeconds = (seconds) => {
-  const days = Math.floor(seconds / (24 * 3600));
-  return `${days}일`;
-};
-
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
+  const [customerZones, setCustomerZones] = useState({});
   const [customer, setCustomer] = useState('');
-  const [endpoint, setEndpoint] = useState('');
+  const [endpoints, setEndpoints] = useState([]);
+  const [selectedEndpoints, setSelectedEndpoints] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
-    const fetchCustomerAccounts = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('https://hakang.cflare.kr/account-list');
-        if (!response.ok) {
-          throw new Error('Failed to fetch customer accounts');
-        }
-        const data = await response.json();
-        const accountsObject = data.reduce((acc, customer) => {
-          acc[customer.name] = customer.accountTag;
-          return acc;
-        }, {});
-        setCustomerAccounts(accountsObject);
+        await fetchCustomerAccounts();
+        await fetchCustomerZones();
+        await fetchEndpoints();
       } catch (error) {
-        console.error('Error fetching customer accounts:', error);
-        // 에러 발생 시 기본 고객사 목록 사용
-        setCustomerAccounts({
-          '쿠팡': '1d1ca21566108092c27471a6e97b047f',
-          '두나무': 'dummy_account_id_for_dunamu',
-          '빗썸': 'dummy_account_id_for_bithumb'
-        });
+        console.error('Error fetching initial data:', error);
+        setError('초기 데이터를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.');
       }
     };
 
-    fetchCustomerAccounts();
+    fetchData();
   }, []);
+
+  const fetchCustomerAccounts = async () => {
+    try {
+      const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const accountsObject = data.reduce((acc, customer) => {
+        acc[customer.name] = customer.accountTag;
+        return acc;
+      }, {});
+      setCustomerAccounts(accountsObject);
+    } catch (error) {
+      console.error('Error fetching customer accounts:', error);
+      setError('고객사 목록을 불러오는 데 실패했습니다.');
+      setCustomerAccounts({});
+    }
+  };
+
+  const fetchCustomerZones = async () => {
+    try {
+      const response = await fetch('https://zone-list.megazone-cloud---partner-demo-account.workers.dev');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('Received zone data:', data); // 데이터 구조 확인
+
+      // accountZones 객체를 그대로 사용
+      setCustomerZones(data.accountZones || {});
+      
+      console.log(`Total number of zones: ${data.totalZones}`);
+    } catch (error) {
+      console.error('Error fetching customer zones:', error);
+      setError(`고객사 존 목록을 불러오는 데 실패했습니다. 오류: ${error.message}`);
+      setCustomerZones({});
+    }
+  };
+
+  const fetchEndpoints = async () => {
+    try {
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const formattedEndpoints = data.map(endpoint => ({
+        value: endpoint.value,
+        label: endpoint.label
+      }));
+      setEndpoints(formattedEndpoints);
+    } catch (error) {
+      console.error('Error fetching endpoints:', error);
+      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
+      setEndpoints([]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!startDate || !endDate) {
-      alert('시작 기간과 종료 기간을 모두 선택해주세요.');
+    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
 
     setIsLoading(true);
     setResults(null);
+    setError(null);
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
+    const zoneId = customerZones[customer] ? Object.values(customerZones[customer])[0] : null;
+
+    if (!zoneId) {
+      setError('선택된 고객사에 대한 zone ID를 찾을 수 없습니다.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const response = await fetch('https://hakang.cflare.kr/pages-call', {
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accountTag, startDate: formattedStartDate, endDate: formattedEndDate, endpoint }),
+        body: JSON.stringify({
+          accountTag,
+          zoneId,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          endpoints: selectedEndpoints.map(e => e.value)
+        }),
       });
 
-      const data = await response.json();
-
-      if (data.errors && data.errors.length > 0) {
-        const errorMessage = data.errors[0].message;
-        if (typeof errorMessage === 'string' && errorMessage.includes("query time range is too large")) {
-          const match = errorMessage.match(/Time range can't be wider than (\d+)s, but it's (\d+)s/);
-          if (match) {
-            const [, maxSeconds, actualSeconds] = match;
-            const maxDays = formatSeconds(parseInt(maxSeconds));
-            const actualDays = formatSeconds(parseInt(actualSeconds));
-            setResults(`조회 가능한 최대 기간은 ${maxDays}입니다. 현재 선택된 기간은 ${actualDays}입니다. 조회 기간을 줄여주세요.`);
-          } else {
-            setResults(`조회 기간이 너무 깁니다. 더 짧은 기간을 선택해주세요.`);
-          }
-        } else {
-          setResults(`오류: ${errorMessage}`);
-        }
-      } else if (data.data?.viewer?.accounts[0]?.httpRequestsOverviewAdaptiveGroups[0]) {
-        const { bytes, requests } = data.data.viewer.accounts[0].httpRequestsOverviewAdaptiveGroups[0].sum;
-        setResults(`Data Transfer: ${formatBytes(bytes)} (${bytes} bytes)\nRequest: ${formatMillions(requests)} (${requests})`);
-      } else {
-        setResults('데이터를 찾을 수 없습니다. 다른 기간이나 엔드포인트를 선택해보세요.');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      setResults(JSON.stringify(data, null, 2));
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResults('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +150,7 @@ const SearchForm = () => {
 
   return (
     <div className="search-form-container">
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
         <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
           <option value="">고객사</option>
@@ -123,12 +158,15 @@ const SearchForm = () => {
             <option key={name} value={name}>{name}</option>
           ))}
         </select>
-        <select value={endpoint} onChange={(e) => setEndpoint(e.target.value)} required>
-          <option value="">Endpoint</option>
-          <option value="DT/Request">DT/Request</option>
-          <option value="zone list">zone list</option>
-          <option value="zone setting">zone setting</option>
-        </select>
+        <Select
+          isMulti
+          name="endpoints"
+          options={endpoints}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={setSelectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+        />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
             <label>시작 기간</label>
