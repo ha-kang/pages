@@ -1,0 +1,48 @@
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  const ACCOUNT_ID = '8a215d1828c45f48abeb1d966d35faa0';
+  const zoneInfo = await fetchZoneInfo();
+  const filteredZones = filterZones(zoneInfo, 'Coupang - Megazone');
+  
+  // zone 총 갯수 계산
+  const totalZones = Object.keys(filteredZones).length;
+  
+  // 필터링된 zone 정보를 KV에 저장 (worker에 KV namespace를 바인딩해야 합니다)
+  await ZONES.put('coupang_zones', JSON.stringify(filteredZones));
+
+  // 응답 객체 생성
+  const response = {
+    totalZones: totalZones,
+    zones: filteredZones
+  };
+
+  return new Response(JSON.stringify(response), {
+    headers: { 'Content-Type': 'application/json' }
+  });
+}
+
+
+async function fetchZoneInfo() {
+  const response = await fetch('https://api.cloudflare.com/client/v4/zones?per_page=1000', {
+    headers: {
+      'X-Auth-Key': 'f6f652701a00dc80fc3c5e764adb1b84461e3',
+      'X-Auth-Email': 'hakang@mz.co.kr'
+    }
+  });
+
+  const data = await response.json();
+  return data.result;
+}
+
+function filterZones(zones, accountName) {
+  return zones
+    .filter(zone => zone.account.name === accountName)
+    .reduce((acc, zone) => {
+      acc[zone.name] = zone.id;
+      return acc;
+    }, {});
+}
+
