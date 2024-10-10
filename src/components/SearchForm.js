@@ -62,7 +62,7 @@ const SearchForm = () => {
 
   const fetchCustomerZones = async () => {
     try {
-      const response = await fetch('https://api.cflare.kr/zone-list');
+      const response = await fetch('https://zone-list.megazone-cloud---partner-demo-account.workers.dev');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -81,7 +81,7 @@ const SearchForm = () => {
 
   const fetchEndpoints = async () => {
     try {
-      const response = await fetch('https://api.cflare.kr/endpoint-management');
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
