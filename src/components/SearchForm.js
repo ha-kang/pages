@@ -26,6 +26,7 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -41,6 +42,7 @@ const SearchForm = () => {
     fetchData();
   }, []);
 
+  
   const fetchCustomerAccounts = async () => {
     try {
       const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
@@ -148,16 +150,45 @@ const SearchForm = () => {
     }
   };
 
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      minHeight: '48px',
+    }),
+    valueContainer: (provided) => ({
+      ...provided,
+      padding: '15px',
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      margin: '0',
+    }),
+    input: (provided) => ({
+      ...provided,
+      margin: '0',
+      padding: '0',
+      opacity: 0,  // 커서를 완전히 숨김
+    }),
+  };
+
+  const customerOptions = Object.keys(customerAccounts).map(name => ({
+    value: name,
+    label: name
+  }));
+
   return (
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
-        <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
-          <option value="">고객사</option>
-          {Object.keys(customerAccounts).map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
+        <Select
+          options={customerOptions}
+          onChange={(selectedOption) => setCustomer(selectedOption.value)}
+          placeholder="고객사"
+          className="basic-select"
+          classNamePrefix="select"
+          styles={customStyles}
+        />
         <Select
           isMulti
           name="endpoints"
@@ -166,6 +197,7 @@ const SearchForm = () => {
           classNamePrefix="select"
           onChange={setSelectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
+          styles={customStyles}
         />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
