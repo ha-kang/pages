@@ -68,7 +68,7 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .select__menu-list {
-  max-height: 200px !important;  /* 드롭다운 최대 높이 제한 */
+  max-height: 400px !important;  /* 드롭다운 최대 높이 제한 */
   overflow-y: auto !important;
 }
 
