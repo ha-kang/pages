@@ -68,7 +68,7 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .select__menu-list {
-  max-height: calc(100vh - 200px) !important;
+  max-height: 200px !important;  /* 드롭다운 최대 높이 제한 */
   overflow-y: auto !important;
 }
 
@@ -98,15 +98,29 @@ select, .react-datepicker__input-container input, .search-button {
   color: white !important;
 }
 
+/* Remove blinking cursor */
+.select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+}
+
+.select__input-container input {
+  caret-color: transparent !important;
+  cursor: pointer !important;
+}
+
 /* Date picker styles */
 .date-picker-container {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+  width: 100%;  /* 전체 너비 사용 */
 }
 
 .date-picker-wrapper {
   flex: 1;
+  width: 50%;  /* 각 date picker의 너비를 50%로 설정 */
 }
 
 .date-picker-wrapper label {
@@ -122,6 +136,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 .react-datepicker__input-container input {
   width: 100%;
+  caret-color: transparent;  /* 깜빡이는 커서 제거 */
 }
 
 .search-button {
@@ -135,7 +150,6 @@ select, .react-datepicker__input-container input, .search-button {
 .search-button:hover {
   background-color: var(--button-hover-color);
 }
-
 .results {
   margin-top: 20px;
 }
