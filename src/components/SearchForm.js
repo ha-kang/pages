@@ -21,92 +21,93 @@ const SearchForm = () => {
   const [endDate, setEndDate] = useState(null);
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-  const [error, setError] = useState(null);
-  
-  const fetchCustomerAccounts = async () => {
-      useEffect(() => {
-      fetchCustomerAccounts();
-      fetchCustomerZones();
-      fetchEndpoints();
-    }, []);
-    
-    try {
-        const response = await fetch('https://api.cflare.kr/account-list');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const accountsObject = data.reduce((acc, customer) => {
-          acc[customer.name] = customer.accountTag;
-          return acc;
-        }, {});
-        setCustomerAccounts(accountsObject);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching customer accounts:', error);
-        setError('고객사 목록을 불러오는 데 실패했습니다. 잠시 후 다시 시도해 주세요.');
-        setCustomerAccounts({});
-      }
-    };
-  
-    const fetchCustomerZones = async () => {
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('https://api.cflare.kr/zone-list');
-        if (!response.ok) throw new Error('Failed to fetch customer zones');
-        const data = await response.json();
-        const zonesObject = data.reduce((acc, zone) => {
-          acc[zone.name] = zone.id;
-          return acc;
-        }, {});
-        setCustomerZones(zonesObject);
+        await fetchCustomerAccounts();
+        await fetchCustomerZones();
+        await fetchEndpoints();
       } catch (error) {
-        console.error('Error fetching customer zones:', error);
-        setCustomerZones({
-          '쿠팡': 'dummy_zone_id_for_coupang',
-          '두나무': 'dummy_zone_id_for_dunamu',
-          '빗썸': 'dummy_zone_id_for_bithumb'
-        });
+        console.error('Error fetching initial data:', error);
+        setError('초기 데이터를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.');
       }
     };
 
-    const fetchEndpoints = async () => {
-      try {
-        const response = await fetch('https://api.cflare.kr/endpoint-management');
-        if (!response.ok) throw new Error('Failed to fetch endpoints');
-        const data = await response.json();
-        const formattedEndpoints = data.map(endpoint => ({
-          value: endpoint.value,
-          label: endpoint.label
-        }));
-        setEndpoints(formattedEndpoints);
-      } catch (error) {
-        console.error('Error fetching endpoints:', error);
-        // Fallback to hardcoded endpoints if API call fails
-        setEndpoints([
-          { value: 'foundation_dns_queries', label: 'Foundation DNS Queries' },
-          { value: 'china_ntw_data_transfer', label: 'China Ntw (data transfer)' },
-          { value: 'bot_management_request', label: 'Bot Management Request' },
-          { value: 'request', label: 'Request' }
-        ]);
-      }
-    };
-
-    fetchCustomerAccounts();
-    fetchCustomerZones();
-    fetchEndpoints();
+    fetchData();
   }, []);
+
+  const fetchCustomerAccounts = async () => {
+    try {
+      const response = await fetch('https://api.cflare.kr/account-list');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const accountsObject = data.reduce((acc, customer) => {
+        acc[customer.name] = customer.accountTag;
+        return acc;
+      }, {});
+      setCustomerAccounts(accountsObject);
+    } catch (error) {
+      console.error('Error fetching customer accounts:', error);
+      setError('고객사 목록을 불러오는 데 실패했습니다.');
+      setCustomerAccounts({});
+    }
+  };
+
+  const fetchCustomerZones = async () => {
+    try {
+      const response = await fetch('https://api.cflare.kr/zone-list');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const zonesObject = data.reduce((acc, zone) => {
+        acc[zone.name] = zone.id;
+        return acc;
+      }, {});
+      setCustomerZones(zonesObject);
+    } catch (error) {
+      console.error('Error fetching customer zones:', error);
+      setError('고객사 존 목록을 불러오는 데 실패했습니다.');
+      setCustomerZones({});
+    }
+  };
+
+  const fetchEndpoints = async () => {
+    try {
+      const response = await fetch('https://api.cflare.kr/endpoint-management');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const formattedEndpoints = data.map(endpoint => ({
+        value: endpoint.value,
+        label: endpoint.label
+      }));
+      setEndpoints(formattedEndpoints);
+    } catch (error) {
+      console.error('Error fetching endpoints:', error);
+      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
+      setEndpoints([]);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!startDate || !endDate || selectedEndpoints.length === 0) {
-      alert('시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
+    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
 
     setIsLoading(true);
     setResults(null);
+    setError(null);
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
@@ -126,16 +127,15 @@ const SearchForm = () => {
         }),
       });
 
-      const data = await response.json();
-
-      if (data.error) {
-        setResults(`오류: ${data.error}`);
-      } else {
-        setResults(JSON.stringify(data, null, 2));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const data = await response.json();
+      setResults(JSON.stringify(data, null, 2));
     } catch (error) {
       console.error('Error fetching data:', error);
-      setResults('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -143,6 +143,7 @@ const SearchForm = () => {
 
   return (
     <div className="search-form-container">
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
         <select value={customer} onChange={(e) => setCustomer(e.target.value)} required>
           <option value="">고객사</option>
