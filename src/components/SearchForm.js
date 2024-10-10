@@ -168,6 +168,7 @@ const SearchForm = () => {
       ...provided,
       margin: '0',
       padding: '0',
+      opacity: 0,  // 커서를 완전히 숨김
     }),
   };
 
