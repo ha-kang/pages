@@ -18,10 +18,10 @@
   width: 100%;
   background-color: transparent;
   border-radius: 5px;
-  overflow: hidden;
+  overflow: visible;
 }
 
-select, .date-picker, .search-button {
+select, .react-datepicker__input-container input, .search-button {
   width: 100%;
   padding: 15px;
   margin-bottom: 10px;
@@ -29,15 +29,9 @@ select, .date-picker, .search-button {
   border-radius: 5px;
   font-family: var(--main-font);
   font-size: 14px;
-}
-
-select, .date-picker {
   background-color: var(--input-bg-color);
   color: var(--input-text-color);
   cursor: pointer;
-}
-
-select:focus, .date-picker:focus {
   outline: none;
 }
 
@@ -72,19 +66,26 @@ select:focus, .date-picker:focus {
   color: var(--input-text-color) !important;
 }
 
+.select__menu-list {
+  max-height: calc(100vh - 100px) !important;
+  overflow-y: auto !important;
+}
+
 .select__menu {
+  position: absolute !important;
+  width: 100% !important;
   background-color: var(--input-bg-color) !important;
   border-radius: 5px !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
-  max-height: calc(100vh - 100px) !important; /* Adjust the dropdown height */
-  overflow-y: auto !important;
+  z-index: 1000 !important;
 }
 
 .select__option {
   background-color: var(--input-bg-color) !important;
   color: var(--input-text-color) !important;
   cursor: pointer !important;
+  padding: 10px !important;
 }
 
 .select__option--is-focused {
@@ -97,8 +98,15 @@ select:focus, .date-picker:focus {
 }
 
 /* Remove blinking cursor */
-.select__input input {
+.select__input-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+}
+
+.select__input-container input {
   caret-color: transparent !important;
+  cursor: pointer !important;
 }
 
 /* Rest of the CSS remains the same */
