@@ -77,6 +77,8 @@ select:focus, .date-picker:focus {
   border-radius: 5px !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
+  max-height: calc(100vh - 100px) !important; /* Adjust the dropdown height */
+  overflow-y: auto !important;
 }
 
 .select__option {
@@ -92,6 +94,11 @@ select:focus, .date-picker:focus {
 .select__option--is-selected {
   background-color: var(--button-bg-color) !important;
   color: white !important;
+}
+
+/* Remove blinking cursor */
+.select__input input {
+  caret-color: transparent !important;
 }
 
 /* Rest of the CSS remains the same */
