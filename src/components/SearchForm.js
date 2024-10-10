@@ -166,6 +166,16 @@ const SearchForm = () => {
           classNamePrefix="select"
           onChange={setSelectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
+          styles={{
+            control: (provided) => ({
+              ...provided,
+              cursor: 'pointer',
+            }),
+            option: (provided) => ({
+              ...provided,
+              cursor: 'pointer',
+            }),
+          }}
         />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
