@@ -23,11 +23,16 @@ const SearchForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-
   const [error, setError] = useState(null);
   
-    const fetchCustomerAccounts = async () => {
-      try {
+  const fetchCustomerAccounts = async () => {
+      useEffect(() => {
+      fetchCustomerAccounts();
+      fetchCustomerZones();
+      fetchEndpoints();
+    }, []);
+    
+    try {
         const response = await fetch('https://api.cflare.kr/account-list');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
