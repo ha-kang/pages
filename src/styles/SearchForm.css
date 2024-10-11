@@ -21,8 +21,18 @@
   overflow: visible;
 }
 
+.form-section {
+  margin-bottom: 20px;  /* 섹션 간 간격 증가 */
+}
+
+.form-section-title {
+  color: white;
+  font-size: 14px;
+  margin-bottom: 10px;  /* 제목과 입력 필드 사이 간격 */
+}
+
 .basic-select, .basic-multi-select, .date-picker-container, .search-button {
-  margin-bottom: 10px;  /* 모든 주요 요소에 동일한 하단 마진 적용 */
+  margin-bottom: 10px;  /* 폼 요소 간 간격 */
 }
 
 select, .react-datepicker__input-container input, .search-button {
@@ -114,13 +124,6 @@ select, .react-datepicker__input-container input, .search-button {
   width: 100%;
 }
 
-.date-picker-container label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: white;
-}
-
 .react-datepicker-wrapper, 
 .react-datepicker__input-container,
 .react-datepicker__input-container input {
@@ -160,7 +163,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 /* 결과 스타일 */
 .results-container {
-  margin-top: 20px;
+  margin-top: 20px;  /* 검색 버튼과 결과 사이 간격 */
 }
 
 .results-title {
