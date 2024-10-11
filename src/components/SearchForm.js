@@ -242,30 +242,33 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-        {results && (
-          <div className="results-box">
-            <h2>결과</h2>
-            <div className="endpoint-results">
-              {Object.entries(results).map(([endpoint, result]) => (
-                <React.Fragment key={endpoint}>
-                  {result.errors ? (
-                    <div className="error-message">
-                      <pre>{JSON.stringify(result.errors, null, 2)}</pre>
-                    </div>
-                  ) : endpoint === 'data_transfer_request' ? (
-                    <>
-                      <p className="result-item">Data Transferred: {formatBytes(result.bytes)}</p>
-                      <p className="result-item">Total Requests: {formatNumber(result.requests)}</p>
-                    </>
-                  ) : endpoint === 'bot_management_request' ? (
-                    <p className="result-item">Bot management(Likely Human): {formatNumber(result)}</p>
-                  ) : (
-                    <p className="result-item">{JSON.stringify(result, null, 2)}</p>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+      {results && (
+        <div className="results-box">
+          <h2>결과</h2>
+          <div className="endpoint-results">
+            {Object.entries(results).map(([endpoint, result]) => (
+              <React.Fragment key={endpoint}>
+                {result.errors ? (
+                  <div className="error-message">
+                    <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+                  </div>
+                ) : endpoint === 'data_transfer_request' ? (
+                  <>
+                    <p className="result-item">Data Transferred: {formatBytes(result.bytes)}</p>
+                    <p className="result-item">Total Requests: {formatNumber(result.requests)}</p>
+                  </>
+                ) : endpoint === 'bot_management_request' ? (
+                  <p className="result-item">Bot management(Likely Human): {formatNumber(result)}</p>
+                ) : (
+                  <p className="result-item">{JSON.stringify(result, null, 2)}</p>
+                )}
+              </React.Fragment>
+            ))}
           </div>
-        )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default SearchForm;
