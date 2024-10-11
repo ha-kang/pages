@@ -160,6 +160,7 @@ select, .react-datepicker__input-container input, .search-button {
 .search-form > * {
   width: 100%;
 }
+
 .search-button {
   background-color: var(--button-bg-color);
   color: white;
@@ -203,8 +204,6 @@ select, .react-datepicker__input-container input, .search-button {
 .endpoint-result:last-child {
   margin-bottom: 0;
 }
-
-
 
 .results pre {
   font-family: var(--main-font);

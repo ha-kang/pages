@@ -67,9 +67,7 @@ const SearchForm = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Received zone data:', data);
       setCustomerZones(data.accountZones || {});
-      console.log(`Total number of zones: ${data.totalZones}`);
     } catch (error) {
       console.error('Error fetching customer zones:', error);
       setError(`고객사 존 목록을 불러오는 데 실패했습니다. 오류: ${error.message}`);
@@ -96,8 +94,17 @@ const SearchForm = () => {
     }
   };
 
+  const handleEndpointChange = (selectedOptions) => {
+    setSelectedEndpoints(selectedOptions);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Customer:', customer);
+    console.log('Start Date:', startDate);
+    console.log('End Date:', endDate);
+    console.log('Selected Endpoints:', selectedEndpoints);
+
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
@@ -140,26 +147,10 @@ const SearchForm = () => {
     }
   };
 
-  const customStyles = {
-    control: (provided) => ({
-      ...provided,
-      minHeight: '48px',
-    }),
-    valueContainer: (provided) => ({
-      ...provided,
-      padding: '15px',
-    }),
-    placeholder: (provided) => ({
-      ...provided,
-      margin: '0',
-    }),
-    input: (provided) => ({
-      ...provided,
-      margin: '0',
-      padding: '0',
-      opacity: 0,
-    }),
-  };
+  const customerOptions = Object.keys(customerAccounts).map(name => ({
+    value: name,
+    label: name
+  }));
 
   const formatBytes = (bytes) => {
     if (bytes === 0 || bytes === undefined) return '0 B';
@@ -179,11 +170,6 @@ const SearchForm = () => {
     return number.toString();
   };
 
-  const customerOptions = Object.keys(customerAccounts).map(name => ({
-    value: name,
-    label: name
-  }));
-
   return (
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
@@ -194,7 +180,6 @@ const SearchForm = () => {
           placeholder="고객사"
           className="basic-select"
           classNamePrefix="select"
-          styles={customStyles}
         />
         <Select
           isMulti
@@ -202,9 +187,10 @@ const SearchForm = () => {
           options={endpoints}
           className="basic-multi-select"
           classNamePrefix="select"
-          onChange={setSelectedEndpoints}
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
-          styles={customStyles}
+          closeMenuOnSelect={false}
         />
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
