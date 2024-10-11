@@ -234,22 +234,22 @@ const SearchForm = () => {
           <div className="results-box">
             <div className="endpoint-results">
               {Object.entries(results).map(([endpoint, result]) => (
-                <React.Fragment key={endpoint}>
+                <div key={endpoint} className="result-group">
                   {result.errors ? (
-                    <div className="error-message">
-                      <pre>{JSON.stringify(result.errors, null, 2)}</pre>
-                    </div>
+                    <p className="result-item error-message">
+                      {JSON.stringify(result.errors, null, 2)}
+                    </p>
                   ) : endpoint === 'data_transfer_request' ? (
-                    <div className="result-group">
+                    <>
                       <p className="result-item">Data Transferred: {formatBytes(result.bytes)}</p>
                       <p className="result-item">Total Requests: {formatNumber(result.requests)}</p>
-                    </div>
+                    </>
                   ) : endpoint === 'bot_management_request' ? (
                     <p className="result-item">Bot management(Likely Human): {formatNumber(result)}</p>
                   ) : (
                     <p className="result-item">{JSON.stringify(result, null, 2)}</p>
                   )}
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </div>
