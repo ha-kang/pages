@@ -96,6 +96,7 @@ select, .react-datepicker__input-container input, .search-button {
   color: var(--input-text-color) !important;
   cursor: pointer !important;
   padding: 10px 15px !important;
+  font-size: 14px !important;
 }
 
 .select__option--is-focused {
@@ -149,6 +150,7 @@ select, .react-datepicker__input-container input, .search-button {
 .react-datepicker__input-container input::placeholder {
   color: var(--input-text-color);
   opacity: 0.7;
+  font-size: 14px;
 }
 
 .search-button {
@@ -157,11 +159,12 @@ select, .react-datepicker__input-container input, .search-button {
   border: none;
   border-radius: 5px;
   font-family: var(--main-font);
-  font-size: 16px;
+  font-size: 14px;
   background-color: var(--button-bg-color);
   color: white;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-weight: normal;
 }
 
 .search-button:hover {
@@ -175,7 +178,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 .results-title {
   font-family: var(--main-font);
-  font-size: 16px;
+  font-size: 14px;
   margin: 0 0 10px 0;
   color: white;
 }
@@ -198,7 +201,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 .result-item {
   font-family: var(--main-font);
-  font-size: 13px;
+  font-size: 14px;
   color: white;
   margin: 0;
   padding: 3px 0;
@@ -209,7 +212,7 @@ select, .react-datepicker__input-container input, .search-button {
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
-  font-size: 12px;
+  font-size: 12px;  /* 에러 메시지 폰트 크기는 변경하지 않았습니다 */
   margin: 0;
   padding: 3px 0;
 }
