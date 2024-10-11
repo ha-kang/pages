@@ -13,7 +13,7 @@ const formatDate = (date) => {
 
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
-  const [customerZones, setCustomerZones] = useState({});
+  //const [customerZones, setCustomerZones] = useState({});
   const [customer, setCustomer] = useState('');
   const [endpoints, setEndpoints] = useState([]);
   const [selectedEndpoints, setSelectedEndpoints] = useState([]);
@@ -68,12 +68,12 @@ const SearchForm = () => {
       }
       const data = await response.json();
       console.log('Received zone data:', data);
-      setCustomerZones(data.accountZones || {});
+      //setCustomerZones(data.accountZones || {});
       console.log(`Total number of zones: ${data.totalZones}`);
     } catch (error) {
       console.error('Error fetching customer zones:', error);
       setError(`고객사 존 목록을 불러오는 데 실패했습니다. 오류: ${error.message}`);
-      setCustomerZones({});
+      //setCustomerZones({});
     }
   };
 
