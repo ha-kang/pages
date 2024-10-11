@@ -20,7 +20,7 @@ async function handleRequest(request) {
       const zonesByAccount = groupZonesByAccount(allZones, accountList);
 
       // 총 zone 갯수 계산
-      const totalZones = Object.values(zonesByAccount).reduce((total, zones) => total + Object.keys(zones).length, 0);
+      const totalZones = Object.values(zonesByAccount).reduce((total, zones) => total + zones.length, 0);
 
       // 콘솔에 총 zone 갯수 출력
       console.log(`Total number of Enterprise Website zones: ${totalZones}`);
