@@ -224,13 +224,19 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
-        <div className="results">
+      {(results || error) && (
+        <div className="results-box">
           <h2>결과</h2>
-          {Object.entries(results).map(([endpoint, result]) => (
-            <div key={endpoint}>
+          {error && <div className="error-message">{error}</div>}
+          {results && Object.entries(results).map(([endpoint, result]) => (
+            <div key={endpoint} className="endpoint-result">
               <h3>{endpoint}</h3>
-              {endpoint === 'bot_management_request' ? (
+              {result.errors ? (
+                <div className="error-message">
+                  <p>오류 발생:</p>
+                  <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+                </div>
+              ) : result.totalResult !== undefined ? (
                 <p>Likely Human Count: {result.totalResult}</p>
               ) : (
                 <pre>{JSON.stringify(result, null, 2)}</pre>
