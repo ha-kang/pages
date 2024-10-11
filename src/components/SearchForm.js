@@ -197,14 +197,10 @@ const SearchForm = () => {
             value={selectedEndpoints}
             placeholder="엔드포인트 선택 (다중 선택 가능)"
             closeMenuOnSelect={false}
-            onMenuOpen={() => setIsEndpointMenuOpen(true)}
-            onMenuClose={() => setIsEndpointMenuOpen(false)}
           />
-          {isEndpointMenuOpen && (
-            <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
-              전체 선택
-            </button>
-          )}
+          <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
+            전체 선택
+          </button>
         </div>
         <DatePicker
           selectsRange={true}
