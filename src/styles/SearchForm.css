@@ -173,9 +173,15 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .results-box p {
-  font-size: 12px;
+  font-size: 14px;
   margin: 5px 0;
   line-height: 1.5;
+}
+
+.results h2 {
+  font-family: var(--main-font);
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
 .result-item {
@@ -198,11 +204,7 @@ select, .react-datepicker__input-container input, .search-button {
   margin-bottom: 0;
 }
 
-.results h2 {
-  font-family: var(--main-font);
-  font-size: 20px;
-  margin-bottom: 10px;
-}
+
 
 .results pre {
   font-family: var(--main-font);
