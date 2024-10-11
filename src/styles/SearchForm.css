@@ -192,6 +192,53 @@ select, .react-datepicker__input-container input, .search-button {
   word-break: break-word;
 }
 
+.results-box {
+  margin-top: 20px;
+  background-color: var(--result-bg-color);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.results-box h2 {
+  font-family: var(--main-font);
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.endpoint-result {
+  margin-bottom: 15px;
+}
+
+.endpoint-result:last-child {
+  margin-bottom: 0;
+}
+
+.likely-human-count {
+  font-family: var(--main-font);
+  font-size: 14px;
+  color: white;
+  margin: 0;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-family: var(--main-font);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.endpoint-result pre {
+  font-family: monospace;
+  font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  color: white;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 @media (max-width: 768px) {
   /* Mobile styles remain the same */
 }
