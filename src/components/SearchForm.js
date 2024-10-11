@@ -233,7 +233,6 @@ const SearchForm = () => {
               <h3>{endpoint}</h3>
               {result.errors ? (
                 <div className="error-message">
-                  <p>오류 발생:</p>
                   <pre>{JSON.stringify(result.errors, null, 2)}</pre>
                 </div>
               ) : result.totalResult !== undefined ? (
