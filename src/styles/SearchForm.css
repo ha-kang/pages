@@ -203,7 +203,7 @@ select, .react-datepicker__input-container input, .search-button {
 
 .result-item {
   font-family: var(--main-font);
-  font-size: 14px;
+  font-size: 13px;
   color: white;
   margin: 0;
   padding: 3px 0;
