@@ -193,7 +193,6 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .results-box {
-  margin-top: 20px;
   background-color: var(--result-bg-color);
   border-radius: 5px;
   padding: 15px;
