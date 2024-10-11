@@ -131,7 +131,7 @@ const SearchForm = () => {
       }
 
       const data = await response.json();
-      setResults(JSON.stringify(data, null, 2));
+      setResults(data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
@@ -227,7 +227,16 @@ const SearchForm = () => {
       {results && (
         <div className="results">
           <h2>결과</h2>
-          <pre>{results}</pre>
+          {Object.entries(results).map(([endpoint, result]) => (
+            <div key={endpoint}>
+              <h3>{endpoint}</h3>
+              {endpoint === 'bot_management_request' ? (
+                <p>Likely Human Count: {result.totalResult}</p>
+              ) : (
+                <pre>{JSON.stringify(result, null, 2)}</pre>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
