@@ -22,7 +22,7 @@
 }
 
 .form-section {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .form-section-title {
@@ -142,13 +142,13 @@ select, .react-datepicker__input-container input, .search-button {
   outline: none;
   caret-color: transparent;
   box-sizing: border-box;
-  text-align: center;  /* 텍스트 중앙 정렬 */
-  line-height: 1.5;  /* 라인 높이 조정 */
+  text-align: center;
+  line-height: 1.5;
 }
 
 .react-datepicker__input-container input::placeholder {
   color: var(--input-text-color);
-  opacity: 0.7;  /* 플레이스홀더 텍스트 투명도 조정 */
+  opacity: 0.7;
 }
 
 .search-button {
