@@ -198,15 +198,16 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .result-group {
-  margin-bottom: 10px;
+  margin-bottom: 5px;  /* 그룹 간 간격 줄임 */
 }
 
 .result-item {
   font-family: var(--main-font);
   font-size: 12px;
   color: white;
-  margin: 2px 0;  /* 위아래 간격 줄임 */
-  line-height: 1.3;  /* 줄 간격도 약간 줄임 */
+  margin: 0;  /* 상하 마진 제거 */
+  padding: 2px 0;  /* 대신 상하 패딩 추가 */
+  line-height: 1.3;
 }
 
 .error-message {
@@ -214,28 +215,6 @@ select, .react-datepicker__input-container input, .search-button {
   font-family: var(--main-font);
   font-size: 12px;
   margin: 5px 0;
-}
-
-.endpoint-result {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.endpoint-result:last-child {
-  margin-bottom: 0;
-}
-
-.endpoint-result pre {
-  font-family: monospace;
-  font-size: 14px;
-  color: white;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: none;
-  padding: 0;
-  margin: 0;
 }
 
 @media (max-width: 768px) {
