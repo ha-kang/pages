@@ -248,15 +248,15 @@ const SearchForm = () => {
                 <div className="error-message">
                   <pre>{JSON.stringify(result.errors, null, 2)}</pre>
                 </div>
-              ) : endpoint === 'data_transfer_request' ? (
-                <>
-                  <p>Data Transferred: {formatBytes(result.bytes)}</p>
-                  <p>Total Requests: {result.requests?.toLocaleString() ?? 'N/A'}</p>
-                </>
-              ) : endpoint === 'bot_management_request' ? (
-                <p className="likely-human-count">Likely Human Count: {formatLikelyHumanCount(result.totalResult)}</p>
-              ) : (
-                <pre>{JSON.stringify(result, null, 2)}</pre>
+                ) : endpoint === 'data_transfer_request' ? (
+                  <>
+                    <p>Data Transferred: {formatBytes(result.bytes)}</p>
+                    <p>Total Requests: {result.requests?.toLocaleString() ?? 'N/A'}</p>
+                  </>
+                ) : endpoint === 'bot_management_request' ? (
+                  <p className="likely-human-count">Likely Human Count: {formatLikelyHumanCount(result)}</p>
+                ) : (
+                  <pre>{JSON.stringify(result, null, 2)}</pre>
               )}
             </div>
           ))}
