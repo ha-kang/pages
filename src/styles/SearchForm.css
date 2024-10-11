@@ -262,6 +262,27 @@ select, .react-datepicker__input-container input, .search-button {
   margin: 0;
 }
 
+.endpoint-select-container {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.apply-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: var(--button-bg-color);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.apply-button:hover {
+  background-color: var(--button-hover-color);
+}
+
 @media (max-width: 768px) {
   /* Mobile styles remain the same */
 }
