@@ -193,7 +193,6 @@ const SearchForm = () => {
           closeMenuOnSelect={false}
         />
         <div className="date-picker-container">
-          <label>조회 기간</label>
           <DatePicker
             selectsRange={true}
             startDate={startDate}
