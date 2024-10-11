@@ -172,9 +172,7 @@ select, .react-datepicker__input-container input, .search-button {
 .search-button:hover {
   background-color: var(--button-hover-color);
 }
-.results {
-  margin-top: 20px;
-}
+
 
 .results h2 {
   font-family: var(--main-font);
