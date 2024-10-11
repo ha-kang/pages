@@ -162,15 +162,16 @@ const SearchForm = () => {
   };
 
   const formatBytes = (bytes) => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0 || bytes === undefined) return '0 B';
     const k = 1000;
     const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes.toLocaleString()} bytes)`;
+    return `${convertedValue} ${sizes[i]} (${bytes?.toLocaleString() ?? '0'} bytes)`;
   };
   
   const formatLikelyHumanCount = (count) => {
+    if (count === undefined) return 'N/A';
     const millions = count / 1000000;
     return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
   };
@@ -250,7 +251,7 @@ const SearchForm = () => {
               ) : endpoint === 'data_transfer_request' ? (
                 <>
                   <p>Data Transferred: {formatBytes(result.bytes)}</p>
-                  <p>Total Requests: {result.requests.toLocaleString()}</p>
+                  <p>Total Requests: {result.requests?.toLocaleString() ?? 'N/A'}</p>
                 </>
               ) : endpoint === 'bot_management_request' ? (
                 <p className="likely-human-count">Likely Human Count: {formatLikelyHumanCount(result.totalResult)}</p>
