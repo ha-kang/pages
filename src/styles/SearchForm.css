@@ -173,25 +173,47 @@ select, .react-datepicker__input-container input, .search-button {
   background-color: var(--button-hover-color);
 }
 
-.results-box p {
-  font-size: 14px;
-  margin: 5px 0;
-  line-height: 1.5;
+/* 결과 스타일 */
+.results-container {
+  margin-top: 20px;
 }
 
-.results h2 {
+.results-title {
   font-family: var(--main-font);
-  font-size: 16px;
+  font-size: 24px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.results-box {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.endpoint-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-group {
   margin-bottom: 10px;
 }
 
 .result-item {
-  display: block;
-  margin-bottom: 5px;
+  font-family: var(--main-font);
+  font-size: 12px;
+  color: white;
+  margin: 2px 0;  /* 위아래 간격 줄임 */
+  line-height: 1.3;  /* 줄 간격도 약간 줄임 */
 }
 
-.result-item:last-child {
-  margin-bottom: 0;
+.error-message {
+  color: #ff6b6b;
+  font-family: var(--main-font);
+  font-size: 12px;
+  margin: 5px 0;
 }
 
 .endpoint-result {
@@ -203,51 +225,6 @@ select, .react-datepicker__input-container input, .search-button {
 
 .endpoint-result:last-child {
   margin-bottom: 0;
-}
-
-.results pre {
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--result-bg-color);
-  padding: 15px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.results-box {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  padding: 15px;
-  margin-top: 20px;
-}
-
-.results-box h2 {
-  font-family: var(--main-font);
-  font-size: 24px;
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: white;
-}
-
-.endpoint-results {
-  display: flex;
-  flex-direction: column;
-}
-
-.result-item {
-  font-family: var(--main-font);
-  font-size: 12px;
-  color: white;
-  margin: 5px 0;
-  line-height: 1.5;
-}
-
-.error-message {
-  color: #ff6b6b;
-  font-family: var(--main-font);
-  font-size: 12px;
-  margin: 5px 0;
 }
 
 .endpoint-result pre {
