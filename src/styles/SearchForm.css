@@ -173,61 +173,22 @@ select, .react-datepicker__input-container input, .search-button {
   background-color: var(--button-hover-color);
 }
 
-.results-box p {
-  font-size: 14px;
-  margin: 5px 0;
-  line-height: 1.5;
+/* 결과 스타일 */
+.results-container {
+  margin-top: 20px;
 }
 
-.results h2 {
+.results-title {
   font-family: var(--main-font);
   font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.result-item {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.result-item:last-child {
-  margin-bottom: 0;
-}
-
-.endpoint-result {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.endpoint-result:last-child {
-  margin-bottom: 0;
-}
-
-.results pre {
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--result-bg-color);
-  padding: 15px;
-  border-radius: 5px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  margin: 0 0 10px 0;
+  color: white;
 }
 
 .results-box {
   background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
   padding: 15px;
-  margin-top: 20px;
-}
-
-.results-box h2 {
-  font-family: var(--main-font);
-  font-size: 24px;
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: white;
 }
 
 .endpoint-results {
@@ -235,30 +196,27 @@ select, .react-datepicker__input-container input, .search-button {
   flex-direction: column;
 }
 
+.result-group {
+  margin: 0;
+  padding: 0;
+}
+
 .result-item {
   font-family: var(--main-font);
-  font-size: 12px;
+  font-size: 13px;
   color: white;
-  margin: 5px 0;
-  line-height: 1.5;
+  margin: 0;
+  padding: 3px 0;
+  line-height: 1.2;
+  display: block;
 }
 
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
   font-size: 12px;
-  margin: 5px 0;
-}
-
-.endpoint-result pre {
-  font-family: monospace;
-  font-size: 14px;
-  color: white;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: none;
-  padding: 0;
   margin: 0;
+  padding: 3px 0;
 }
 
 @media (max-width: 768px) {
