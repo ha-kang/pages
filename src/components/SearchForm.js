@@ -168,21 +168,11 @@ const SearchForm = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
     return `${convertedValue} ${sizes[i]} (${bytes.toLocaleString()} bytes)`;
-        if (data && typeof data.someProperty !== 'undefined') {
-      return data.someProperty.toLocaleString();
-    } else {
-      return ''; // 또는 적절한 기본값
-    }
   };
   
   const formatLikelyHumanCount = (count) => {
     const millions = count / 1000000;
     return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
-        if (data && typeof data.someProperty !== 'undefined') {
-      return data.someProperty.toLocaleString();
-    } else {
-      return ''; // 또는 적절한 기본값
-    }
   };
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
