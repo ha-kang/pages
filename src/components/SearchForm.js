@@ -234,7 +234,7 @@ const SearchForm = () => {
                   <pre>{JSON.stringify(result.errors, null, 2)}</pre>
                 </div>
               ) : result.totalResult !== undefined ? (
-                <p className="likely-human-count">Likely Human Count: {result.totalResult}</p>
+                <p className="likely-human-count">Likely Human Count: {formatLikelyHumanCount(result.totalResult)}</p>
               ) : (
                 <pre>{JSON.stringify(result, null, 2)}</pre>
               )}
