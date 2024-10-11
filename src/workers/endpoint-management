@@ -87,11 +87,10 @@ async function handleRequest(request) {
   }
 
   if (request.method === 'POST') {
-    // Handle POST request for data retrieval
     try {
-      const { accountTag, zoneId, startDate, endDate, endpoints } = await request.json();
+      const { accountTag, customerName, startDate, endDate, endpoints } = await request.json();
       
-      if (!accountTag || !zoneId || !startDate || !endDate || !endpoints || endpoints.length === 0) {
+      if (!accountTag || !customerName || !startDate || !endDate || !endpoints || endpoints.length === 0) {
         return new Response('Missing required parameters', { 
           status: 400,
           headers: corsHeaders
@@ -102,7 +101,33 @@ async function handleRequest(request) {
       for (const endpoint of endpoints) {
         const endpointConfig = ENDPOINTS[endpoint];
         if (endpointConfig) {
-          results[endpoint] = await endpointConfig.handler(accountTag, zoneId, { get: (key) => key === 'start_date' ? startDate : endDate });
+          if (endpointConfig.useZoneId) {
+            // 여러 zone ID를 가져옵니다.
+            const zoneIds = await getZoneIds(customerName);
+            let totalLikelyHuman = 0;
+
+            for (const zoneId of zoneIds) {
+              const result = await endpointConfig.handler(
+                accountTag, 
+                zoneId, 
+                { get: (key) => key === 'start_date' ? startDate : endDate }
+              );
+              
+              // likely_human count를 추출하고 합산합니다.
+              if (result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0]) {
+                totalLikelyHuman += result.data.viewer.zones[0].likely_human.count;
+              }
+            }
+
+            results[endpoint] = { likely_human_count: totalLikelyHuman };
+          } else {
+            // zoneId를 사용하지 않는 엔드포인트는 기존 방식대로 처리합니다.
+            results[endpoint] = await endpointConfig.handler(
+              accountTag, 
+              null, 
+              { get: (key) => key === 'start_date' ? startDate : endDate }
+            );
+          }
         }
       }
 
@@ -118,6 +143,16 @@ async function handleRequest(request) {
   }
 
   return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+}
+
+async function getZoneIds(customerName) {
+  // KV에서 고객사의 zone ID들을 가져옵니다.
+  const zonesData = await ZONES.get(`zones_${customerName}`);
+  if (!zonesData) {
+    throw new Error(`No zones found for customer: ${customerName}`);
+  }
+  const zones = JSON.parse(zonesData);
+  return Object.values(zones);
 }
 
 async function performGraphQLRequest(query, variables = {}) {
@@ -212,23 +247,36 @@ async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
 
 async function handleBotManagementRequest(accountTag, zoneId, params) {
   const query = `
-    query getBotManagementRequests($zoneId: String!, $start: String!, $end: String!) {
+    query getBotManagementRequests($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!, $likelyHumanFilter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
       viewer {
-        zones(filter: {zoneTag: $zoneId}) {
-          botManagementAnalytics(filter: {date_geq: $start, date_leq: $end}) {
-            total {
-              requests
-            }
+        zones(filter: {zoneTag: $zoneTag}) {
+          likely_human: httpRequestsAdaptiveGroups(filter: {AND: [ {botManagementDecision_neq: "verified_bot"}, $likelyHumanFilter ]}, limit: 10000) {
+            count
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    zoneId, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
+
+  const variables = {
+    zoneTag: zoneId,
+    filter: {
+      requestSource: "eyeball",
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date'),
+      botManagementDecision_neq: "other"
+    },
+    likelyHumanFilter: {
+      requestSource: "eyeball",
+      botScore_geq: 30,
+      botScore_leq: 99,
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date'),
+      botManagementDecision_neq: "other"
+    }
+  };
+
+  return await performGraphQLRequest(query, variables);
 }
 
 async function handleWorkersStdRequests(accountTag, zoneId, params) {
