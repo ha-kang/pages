@@ -22,7 +22,6 @@ const SearchForm = () => {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [isEndpointMenuOpen, setIsEndpointMenuOpen] = useState(false);
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
