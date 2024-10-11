@@ -1,48 +1,59 @@
 const ENDPOINTS = {
-  'foundation_dns_queries': {
-    handler: handleFoundationDNSQueries
-  },
-  'data_transfer_total': {
-    handler: handleDataTransferTotal
-  },
-  'china_ntw_data_transfer': {
-    handler: handleChinaNtwDataTransfer
-  },
-  'request': {
-    handler: handleRequest
+  'data_transfer_request': {
+    handler: handleDataTransferRequest,
+    label: 'Data Transfer/Request'
   },
   'bot_management_request': {
-    handler: handleBotManagementRequest
+    handler: handleBotManagementRequest,
+    label: 'Bot Management Request'
+  },
+  'foundation_dns_queries': {
+    handler: handleFoundationDNSQueries,
+    label: 'Foundation DNS Queries'
+  },
+  'china_ntw_data_transfer': {
+    handler: handleChinaNtwDataTransfer,
+    label: 'China NTW Data Transfer'
   },
   'workers_std_requests': {
-    handler: handleWorkersStdRequests
+    handler: handleWorkersStdRequests,
+    label: 'Workers STD Requests'
   },
   'workers_std_cpu': {
-    handler: handleWorkersStdCPU
+    handler: handleWorkersStdCPU,
+    label: 'Workers STD CPU'
   },
   'workers_kv_read': {
-    handler: handleWorkersKVRead
+    handler: handleWorkersKVRead,
+    label: 'Workers KV Read'
   },
   'workers_kv_storage': {
-    handler: handleWorkersKVStorage
+    handler: handleWorkersKVStorage,
+    label: 'Workers KV Storage'
   },
   'workers_kv_write_list_delete': {
-    handler: handleWorkersKVWriteListDelete
+    handler: handleWorkersKVWriteListDelete,
+    label: 'Workers KV Write List Delete'
   },
   'stream_minutes_stored': {
-    handler: handleStreamMinutesStored
+    handler: handleStreamMinutesStored,
+    label: 'Stream Minutes Stored'
   },
   'stream_minutes_viewed': {
-    handler: handleStreamMinutesViewed
+    handler: handleStreamMinutesViewed,
+    label: 'Stream Minutes Viewed'
   },
   'images_delivered': {
-    handler: handleImagesDelivered
+    handler: handleImagesDelivered,
+    label: 'Images Delivered'
   },
   'images_stored': {
-    handler: handleImagesStored
+    handler: handleImagesStored,
+    label: 'Images Stored'
   },
   'images_unique_transformations': {
-    handler: handleImagesUniqueTransformations
+    handler: handleImagesUniqueTransformations,
+    label: 'Images Unique Transformations'
   }
 };
 
@@ -66,9 +77,9 @@ async function handleRequest(request) {
 
   if (request.method === 'GET') {
     // Handle GET request for endpoints
-    const endpoints = Object.keys(ENDPOINTS).map(key => ({
+    const endpoints = Object.entries(ENDPOINTS).map(([key, value]) => ({
       value: key,
-      label: key.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
+      label: value.label
     }));
     return new Response(JSON.stringify(endpoints), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -123,22 +134,32 @@ async function performGraphQLRequest(query, variables = {}) {
 }
 
 // Endpoint handler functions
-async function handleDataTransferTotal(accountTag, zoneId, params) {
+
+async function handleDataTransferRequest(accountTag, zoneId, params) {
   const query = `
-    query getAccount($accountTag: String!) {
+    query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
       viewer {
-        accounts(filter: { accountTag: $accountTag }) {
-          accountName
-          accountType
-          createdOn
-          settings {
-            enforceTwoFactor
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequestsOverviewAdaptiveGroups(limit: 10000, filter: $filter) {
+            dimensions {
+              clientCountryName
+            }
+            sum {
+              bytes
+              requests
+            }
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { accountTag });
+  return await performGraphQLRequest(query, { 
+    zoneTag: zoneId, 
+    filter: {
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date')
+    }
+  });
 }
 
 async function handleFoundationDNSQueries(accountTag, zoneId, params) {
