@@ -26,7 +26,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,7 +41,6 @@ const SearchForm = () => {
     fetchData();
   }, []);
 
-  
   const fetchCustomerAccounts = async () => {
     try {
       const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
@@ -69,11 +67,8 @@ const SearchForm = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Received zone data:', data); // 데이터 구조 확인
-
-      // accountZones 객체를 그대로 사용
+      console.log('Received zone data:', data);
       setCustomerZones(data.accountZones || {});
-      
       console.log(`Total number of zones: ${data.totalZones}`);
     } catch (error) {
       console.error('Error fetching customer zones:', error);
@@ -81,7 +76,7 @@ const SearchForm = () => {
       setCustomerZones({});
     }
   };
-
+  
   const fetchEndpoints = async () => {
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
@@ -115,7 +110,7 @@ const SearchForm = () => {
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneId = customerZones[customer] ? Object.values(customerZones[customer])[0] : null;
+    const zoneIds = Object.values(customerZones[customer] || {});
 
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
@@ -123,10 +118,11 @@ const SearchForm = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accountTag,
-          zoneId,
+          customerName: customer,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
-          endpoints: selectedEndpoints.map(e => e.value)
+          endpoints: selectedEndpoints.map(e => e.value),
+          zoneIds
         }),
       });
 
@@ -135,7 +131,7 @@ const SearchForm = () => {
       }
 
       const data = await response.json();
-      setResults(JSON.stringify(data, null, 2));
+      setResults(data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
@@ -143,8 +139,6 @@ const SearchForm = () => {
       setIsLoading(false);
     }
   };
-
-
 
   const customStyles = {
     control: (provided) => ({
@@ -163,7 +157,7 @@ const SearchForm = () => {
       ...provided,
       margin: '0',
       padding: '0',
-      opacity: 0,  // 커서를 완전히 숨김
+      opacity: 0,
     }),
   };
 
@@ -230,10 +224,24 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
-        <div className="results">
+      {(results || error) && (
+        <div className="results-box">
           <h2>결과</h2>
-          <pre>{results}</pre>
+          {error && <div className="error-message">{error}</div>}
+          {results && Object.entries(results).map(([endpoint, result]) => (
+            <div key={endpoint} className="endpoint-result">
+              <h3>{endpoint}</h3>
+              {result.errors ? (
+                <div className="error-message">
+                  <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+                </div>
+              ) : result.totalResult !== undefined ? (
+                <p>Likely Human Count: {result.totalResult}</p>
+              ) : (
+                <pre>{JSON.stringify(result, null, 2)}</pre>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
