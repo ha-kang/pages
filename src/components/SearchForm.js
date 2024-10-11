@@ -185,7 +185,7 @@ const SearchForm = () => {
           className="basic-select"
           classNamePrefix="select"
         />
-        <div className="endpoint-select-container">
+        <div className="endpoint-select-wrapper">
           <Select
             isMulti
             name="endpoints"
@@ -201,21 +201,19 @@ const SearchForm = () => {
             전체 선택
           </button>
         </div>
-        <div className="date-picker-container">
-          <DatePicker
-            selectsRange={true}
-            startDate={startDate}
-            endDate={endDate}
-            onChange={(update) => {
-              setDateRange(update);
-            }}
-            minDate={ninetyOneDaysAgo}
-            maxDate={today}
-            dateFormat="yyyy-MM-dd"
-            placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
-            className="date-picker"
-          />
-        </div>
+        <DatePicker
+          selectsRange={true}
+          startDate={startDate}
+          endDate={endDate}
+          onChange={(update) => {
+            setDateRange(update);
+          }}
+          minDate={ninetyOneDaysAgo}
+          maxDate={today}
+          dateFormat="yyyy-MM-dd"
+          placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+          className="date-picker"
+        />
         <button type="submit" className="search-button" disabled={isLoading}>
           {isLoading ? '로딩 중...' : '검색'}
         </button>
