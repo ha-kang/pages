@@ -22,6 +22,7 @@ const SearchForm = () => {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isEndpointMenuOpen, setIsEndpointMenuOpen] = useState(false);
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
@@ -196,10 +197,14 @@ const SearchForm = () => {
             value={selectedEndpoints}
             placeholder="엔드포인트 선택 (다중 선택 가능)"
             closeMenuOnSelect={false}
+            onMenuOpen={() => setIsEndpointMenuOpen(true)}
+            onMenuClose={() => setIsEndpointMenuOpen(false)}
           />
-          <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
-            전체 선택
-          </button>
+          {isEndpointMenuOpen && (
+            <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
+              전체 선택
+            </button>
+          )}
         </div>
         <DatePicker
           selectsRange={true}
