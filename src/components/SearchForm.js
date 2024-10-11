@@ -117,12 +117,6 @@ const SearchForm = () => {
     const accountTag = customerAccounts[customer];
     const zoneId = customerZones[customer] ? Object.values(customerZones[customer])[0] : null;
 
-    if (!zoneId) {
-      setError('선택된 고객사에 대한 zone ID를 찾을 수 없습니다.');
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
         method: 'POST',
@@ -149,6 +143,7 @@ const SearchForm = () => {
       setIsLoading(false);
     }
   };
+
 
 
   const customStyles = {
