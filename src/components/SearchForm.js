@@ -22,10 +22,22 @@ const SearchForm = () => {
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isEndpointMenuOpen, setIsEndpointMenuOpen] = useState(false);
+  const [tempSelectedEndpoints, setTempSelectedEndpoints] = useState([]);
+
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  const handleEndpointChange = (selectedOptions) => {
+    setTempSelectedEndpoints(selectedOptions);
+  };
+
+  const handleApplyEndpoints = () => {
+    setSelectedEndpoints(tempSelectedEndpoints);
+    setIsEndpointMenuOpen(false);
+  };
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -141,6 +153,10 @@ const SearchForm = () => {
   };
 
   const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999,
+    }),
     control: (provided) => ({
       ...provided,
       minHeight: '48px',
@@ -160,6 +176,7 @@ const SearchForm = () => {
       opacity: 0,
     }),
   };
+
 
   const formatBytes = (bytes) => {
     if (bytes === 0 || bytes === undefined) return '0 B';
@@ -196,16 +213,33 @@ const SearchForm = () => {
           classNamePrefix="select"
           styles={customStyles}
         />
-        <Select
-          isMulti
-          name="endpoints"
-          options={endpoints}
-          className="basic-multi-select"
-          classNamePrefix="select"
-          onChange={setSelectedEndpoints}
-          placeholder="엔드포인트 선택 (다중 선택 가능)"
-          styles={customStyles}
-        />
+        <div className="endpoint-select-container">
+          <Select
+            isMulti
+            name="endpoints"
+            options={endpoints}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={handleEndpointChange}
+            value={tempSelectedEndpoints}
+            placeholder="엔드포인트 선택 (다중 선택 가능)"
+            styles={customStyles}
+            closeMenuOnSelect={false}
+            menuIsOpen={isEndpointMenuOpen}
+            onMenuOpen={() => setIsEndpointMenuOpen(true)}
+            onMenuClose={() => setIsEndpointMenuOpen(false)}
+          />
+          {isEndpointMenuOpen && (
+            <button
+              type="button"
+              className="apply-button"
+              onClick={handleApplyEndpoints}
+            >
+              적용
+            </button>
+          )}
+        </div>
+
         <div className="date-picker-container">
           <div className="date-picker-wrapper">
             <label>시작 기간</label>
