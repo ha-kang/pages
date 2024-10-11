@@ -98,6 +98,10 @@ const SearchForm = () => {
     setSelectedEndpoints(selectedOptions);
   };
 
+  const handleSelectAllEndpoints = () => {
+    setSelectedEndpoints(endpoints);
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Customer:', customer);
@@ -181,17 +185,22 @@ const SearchForm = () => {
           className="basic-select"
           classNamePrefix="select"
         />
-        <Select
-          isMulti
-          name="endpoints"
-          options={endpoints}
-          className="basic-multi-select"
-          classNamePrefix="select"
-          onChange={handleEndpointChange}
-          value={selectedEndpoints}
-          placeholder="엔드포인트 선택 (다중 선택 가능)"
-          closeMenuOnSelect={false}
-        />
+        <div className="endpoint-select-container">
+          <Select
+            isMulti
+            name="endpoints"
+            options={endpoints}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            onChange={handleEndpointChange}
+            value={selectedEndpoints}
+            placeholder="엔드포인트 선택 (다중 선택 가능)"
+            closeMenuOnSelect={false}
+          />
+          <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
+            전체 선택
+          </button>
+        </div>
         <div className="date-picker-container">
           <DatePicker
             selectsRange={true}
