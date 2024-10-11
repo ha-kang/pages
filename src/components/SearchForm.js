@@ -17,8 +17,8 @@ const SearchForm = () => {
   const [customer, setCustomer] = useState('');
   const [endpoints, setEndpoints] = useState([]);
   const [selectedEndpoints, setSelectedEndpoints] = useState([]);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
   const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -193,36 +193,19 @@ const SearchForm = () => {
           closeMenuOnSelect={false}
         />
         <div className="date-picker-container">
-          <div className="date-picker-wrapper">
-            <label>시작 기간</label>
-            <DatePicker
-              selected={startDate}
-              onChange={setStartDate}
-              selectsStart
-              startDate={startDate}
-              endDate={endDate}
-              minDate={ninetyOneDaysAgo}
-              maxDate={today}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
-              className="date-picker"
-            />
-          </div>
-          <div className="date-picker-wrapper">
-            <label>종료 기간</label>
-            <DatePicker
-              selected={endDate}
-              onChange={setEndDate}
-              selectsEnd
-              startDate={startDate}
-              endDate={endDate}
-              minDate={startDate || ninetyOneDaysAgo}
-              maxDate={today}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="YYYY-MM-DD"
-              className="date-picker"
-            />
-          </div>
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(update) => {
+              setDateRange(update);
+            }}
+            minDate={ninetyOneDaysAgo}
+            maxDate={today}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+            className="date-picker"
+          />
         </div>
         <button type="submit" className="search-button" disabled={isLoading}>
           {isLoading ? '로딩 중...' : '검색'}

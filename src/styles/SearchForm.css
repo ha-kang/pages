@@ -21,10 +21,23 @@
   overflow: visible;
 }
 
+.form-section {
+  margin-bottom: 10px;
+}
+
+.form-section-title {
+  color: white;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.basic-select, .basic-multi-select, .date-picker-container, .search-button {
+  margin-bottom: 10px;
+}
+
 select, .react-datepicker__input-container input, .search-button {
   width: 100%;
   padding: 15px;
-  margin-bottom: 10px;
   border: none;
   border-radius: 5px;
   font-family: var(--main-font);
@@ -36,10 +49,6 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 /* React-Select customization */
-.basic-select, .basic-multi-select {
-  margin-bottom: 10px;
-}
-
 .select__control {
   background-color: var(--input-bg-color) !important;
   border: none !important;
@@ -68,7 +77,7 @@ select, .react-datepicker__input-container input, .search-button {
 }
 
 .select__menu-list {
-  max-height: 400px !important;  /* 드롭다운 최대 높이 제한 */
+  max-height: 400px !important;
   overflow-y: auto !important;
 }
 
@@ -87,6 +96,7 @@ select, .react-datepicker__input-container input, .search-button {
   color: var(--input-text-color) !important;
   cursor: pointer !important;
   padding: 10px 15px !important;
+  font-size: 14px !important;
 }
 
 .select__option--is-focused {
@@ -112,37 +122,16 @@ select, .react-datepicker__input-container input, .search-button {
 
 /* Date picker styles */
 .date-picker-container {
-  display: flex;
   width: 100%;
 }
 
-.date-picker-wrapper {
-  flex: 1;
-  width: 50%;
-}
-
-.date-picker-wrapper:first-child {
-  padding-right: 5px;
-}
-
-.date-picker-wrapper:last-child {
-  padding-left: 5px;
-}
-
-.date-picker-wrapper label {
-  display: block;
-  margin-bottom: 5px;
-  font-size: 14px;
-  color: white;
-}
-
 .react-datepicker-wrapper, 
-.react-datepicker__input-container {
+.react-datepicker__input-container,
+.react-datepicker__input-container input {
   width: 100%;
 }
 
 .react-datepicker__input-container input {
-  width: 100%;
   padding: 15px;
   border: none;
   border-radius: 5px;
@@ -154,19 +143,28 @@ select, .react-datepicker__input-container input, .search-button {
   outline: none;
   caret-color: transparent;
   box-sizing: border-box;
+  text-align: center;
+  line-height: 1.5;
 }
 
-/* 추가: date picker 컨테이너의 너비를 다른 요소들과 맞춤 */
-.search-form > * {
-  width: 100%;
+.react-datepicker__input-container input::placeholder {
+  color: var(--input-text-color);
+  opacity: 0.7;
+  font-size: 14px;
 }
 
 .search-button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 5px;
+  font-family: var(--main-font);
+  font-size: 14px;
   background-color: var(--button-bg-color);
   color: white;
-  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-weight: normal;
 }
 
 .search-button:hover {
@@ -214,7 +212,7 @@ select, .react-datepicker__input-container input, .search-button {
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
-  font-size: 12px;
+  font-size: 12px;  /* 에러 메시지 폰트 크기는 변경하지 않았습니다 */
   margin: 0;
   padding: 3px 0;
 }
