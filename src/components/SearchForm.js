@@ -110,7 +110,7 @@ const SearchForm = () => {
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneIds = customerZones[customer] || [];
+    const zoneIds = Object.values(customerZones[customer] || {});
 
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
