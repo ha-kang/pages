@@ -224,19 +224,17 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {(results || error) && (
+      {results && (
         <div className="results-box">
           <h2>결과</h2>
-          {error && <div className="error-message">{error}</div>}
-          {results && Object.entries(results).map(([endpoint, result]) => (
+          {Object.entries(results).map(([endpoint, result]) => (
             <div key={endpoint} className="endpoint-result">
-              <h3>{endpoint}</h3>
               {result.errors ? (
                 <div className="error-message">
                   <pre>{JSON.stringify(result.errors, null, 2)}</pre>
                 </div>
               ) : result.totalResult !== undefined ? (
-                <p>Likely Human Count: {result.totalResult}</p>
+                <p className="likely-human-count">Likely Human Count: {result.totalResult}</p>
               ) : (
                 <pre>{JSON.stringify(result, null, 2)}</pre>
               )}
