@@ -112,31 +112,21 @@ select, .react-datepicker__input-container input, .search-button {
 
 /* Date picker styles */
 .date-picker-container {
-  display: flex;
   width: 100%;
+  margin-bottom: 10px;
 }
 
-.date-picker-wrapper {
-  flex: 1;
-  width: 50%;
-}
-
-.date-picker-wrapper:first-child {
-  padding-right: 5px;
-}
-
-.date-picker-wrapper:last-child {
-  padding-left: 5px;
-}
-
-.date-picker-wrapper label {
+.date-picker-container label {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
   color: white;
 }
 
-.react-datepicker-wrapper, 
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
 .react-datepicker__input-container {
   width: 100%;
 }
@@ -154,11 +144,6 @@ select, .react-datepicker__input-container input, .search-button {
   outline: none;
   caret-color: transparent;
   box-sizing: border-box;
-}
-
-/* 추가: date picker 컨테이너의 너비를 다른 요소들과 맞춤 */
-.search-form > * {
-  width: 100%;
 }
 
 .search-button {
