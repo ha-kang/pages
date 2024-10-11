@@ -107,33 +107,32 @@ const SearchForm = () => {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
-
+  
     setIsLoading(true);
     setResults(null);
     setError(null);
-
+  
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneId = customerZones[customer] ? Object.values(customerZones[customer])[0] : null;
-
+  
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           accountTag,
-          zoneId,
+          customerName: customer,
           startDate: formattedStartDate,
           endDate: formattedEndDate,
           endpoints: selectedEndpoints.map(e => e.value)
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
+  
       const data = await response.json();
       setResults(JSON.stringify(data, null, 2));
     } catch (error) {
