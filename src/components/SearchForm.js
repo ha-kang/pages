@@ -257,7 +257,7 @@ const SearchForm = () => {
                     <p>Total Requests: {formatNumber(result.requests)}</p>
                   </>
                 ) : endpoint === 'bot_management_request' ? (
-                  <p className="likely-human-count">Likely Human Count: {formatNumber(result)}</p>
+                  <p className="likely-human-count">Bot management(Likely Human): {formatNumber(result)}</p>
                 ) : (
                   <pre>{JSON.stringify(result, null, 2)}</pre>
               )}
