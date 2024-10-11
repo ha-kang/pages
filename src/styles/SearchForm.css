@@ -160,6 +160,7 @@ select, .react-datepicker__input-container input, .search-button {
 .search-form > * {
   width: 100%;
 }
+
 .search-button {
   background-color: var(--button-bg-color);
   color: white;
@@ -203,8 +204,6 @@ select, .react-datepicker__input-container input, .search-button {
 .endpoint-result:last-child {
   margin-bottom: 0;
 }
-
-
 
 .results pre {
   font-family: var(--main-font);
@@ -260,27 +259,6 @@ select, .react-datepicker__input-container input, .search-button {
   background: none;
   padding: 0;
   margin: 0;
-}
-
-.endpoint-select-container {
-  position: relative;
-  margin-bottom: 10px;
-}
-
-.apply-button {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  padding: 5px 10px;
-  background-color: var(--button-bg-color);
-  color: white;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.apply-button:hover {
-  background-color: var(--button-hover-color);
 }
 
 @media (max-width: 768px) {
