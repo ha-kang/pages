@@ -170,10 +170,13 @@ const SearchForm = () => {
     return `${convertedValue} ${sizes[i]} (${bytes?.toLocaleString() ?? '0'} bytes)`;
   };
   
-  const formatLikelyHumanCount = (count) => {
-    if (count === undefined) return 'N/A';
-    const millions = count / 1000000;
-    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) return 'N/A';
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return `${millions.toFixed(2)}MM (${number})`;
+    }
+    return number.toString();
   };
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
@@ -251,10 +254,10 @@ const SearchForm = () => {
                 ) : endpoint === 'data_transfer_request' ? (
                   <>
                     <p>Data Transferred: {formatBytes(result.bytes)}</p>
-                    <p>Total Requests: {result.requests?.toLocaleString() ?? 'N/A'}</p>
+                    <p>Total Requests: {formatNumber(result.requests)}</p>
                   </>
                 ) : endpoint === 'bot_management_request' ? (
-                  <p className="likely-human-count">Likely Human Count: {formatLikelyHumanCount(result)}</p>
+                  <p className="likely-human-count">Likely Human Count: {formatNumber(result)}</p>
                 ) : (
                   <pre>{JSON.stringify(result, null, 2)}</pre>
               )}
