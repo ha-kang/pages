@@ -161,6 +161,24 @@ const SearchForm = () => {
     }),
   };
 
+  const formatBytes = (bytes) => {
+    if (bytes === 0 || bytes === undefined) return '0 B';
+    const k = 1000;
+    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
+    return `${convertedValue} ${sizes[i]} (${bytes})`;
+  };
+  
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) return 'N/A';
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return `${millions.toFixed(2)}MM (${number})`;
+    }
+    return number.toString();
+  };
+
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
     label: name
@@ -224,24 +242,29 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {(results || error) && (
+      {results && (
         <div className="results-box">
           <h2>결과</h2>
-          {error && <div className="error-message">{error}</div>}
-          {results && Object.entries(results).map(([endpoint, result]) => (
-            <div key={endpoint} className="endpoint-result">
-              <h3>{endpoint}</h3>
-              {result.errors ? (
-                <div className="error-message">
-                  <pre>{JSON.stringify(result.errors, null, 2)}</pre>
-                </div>
-              ) : result.totalResult !== undefined ? (
-                <p>Likely Human Count: {result.totalResult}</p>
-              ) : (
-                <pre>{JSON.stringify(result, null, 2)}</pre>
-              )}
-            </div>
-          ))}
+          <div className="endpoint-results">
+            {Object.entries(results).map(([endpoint, result]) => (
+              <React.Fragment key={endpoint}>
+                {result.errors ? (
+                  <div className="error-message">
+                    <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+                  </div>
+                ) : endpoint === 'data_transfer_request' ? (
+                  <>
+                    <p className="result-item">Data Transferred: {formatBytes(result.bytes)}</p>
+                    <p className="result-item">Total Requests: {formatNumber(result.requests)}</p>
+                  </>
+                ) : endpoint === 'bot_management_request' ? (
+                  <p className="result-item">Bot management(Likely Human): {formatNumber(result)}</p>
+                ) : (
+                  <p className="result-item">{JSON.stringify(result, null, 2)}</p>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
       )}
     </div>
