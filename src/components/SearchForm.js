@@ -167,7 +167,7 @@ const SearchForm = () => {
     const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes?.toLocaleString() ?? '0'} bytes)`;
+    return `${convertedValue} ${sizes[i]} (${bytes})`;
   };
   
   const formatNumber = (number) => {
