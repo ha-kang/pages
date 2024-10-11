@@ -173,7 +173,7 @@ select, .react-datepicker__input-container input, .search-button {
   background-color: var(--button-hover-color);
 }
 
-.results-box p, .results-box .likely-human-count {
+.results-box p {
   font-size: 12px;
   margin: 5px 0; /* 간격 조정을 위해 추가 */
 }
