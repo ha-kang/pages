@@ -26,7 +26,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,7 +41,6 @@ const SearchForm = () => {
     fetchData();
   }, []);
 
-  
   const fetchCustomerAccounts = async () => {
     try {
       const response = await fetch('https://account-list.megazone-cloud---partner-demo-account.workers.dev');
@@ -69,11 +67,8 @@ const SearchForm = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('Received zone data:', data); // 데이터 구조 확인
-
-      // accountZones 객체를 그대로 사용
+      console.log('Received zone data:', data);
       setCustomerZones(data.accountZones || {});
-      
       console.log(`Total number of zones: ${data.totalZones}`);
     } catch (error) {
       console.error('Error fetching customer zones:', error);
@@ -107,15 +102,15 @@ const SearchForm = () => {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
-  
+
     setIsLoading(true);
     setResults(null);
     setError(null);
-  
+
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-  
+
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
         method: 'POST',
@@ -128,11 +123,11 @@ const SearchForm = () => {
           endpoints: selectedEndpoints.map(e => e.value)
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       setResults(JSON.stringify(data, null, 2));
     } catch (error) {
@@ -142,8 +137,6 @@ const SearchForm = () => {
       setIsLoading(false);
     }
   };
-
-
 
   const customStyles = {
     control: (provided) => ({
@@ -162,7 +155,7 @@ const SearchForm = () => {
       ...provided,
       margin: '0',
       padding: '0',
-      opacity: 0,  // 커서를 완전히 숨김
+      opacity: 0,
     }),
   };
 
