@@ -5,7 +5,8 @@ const ENDPOINTS = {
   },
   'bot_management_request': {
     handler: handleBotManagementRequest,
-    label: 'Bot Management Request'
+    label: 'Bot Management Request',
+    useZoneId: true
   },
   'foundation_dns_queries': {
     handler: handleFoundationDNSQueries,
@@ -85,12 +86,12 @@ async function handleRequest(request) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
-
+  
   if (request.method === 'POST') {
     try {
-      const { accountTag, customerName, startDate, endDate, endpoints } = await request.json();
+      const { accountTag, customerName, startDate, endDate, endpoints, zoneIds } = await request.json();
       
-      if (!accountTag || !customerName || !startDate || !endDate || !endpoints || endpoints.length === 0) {
+      if (!accountTag || !customerName || !startDate || !endDate || !endpoints || endpoints.length === 0 || !zoneIds || zoneIds.length === 0) {
         return new Response('Missing required parameters', { 
           status: 400,
           headers: corsHeaders
@@ -101,32 +102,47 @@ async function handleRequest(request) {
       for (const endpoint of endpoints) {
         const endpointConfig = ENDPOINTS[endpoint];
         if (endpointConfig) {
-          if (endpointConfig.useZoneId) {
-            // 여러 zone ID를 가져옵니다.
-            const zoneIds = await getZoneIds(customerName);
-            let totalLikelyHuman = 0;
-
-            for (const zoneId of zoneIds) {
-              const result = await endpointConfig.handler(
+          try {
+            if (endpointConfig.useZoneId) {
+              let totalResult = 0;
+              let validResultCount = 0;
+              for (const zoneId of zoneIds) {
+                try {
+                  const result = await endpointConfig.handler(
+                    accountTag, 
+                    zoneId, 
+                    { get: (key) => key === 'start_date' ? startDate : endDate }
+                  );
+                  
+                  const processedResult = processEndpointResult(endpoint, result);
+                  if (processedResult !== null) {
+                    totalResult += processedResult;
+                    validResultCount++;
+                  }
+                } catch (zoneError) {
+                  console.error(`Error processing zoneId ${zoneId} for endpoint ${endpoint}:`, zoneError);
+                }
+              }
+              if (validResultCount > 0) {
+                results[endpoint] = { totalResult: totalResult };
+              } else {
+                results[endpoint] = { 
+                  errors: [{ message: "No valid results found for any zone" }]
+                };
+              }
+            } else {
+              // accountTag를 사용하는 엔드포인트는 기존 방식대로 처리합니다.
+              results[endpoint] = await endpointConfig.handler(
                 accountTag, 
-                zoneId, 
+                null, 
                 { get: (key) => key === 'start_date' ? startDate : endDate }
               );
-              
-              // likely_human count를 추출하고 합산합니다.
-              if (result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0]) {
-                totalLikelyHuman += result.data.viewer.zones[0].likely_human.count;
-              }
             }
-
-            results[endpoint] = { likely_human_count: totalLikelyHuman };
-          } else {
-            // zoneId를 사용하지 않는 엔드포인트는 기존 방식대로 처리합니다.
-            results[endpoint] = await endpointConfig.handler(
-              accountTag, 
-              null, 
-              { get: (key) => key === 'start_date' ? startDate : endDate }
-            );
+          } catch (endpointError) {
+            console.error(`Error processing endpoint ${endpoint}:`, endpointError);
+            results[endpoint] = { 
+              errors: [{ message: endpointError.message || "Unknown error occurred" }]
+            };
           }
         }
       }
@@ -135,15 +151,46 @@ async function handleRequest(request) {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     } catch (error) {
-      return new Response(`Error: ${error.message}`, { 
+      return new Response(JSON.stringify({ error: error.message }), { 
         status: 500,
-        headers: corsHeaders
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
   }
 
   return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 }
+
+
+// 각 엔드포인트 결과를 처리하는 함수
+function processEndpointResult(endpoint, result) {
+  if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
+    console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
+    return null;
+  }
+
+  switch (endpoint) {
+    case 'data_transfer_request':
+      const groups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
+      return groups && groups.length > 0 ? groups[0].sum.bytes : null;
+      case 'bot_management_request':
+        const likelyHuman = result.data.viewer.zones[0].likely_human;
+        if (likelyHuman && likelyHuman.length > 0) {
+          return likelyHuman[0].count;
+        }
+        return null;
+    case 'foundation_dns_queries':
+      return result.data.viewer.zones[0].dns.analytics.queries.count;
+    case 'china_ntw_data_transfer':
+      const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
+      return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
+    // 다른 엔드포인트에 대한 처리를 추가할 수 있습니다.
+    default:
+      console.error(`Unknown endpoint: ${endpoint}`);
+      return null;
+  }
+}
+
 
 async function getZoneIds(customerName) {
   // KV에서 고객사의 zone ID들을 가져옵니다.
@@ -175,10 +222,7 @@ async function handleDataTransferRequest(accountTag, zoneId, params) {
     query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
       viewer {
         zones(filter: { zoneTag: $zoneTag }) {
-          httpRequestsOverviewAdaptiveGroups(limit: 10000, filter: $filter) {
-            dimensions {
-              clientCountryName
-            }
+          httpRequestsOverviewAdaptiveGroups(limit: 1, filter: $filter) {
             sum {
               bytes
               requests
@@ -245,6 +289,8 @@ async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
   });
 }
 
+
+// Endpoint handler functions
 async function handleBotManagementRequest(accountTag, zoneId, params) {
   const query = `
     query getBotManagementRequests($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!, $likelyHumanFilter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
