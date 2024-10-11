@@ -114,7 +114,6 @@ select, .react-datepicker__input-container input, .search-button {
 .date-picker-container {
   display: flex;
   width: 100%;
-  margin-bottom: 10px;
 }
 
 .date-picker-wrapper {
@@ -197,7 +196,7 @@ select, .react-datepicker__input-container input, .search-button {
 .results-box {
   background-color: var(--result-bg-color);
   border-radius: 5px;
-  padding: 15px;
+  padding: 0px 15px 15px 15px;
 }
 
 .results-box h2 {
