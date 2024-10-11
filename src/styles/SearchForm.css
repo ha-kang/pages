@@ -174,7 +174,28 @@ select, .react-datepicker__input-container input, .search-button {
 
 .results-box p {
   font-size: 12px;
-  margin: 5px 0; /* 간격 조정을 위해 추가 */
+  margin: 5px 0;
+  line-height: 1.5;
+}
+
+.result-item {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+}
+
+.endpoint-result {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.endpoint-result:last-child {
+  margin-bottom: 0;
 }
 
 .results h2 {
