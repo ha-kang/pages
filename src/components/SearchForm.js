@@ -243,8 +243,8 @@ const SearchForm = () => {
         </button>
       </form>
       {results && (
-        <h2>결과</h2>
         <div className="results-box">
+          <h2>결과</h2>
           <div className="endpoint-results">
             {Object.entries(results).map(([endpoint, result]) => (
               <React.Fragment key={endpoint}>
