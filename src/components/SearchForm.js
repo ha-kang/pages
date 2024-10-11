@@ -161,6 +161,11 @@ const SearchForm = () => {
     }),
   };
 
+  const formatLikelyHumanCount = (count) => {
+    const millions = count / 1000000;
+    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+  };
+
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
     label: name
