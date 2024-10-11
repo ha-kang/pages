@@ -236,18 +236,18 @@ const SearchForm = () => {
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
                   {result.errors ? (
-                    <p className="result-item error-message">
+                    <span className="result-item error-message">
                       {JSON.stringify(result.errors, null, 2)}
-                    </p>
+                    </span>
                   ) : endpoint === 'data_transfer_request' ? (
                     <>
-                      <p className="result-item">Data Transferred: {formatBytes(result.bytes)}</p>
-                      <p className="result-item">Total Requests: {formatNumber(result.requests)}</p>
+                      <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+                      <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
                     </>
                   ) : endpoint === 'bot_management_request' ? (
-                    <p className="result-item">Bot management(Likely Human): {formatNumber(result)}</p>
+                    <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
                   ) : (
-                    <p className="result-item">{JSON.stringify(result, null, 2)}</p>
+                    <span className="result-item">{JSON.stringify(result, null, 2)}</span>
                   )}
                 </div>
               ))}
