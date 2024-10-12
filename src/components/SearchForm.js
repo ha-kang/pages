@@ -26,7 +26,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  // 전체 선택 옵션 추가
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
 
   useEffect(() => {
