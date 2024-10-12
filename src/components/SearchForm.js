@@ -236,11 +236,12 @@ const SearchForm = () => {
                     </>
                   ) : endpoint === 'bot_management_request' ? (
                     <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
+                  ) : endpoint === 'foundation_dns_queries' ? (
+                    <span className="result-item">Foundation DNS Queries: {formatNumber(result)}</span>
                   ) : (
                     <span className="result-item">{JSON.stringify(result, null, 2)}</span>
                   )}
                 </div>
-              ))}
             </div>
           </div>
         </div>
