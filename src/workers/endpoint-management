@@ -1,7 +1,8 @@
 const ENDPOINTS = {
   'data_transfer_request': {
     handler: handleDataTransferRequest,
-    label: 'Data Transfer/Request'
+    label: 'Data Transfer/Request',
+    useZoneId: true
   },
   'bot_management_request': {
     handler: handleBotManagementRequest,
@@ -10,7 +11,8 @@ const ENDPOINTS = {
   },
   'foundation_dns_queries': {
     handler: handleFoundationDNSQueries,
-    label: 'Foundation DNS Queries'
+    label: 'Foundation DNS Queries',
+    useZoneId: true
   },
   'china_ntw_data_transfer': {
     handler: handleChinaNtwDataTransfer,
@@ -97,14 +99,14 @@ async function handleRequest(request) {
           headers: corsHeaders
         });
       }
-
+  
       const results = {};
       for (const endpoint of endpoints) {
         const endpointConfig = ENDPOINTS[endpoint];
         if (endpointConfig) {
           try {
             if (endpointConfig.useZoneId) {
-              let totalResult = 0;
+              let totalResult = endpoint === 'data_transfer_request' ? { bytes: 0, requests: 0 } : 0;
               let validResultCount = 0;
               for (const zoneId of zoneIds) {
                 try {
@@ -116,7 +118,12 @@ async function handleRequest(request) {
                   
                   const processedResult = processEndpointResult(endpoint, result);
                   if (processedResult !== null) {
-                    totalResult += processedResult;
+                    if (endpoint === 'data_transfer_request') {
+                      totalResult.bytes += processedResult.bytes || 0;
+                      totalResult.requests += processedResult.requests || 0;
+                    } else {
+                      totalResult += processedResult;
+                    }
                     validResultCount++;
                   }
                 } catch (zoneError) {
@@ -124,7 +131,7 @@ async function handleRequest(request) {
                 }
               }
               if (validResultCount > 0) {
-                results[endpoint] = { totalResult: totalResult };
+                results[endpoint] = totalResult;
               } else {
                 results[endpoint] = { 
                   errors: [{ message: "No valid results found for any zone" }]
@@ -146,7 +153,7 @@ async function handleRequest(request) {
           }
         }
       }
-
+  
       return new Response(JSON.stringify(results), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -162,7 +169,104 @@ async function handleRequest(request) {
 }
 
 
-// 각 엔드포인트 결과를 처리하는 함수
+// 각 엔드포인트 결과를 처리하는 함수=======================================================================================================
+async function handleDataTransferRequest(accountTag, zoneId, params) {
+  const query = `
+    query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
+      viewer {
+        zones(filter: { zoneTag: $zoneTag }) {
+          httpRequestsOverviewAdaptiveGroups(limit: 1, filter: $filter) {
+            sum {
+              bytes
+              requests
+            }
+          }
+        }
+      }
+    }
+  `;
+  return await performGraphQLRequest(query, { 
+    zoneTag: zoneId, 
+    filter: {
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date')
+    }
+  });
+}
+
+
+async function handleBotManagementRequest(accountTag, zoneId, params) {
+  const query = `
+    query getBotManagementRequests($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!, $likelyHumanFilter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
+      viewer {
+        zones(filter: {zoneTag: $zoneTag}) {
+          likely_human: httpRequestsAdaptiveGroups(filter: {AND: [ {botManagementDecision_neq: "verified_bot"}, $likelyHumanFilter ]}, limit: 10000) {
+            count
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    zoneTag: zoneId,
+    filter: {
+      requestSource: "eyeball",
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date'),
+      botManagementDecision_neq: "other"
+    },
+    likelyHumanFilter: {
+      requestSource: "eyeball",
+      botScore_geq: 30,
+      botScore_leq: 99,
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date'),
+      botManagementDecision_neq: "other"
+    }
+  };
+
+  return await performGraphQLRequest(query, variables);
+}
+
+
+
+async function handleFoundationDNSQueries(accountTag, zoneIds, params) {
+  const startDate = params.get('start_date');
+  const endDate = params.get('end_date');
+  
+  let totalQueryCount = 0;
+  let validResultCount = 0;
+
+  for (const zoneId of zoneIds) {
+    const url = `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_analytics/report?metrics=queryCount&sort=-queryCount&limit=100&since=${startDate}T00:00:00Z&until=${endDate}T00:00:00Z`;
+
+    const response = await fetch(url, {
+      headers: {
+        'X-Auth-Email': AUTH_EMAIL,
+        'X-Auth-Key': AUTH_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.result && data.result.totals && data.result.totals.queryCount) {
+      totalQueryCount += data.result.totals.queryCount;
+      validResultCount++;
+    }
+  }
+
+  if (validResultCount === 0) {
+    return { error: "No valid results found for any zone" };
+  }
+
+  return { queryCount: totalQueryCount };
+}
+
+
+
+
 function processEndpointResult(endpoint, result) {
   if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
     console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
@@ -172,13 +276,20 @@ function processEndpointResult(endpoint, result) {
   switch (endpoint) {
     case 'data_transfer_request':
       const groups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
-      return groups && groups.length > 0 ? groups[0].sum.bytes : null;
-      case 'bot_management_request':
-        const likelyHuman = result.data.viewer.zones[0].likely_human;
-        if (likelyHuman && likelyHuman.length > 0) {
-          return likelyHuman[0].count;
-        }
-        return null;
+      if (groups && groups.length > 0) {
+        return {
+          bytes: groups[0].sum.bytes,
+          requests: groups[0].sum.requests
+        };
+      }
+      return null;
+    case 'bot_management_request':
+      const likelyHuman = result.data.viewer.zones[0].likely_human;
+      if (likelyHuman && likelyHuman.length > 0) {
+        return likelyHuman[0].count;
+      }
+      return null;
+
     case 'foundation_dns_queries':
       return result.data.viewer.zones[0].dns.analytics.queries.count;
     case 'china_ntw_data_transfer':
@@ -217,56 +328,8 @@ async function performGraphQLRequest(query, variables = {}) {
 
 // Endpoint handler functions
 
-async function handleDataTransferRequest(accountTag, zoneId, params) {
-  const query = `
-    query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
-      viewer {
-        zones(filter: { zoneTag: $zoneTag }) {
-          httpRequestsOverviewAdaptiveGroups(limit: 1, filter: $filter) {
-            sum {
-              bytes
-              requests
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    zoneTag: zoneId, 
-    filter: {
-      date_geq: params.get('start_date'),
-      date_leq: params.get('end_date')
-    }
-  });
-}
 
-async function handleFoundationDNSQueries(accountTag, zoneId, params) {
-  const query = `
-    query getDNSQueries($zoneId: String!, $start: String!, $end: String!) {
-      viewer {
-        zones(filter: { zoneTag: $zoneId }) {
-          dns {
-            analytics {
-              queries(filter: { date_geq: $start, date_leq: $end }) {
-                count
-                queryTypes {
-                  queryType
-                  count
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    zoneId, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
-}
+
 
 async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
   const query = `
@@ -291,39 +354,7 @@ async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
 
 
 // Endpoint handler functions
-async function handleBotManagementRequest(accountTag, zoneId, params) {
-  const query = `
-    query getBotManagementRequests($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!, $likelyHumanFilter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
-      viewer {
-        zones(filter: {zoneTag: $zoneTag}) {
-          likely_human: httpRequestsAdaptiveGroups(filter: {AND: [ {botManagementDecision_neq: "verified_bot"}, $likelyHumanFilter ]}, limit: 10000) {
-            count
-          }
-        }
-      }
-    }
-  `;
 
-  const variables = {
-    zoneTag: zoneId,
-    filter: {
-      requestSource: "eyeball",
-      date_geq: params.get('start_date'),
-      date_leq: params.get('end_date'),
-      botManagementDecision_neq: "other"
-    },
-    likelyHumanFilter: {
-      requestSource: "eyeball",
-      botScore_geq: 30,
-      botScore_leq: 99,
-      date_geq: params.get('start_date'),
-      date_leq: params.get('end_date'),
-      botManagementDecision_neq: "other"
-    }
-  };
-
-  return await performGraphQLRequest(query, variables);
-}
 
 async function handleWorkersStdRequests(accountTag, zoneId, params) {
   const query = `

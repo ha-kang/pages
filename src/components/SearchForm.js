@@ -4,7 +4,9 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
+
 const formatDate = (date) => {
+  if (!date) return '';
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -26,8 +28,37 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  // 전체 선택 옵션 추가
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
+  
+  const formatQueryCount = (count) => {
+    if (count === undefined || count === null) return 'N/A';
+    const millions = count / 1000000;
+    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+  };
+  
+  const renderResult = (endpoint, result) => {
+    if (result && typeof result === 'object') {
+      switch (endpoint) {
+        case 'data_transfer_request':
+          return (
+            <>
+              <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+              <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+            </>
+          );
+        case 'bot_management_request':
+          return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+        case 'foundation_dns_queries':
+          if (result.summary && result.summary.totalQueryCount !== undefined) {
+            return <span className="result-item">Foundation DNS Queries: {formatQueryCount(result.summary.totalQueryCount)}</span>;
+          }
+          return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+        default:
+          return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+      }
+    }
+    return <span className="result-item">No valid data available</span>;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,7 +128,13 @@ const SearchForm = () => {
     }
   };
 
+
+
   const handleEndpointChange = (selectedOptions) => {
+    if (!selectedOptions) {
+      setSelectedEndpoints([]);
+      return;
+    }
     if (selectedOptions.some(option => option.value === 'all')) {
       setSelectedEndpoints(endpoints);
     } else {
@@ -107,24 +144,18 @@ const SearchForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Customer:', customer);
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    console.log('Selected Endpoints:', selectedEndpoints);
-
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
 
     setIsLoading(true);
-    setResults(null);
     setError(null);
 
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneIds = Object.values(customerZones[customer] || {});
+    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
 
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
@@ -139,16 +170,26 @@ const SearchForm = () => {
           zoneIds
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      setResults(data);
+      if (data && typeof data === 'object') {
+        setResults(data);
+        
+        // Foundation DNS Queries 결과를 콘솔에 출력
+        if (data.foundation_dns_queries) {
+          console.log('Foundation DNS Queries Result:', data.foundation_dns_queries);
+        }
+      } else {
+        throw new Error('Invalid data received from server');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      setResults(null);
     } finally {
       setIsLoading(false);
     }
@@ -170,11 +211,12 @@ const SearchForm = () => {
   
   const formatNumber = (number) => {
     if (number === undefined || number === null) return 'N/A';
+    if (typeof number === 'string') return number; // Handle error messages
     if (number >= 1000000) {
       const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number})`;
+      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
     }
-    return number.toString();
+    return number.toLocaleString();
   };
 
   return (
@@ -183,7 +225,7 @@ const SearchForm = () => {
       <form onSubmit={handleSubmit} className="search-form">
         <Select
           options={customerOptions}
-          onChange={(selectedOption) => setCustomer(selectedOption.value)}
+          onChange={(selectedOption) => setCustomer(selectedOption ? selectedOption.value : '')}
           placeholder="고객사"
           className="basic-select"
           classNamePrefix="select"
@@ -225,20 +267,7 @@ const SearchForm = () => {
             <div className="endpoint-results">
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
-                  {result.errors ? (
-                    <span className="result-item error-message">
-                      {JSON.stringify(result.errors, null, 2)}
-                    </span>
-                  ) : endpoint === 'data_transfer_request' ? (
-                    <>
-                      <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-                      <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-                    </>
-                  ) : endpoint === 'bot_management_request' ? (
-                    <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
-                  ) : (
-                    <span className="result-item">{JSON.stringify(result, null, 2)}</span>
-                  )}
+                  {renderResult(endpoint, result)}
                 </div>
               ))}
             </div>
