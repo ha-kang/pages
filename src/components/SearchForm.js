@@ -191,13 +191,33 @@ const SearchForm = () => {
         <Select
           isMulti
           name="endpoints"
-          options={[allEndpointsOption, ...endpoints]}
+          options={endpoints}
           className="basic-multi-select"
           classNamePrefix="select"
           onChange={handleEndpointChange}
           value={selectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
+          hideSelectedOptions={false}
+          components={{
+            Option: ({ children, ...props }) => {
+              if (props.data.value === 'all') {
+                return (
+                  <div 
+                    {...props.innerProps}
+                    style={{
+                      padding: '8px 12px',
+                      cursor: 'pointer',
+                      backgroundColor: props.isFocused ? 'rgba(38, 198, 218, 0.1)' : 'transparent'
+                    }}
+                  >
+                    전체 선택
+                  </div>
+                );
+              }
+              return <components.Option {...props}>{children}</components.Option>;
+            }
+          }}
         />
         <DatePicker
           selectsRange={true}
