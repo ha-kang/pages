@@ -105,14 +105,13 @@ const SearchForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 페이지 새로고침 방지
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
     }
 
     setIsLoading(true);
-    setResults(null);
     setError(null);
 
     const formattedStartDate = formatDate(startDate);
