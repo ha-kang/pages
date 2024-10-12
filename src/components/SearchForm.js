@@ -97,13 +97,6 @@ const SearchForm = () => {
     }
   };
 
-  const handleEndpointChange = (selectedOptions) => {
-    if (selectedOptions.some(option => option.value === 'all')) {
-      setSelectedEndpoints(endpoints);
-    } else {
-      setSelectedEndpoints(selectedOptions);
-    }
-  };
 
 
   const handleEndpointChange = (selectedOptions) => {
