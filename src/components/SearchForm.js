@@ -182,7 +182,42 @@ const SearchForm = () => {
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
-        {/* ... (form elements remain unchanged) */}
+           <Select
+          options={customerOptions}
+          onChange={(selectedOption) => setCustomer(selectedOption.value)}
+          placeholder="고객사"
+          className="basic-select"
+          classNamePrefix="select"
+        />
+        <Select
+          isMulti
+          name="endpoints"
+          options={[allEndpointsOption, ...endpoints]}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+          closeMenuOnSelect={false}
+        />
+        <div className="date-picker-wrapper">
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(update) => {
+              setDateRange(update);
+            }}
+            minDate={ninetyOneDaysAgo}
+            maxDate={today}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+            className="date-picker"
+          />
+        </div>
+        <button type="submit" className="search-button" disabled={isLoading}>
+          {isLoading ? '로딩 중...' : '검색'}
+        </button>
       </form>
       {results && (
         <div className="results-container">
