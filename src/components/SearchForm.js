@@ -30,14 +30,19 @@ const SearchForm = () => {
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   const [showSelectAllButton, setShowSelectAllButton] = useState(true);
 
+  const handleEndpointChange = (selectedOptions) => {
+    if (selectedOptions.some(option => option.value === 'all')) {
+      setSelectedEndpoints(endpoints);
+      setShowSelectAllButton(false);
+    } else {
+      setSelectedEndpoints(selectedOptions);
+      setShowSelectAllButton(selectedOptions.length < endpoints.length);
+    }
+  };
+
   const handleSelectAllEndpoints = () => {
     setSelectedEndpoints(endpoints);
     setShowSelectAllButton(false);
-  };
-
-  const handleEndpointChange = (selectedOptions) => {
-    setSelectedEndpoints(selectedOptions);
-    setShowSelectAllButton(selectedOptions.length < endpoints.length);
   };
   
   useEffect(() => {
@@ -204,7 +209,7 @@ const SearchForm = () => {
             closeMenuOnSelect={false}
           />
           {showSelectAllButton && (
-            <button type="button" onClick={handleSelectAllButton} className="select-all-button">
+            <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
               전체 선택
             </button>
           )}
