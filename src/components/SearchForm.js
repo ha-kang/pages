@@ -160,14 +160,16 @@ const SearchForm = () => {
     label: name
   }));
 
-  const formatBytes = (bytes) => {
-    if (bytes === 0 || bytes === undefined) return '0 B';
-    const k = 1000;
-    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes})`;
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) return 'N/A';
+    if (typeof number === 'string') return number; // Handle error messages
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
+    }
+    return number.toLocaleString();
   };
+
   
   const formatNumber = (number) => {
     if (number === undefined || number === null) return 'N/A';
@@ -227,28 +229,31 @@ const SearchForm = () => {
             <div className="endpoint-results">
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
-                  {result.errors ? (
-                    <span className="result-item error-message">
-                      {JSON.stringify(result.errors, null, 2)}
-                    </span>
-                  ) : (
+                  <h3>{endpoint}</h3>
+                  {endpoint === 'foundation_dns_queries' ? (
                     <>
-                      {endpoint === 'data_transfer_request' && (
-                        <>
-                          <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-                          <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-                        </>
-                      )}
-                      {endpoint === 'bot_management_request' && (
-                        <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
-                      )}
-                      {endpoint === 'foundation_dns_queries' && (
-                        <span className="result-item">Foundation DNS Queries: {formatNumber(result)}</span>
-                      )}
-                      {!['data_transfer_request', 'bot_management_request', 'foundation_dns_queries'].includes(endpoint) && (
-                        <span className="result-item">{JSON.stringify(result, null, 2)}</span>
-                      )}
+                      <p>Total Query Count: {formatNumber(result.totalQueryCount)}</p>
+                      <h4>Zone Results:</h4>
+                      {Object.entries(result.zoneResults).map(([zoneId, zoneResult]) => (
+                        <div key={zoneId}>
+                          <h5>Zone ID: {zoneId}</h5>
+                          {typeof zoneResult === 'number' ? (
+                            <p>Query Count: {formatNumber(zoneResult)}</p>
+                          ) : (
+                            <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
+                          )}
+                        </div>
+                      ))}
                     </>
+                  ) : endpoint === 'data_transfer_request' ? (
+                    <>
+                      <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+                      <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+                    </>
+                  ) : endpoint === 'bot_management_request' ? (
+                    <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
+                  ) : (
+                    <span className="result-item">{JSON.stringify(result, null, 2)}</span>
                   )}
                 </div>
               ))}
@@ -259,4 +264,5 @@ const SearchForm = () => {
     </div>
   );
 };
+
 export default SearchForm;
