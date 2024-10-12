@@ -199,19 +199,21 @@ const SearchForm = () => {
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
         />
-        <DatePicker
-          selectsRange={true}
-          startDate={startDate}
-          endDate={endDate}
-          onChange={(update) => {
-            setDateRange(update);
-          }}
-          minDate={ninetyOneDaysAgo}
-          maxDate={today}
-          dateFormat="yyyy-MM-dd"
-          placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
-          className="date-picker"
-        />
+        <div className="date-picker-wrapper">
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(update) => {
+              setDateRange(update);
+            }}
+            minDate={ninetyOneDaysAgo}
+            maxDate={today}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+            className="date-picker"
+          />
+        </div>
         <button type="submit" className="search-button" disabled={isLoading}>
           {isLoading ? '로딩 중...' : '검색'}
         </button>
