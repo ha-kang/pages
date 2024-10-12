@@ -30,6 +30,12 @@ const SearchForm = () => {
 
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
+  const formatQueryCount = (count) => {
+    if (count === undefined || count === null) return 'N/A';
+    const millions = count / 1000000;
+    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+  };
+  
   const renderResult = (endpoint, result) => {
     if (result && typeof result === 'object') {
       switch (endpoint) {
@@ -43,17 +49,10 @@ const SearchForm = () => {
         case 'bot_management_request':
           return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
         case 'foundation_dns_queries':
-          return (
-            <>
-              <h4>Zone Results:</h4>
-              {Object.entries(result.zoneResults || {}).map(([zoneId, zoneResult]) => (
-                <div key={zoneId}>
-                  <h5>Zone ID: {zoneId}</h5>
-                  <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
-                </div>
-              ))}
-            </>
-          );
+          if (result.summary && result.summary.totalQueryCount !== undefined) {
+            return <span className="result-item">Foundation DNS Queries: {formatQueryCount(result.summary.totalQueryCount)}</span>;
+          }
+          return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
         default:
           return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
       }
