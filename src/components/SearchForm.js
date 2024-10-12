@@ -4,6 +4,7 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
+
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -173,9 +174,9 @@ const SearchForm = () => {
     if (typeof number === 'string') return number; // Handle error messages
     if (number >= 1000000) {
       const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number})`;
+      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
     }
-    return number.toString();
+    return number.toLocaleString();
   };
 
   return (
@@ -258,5 +259,4 @@ const SearchForm = () => {
     </div>
   );
 };
-
 export default SearchForm;
