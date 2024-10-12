@@ -26,6 +26,9 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  // 전체 선택 옵션 추가
+  const allEndpointsOption = { value: 'all', label: '전체 선택' };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,13 +98,13 @@ const SearchForm = () => {
   };
 
   const handleEndpointChange = (selectedOptions) => {
-    setSelectedEndpoints(selectedOptions);
+    if (selectedOptions.some(option => option.value === 'all')) {
+      setSelectedEndpoints(endpoints);
+    } else {
+      setSelectedEndpoints(selectedOptions);
+    }
   };
 
-  const handleSelectAllEndpoints = () => {
-    setSelectedEndpoints(endpoints);
-  };
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Customer:', customer);
@@ -185,22 +188,17 @@ const SearchForm = () => {
           className="basic-select"
           classNamePrefix="select"
         />
-        <div className="endpoint-select-wrapper">
-          <Select
-            isMulti
-            name="endpoints"
-            options={endpoints}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            onChange={handleEndpointChange}
-            value={selectedEndpoints}
-            placeholder="엔드포인트 선택 (다중 선택 가능)"
-            closeMenuOnSelect={false}
-          />
-          <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
-            전체 선택
-          </button>
-        </div>
+        <Select
+          isMulti
+          name="endpoints"
+          options={[allEndpointsOption, ...endpoints]}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+          closeMenuOnSelect={false}
+        />
         <DatePicker
           selectsRange={true}
           startDate={startDate}
