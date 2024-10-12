@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
-import Select, { components } from 'react-select';
+import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
@@ -25,6 +25,9 @@ const SearchForm = () => {
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+  // 전체 선택 옵션 추가
+  const allEndpointsOption = { value: 'all', label: '전체 선택' };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -185,37 +188,17 @@ const SearchForm = () => {
           className="basic-select"
           classNamePrefix="select"
         />
-      <Select
-        isMulti
-        name="endpoints"
-        options={[{ value: 'all', label: '전체 선택' }, ...endpoints]}
-        className="basic-multi-select"
-        classNamePrefix="select"
-        onChange={handleEndpointChange}
-        value={selectedEndpoints}
-        placeholder="엔드포인트 선택 (다중 선택 가능)"
-        closeMenuOnSelect={false}
-        hideSelectedOptions={false}
-        components={{
-          Option: ({ children, ...props }) => {
-            if (props.data.value === 'all') {
-              return (
-                <div 
-                  {...props.innerProps}
-                  style={{
-                    padding: '8px 12px',
-                    cursor: 'pointer',
-                    backgroundColor: props.isFocused ? 'rgba(38, 198, 218, 0.1)' : 'transparent'
-                  }}
-                >
-                  전체 선택
-                </div>
-              );
-            }
-            return <components.Option {...props}>{children}</components.Option>;
-          }
-        }}
-      />
+        <Select
+          isMulti
+          name="endpoints"
+          options={[allEndpointsOption, ...endpoints]}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+          closeMenuOnSelect={false}
+        />
         <DatePicker
           selectsRange={true}
           startDate={startDate}
