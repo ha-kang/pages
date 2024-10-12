@@ -171,7 +171,7 @@ const SearchForm = () => {
           zoneIds
         }),
       });
-
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -179,6 +179,11 @@ const SearchForm = () => {
       const data = await response.json();
       if (data && typeof data === 'object') {
         setResults(data);
+        
+        // Foundation DNS Queries 결과를 콘솔에 출력
+        if (data.foundation_dns_queries) {
+          console.log('Foundation DNS Queries Result:', data.foundation_dns_queries);
+        }
       } else {
         throw new Error('Invalid data received from server');
       }
