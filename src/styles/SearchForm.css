@@ -21,6 +21,14 @@
   overflow: visible;
 }
 
+.search-form > * {
+  margin-bottom: 10px;
+}
+
+.search-form > *:last-child {
+  margin-bottom: 0;
+}
+
 .form-section {
   margin-bottom: 10px;
 }
@@ -33,10 +41,9 @@
 
 .basic-select,
 .basic-multi-select,
-.date-picker-container,
+.date-picker-wrapper,
 .search-button {
   width: 100%;
-  margin-bottom: 10px;
 }
 
 select,
@@ -129,15 +136,15 @@ select,
 }
 
 /* Date picker styles */
-.date-picker-container {
+.date-picker-wrapper {
   width: 100%;
-  margin-bottom: 10px; /* Add this line to create space between date picker and search button */
 }
 
 .react-datepicker-wrapper, 
 .react-datepicker__input-container,
 .react-datepicker__input-container input {
   width: 100%;
+  display: block;
 }
 
 .react-datepicker__input-container input {
@@ -180,7 +187,7 @@ select,
   background-color: var(--button-hover-color);
 }
 
-/* 결과 스타일 */
+/* Results styles */
 .results-container {
   margin-top: 20px;
 }
