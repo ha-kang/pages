@@ -26,6 +26,9 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
+  // 전체 선택 옵션 추가
+  const allEndpointsOption = { value: 'all', label: '전체 선택' };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,7 +98,11 @@ const SearchForm = () => {
   };
 
   const handleEndpointChange = (selectedOptions) => {
-    setSelectedEndpoints(selectedOptions);
+    if (selectedOptions.some(option => option.value === 'all')) {
+      setSelectedEndpoints(endpoints);
+    } else {
+      setSelectedEndpoints(selectedOptions);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -184,7 +191,7 @@ const SearchForm = () => {
         <Select
           isMulti
           name="endpoints"
-          options={endpoints}
+          options={[allEndpointsOption, ...endpoints]}
           className="basic-multi-select"
           classNamePrefix="select"
           onChange={handleEndpointChange}
@@ -192,7 +199,7 @@ const SearchForm = () => {
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
         />
-        <div className="date-picker-container">
+        <div className="date-picker-wrapper">
           <DatePicker
             selectsRange={true}
             startDate={startDate}
