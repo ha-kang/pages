@@ -131,6 +131,7 @@ select,
 /* Date picker styles */
 .date-picker-container {
   width: 100%;
+  margin-bottom: 10px; /* Add this line to create space between date picker and search button */
 }
 
 .react-datepicker-wrapper, 
