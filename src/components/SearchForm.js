@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
 const formatDate = (date) => {
+  if (!date) return '';
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
@@ -104,8 +105,21 @@ const SearchForm = () => {
     }
   };
 
+
+  const handleEndpointChange = (selectedOptions) => {
+    if (!selectedOptions) {
+      setSelectedEndpoints([]);
+      return;
+    }
+    if (selectedOptions.some(option => option.value === 'all')) {
+      setSelectedEndpoints(endpoints);
+    } else {
+      setSelectedEndpoints(selectedOptions);
+    }
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // 페이지 새로고침 방지
+    e.preventDefault();
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
@@ -117,7 +131,7 @@ const SearchForm = () => {
     const formattedStartDate = formatDate(startDate);
     const formattedEndDate = formatDate(endDate);
     const accountTag = customerAccounts[customer];
-    const zoneIds = Object.values(customerZones[customer] || {});
+    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
 
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
@@ -138,10 +152,15 @@ const SearchForm = () => {
       }
 
       const data = await response.json();
-      setResults(data);
+      if (data && typeof data === 'object') {
+        setResults(data);
+      } else {
+        throw new Error('Invalid data received from server');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+      setResults(null);
     } finally {
       setIsLoading(false);
     }
@@ -177,7 +196,7 @@ const SearchForm = () => {
       <form onSubmit={handleSubmit} className="search-form">
         <Select
           options={customerOptions}
-          onChange={(selectedOption) => setCustomer(selectedOption.value)}
+          onChange={(selectedOption) => setCustomer(selectedOption ? selectedOption.value : '')}
           placeholder="고객사"
           className="basic-select"
           classNamePrefix="select"
@@ -220,30 +239,34 @@ const SearchForm = () => {
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
                   <h3>{endpoint}</h3>
-                  {endpoint === 'foundation_dns_queries' ? (
-                    <>
-                      <p>Total Query Count: {formatNumber(result.totalQueryCount)}</p>
-                      <h4>Zone Results:</h4>
-                      {Object.entries(result.zoneResults).map(([zoneId, zoneResult]) => (
-                        <div key={zoneId}>
-                          <h5>Zone ID: {zoneId}</h5>
-                          {typeof zoneResult === 'number' ? (
-                            <p>Query Count: {formatNumber(zoneResult)}</p>
-                          ) : (
-                            <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
-                          )}
-                        </div>
-                      ))}
-                    </>
-                  ) : endpoint === 'data_transfer_request' ? (
-                    <>
-                      <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-                      <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-                    </>
-                  ) : endpoint === 'bot_management_request' ? (
-                    <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
+                  {result && typeof result === 'object' ? (
+                    endpoint === 'foundation_dns_queries' ? (
+                      <>
+                        <p>Total Query Count: {formatNumber(result.totalQueryCount)}</p>
+                        <h4>Zone Results:</h4>
+                        {Object.entries(result.zoneResults || {}).map(([zoneId, zoneResult]) => (
+                          <div key={zoneId}>
+                            <h5>Zone ID: {zoneId}</h5>
+                            {typeof zoneResult === 'number' ? (
+                              <p>Query Count: {formatNumber(zoneResult)}</p>
+                            ) : (
+                              <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
+                            )}
+                          </div>
+                        ))}
+                      </>
+                    ) : endpoint === 'data_transfer_request' ? (
+                      <>
+                        <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+                        <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+                      </>
+                    ) : endpoint === 'bot_management_request' ? (
+                      <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
+                    ) : (
+                      <span className="result-item">{JSON.stringify(result, null, 2)}</span>
+                    )
                   ) : (
-                    <span className="result-item">{JSON.stringify(result, null, 2)}</span>
+                    <span className="result-item">No valid data available</span>
                   )}
                 </div>
               ))}
@@ -254,5 +277,4 @@ const SearchForm = () => {
     </div>
   );
 };
-
 export default SearchForm;
