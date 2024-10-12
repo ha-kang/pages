@@ -27,23 +27,8 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   // 전체 선택 옵션 추가
-  const [showSelectAllButton, setShowSelectAllButton] = useState(true);
+  const allEndpointsOption = { value: 'all', label: '전체 선택' };
 
-  const handleEndpointChange = (selectedOptions) => {
-    if (selectedOptions.some(option => option.value === 'all')) {
-      setSelectedEndpoints(endpoints);
-      setShowSelectAllButton(false);
-    } else {
-      setSelectedEndpoints(selectedOptions);
-      setShowSelectAllButton(selectedOptions.length < endpoints.length);
-    }
-  };
-
-  const handleSelectAllEndpoints = () => {
-    setSelectedEndpoints(endpoints);
-    setShowSelectAllButton(false);
-  };
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -109,6 +94,14 @@ const SearchForm = () => {
       console.error('Error fetching endpoints:', error);
       setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
       setEndpoints([]);
+    }
+  };
+
+  const handleEndpointChange = (selectedOptions) => {
+    if (selectedOptions.some(option => option.value === 'all')) {
+      setSelectedEndpoints(endpoints);
+    } else {
+      setSelectedEndpoints(selectedOptions);
     }
   };
 
@@ -195,24 +188,17 @@ const SearchForm = () => {
           className="basic-select"
           classNamePrefix="select"
         />
-        <div className="endpoint-select-wrapper">
-          <Select
-            isMulti
-            name="endpoints"
-            options={endpoints}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            onChange={handleEndpointChange}
-            value={selectedEndpoints}
-            placeholder="엔드포인트 선택 (다중 선택 가능)"
-            closeMenuOnSelect={false}
-          />
-          {showSelectAllButton && (
-            <button type="button" onClick={handleSelectAllEndpoints} className="select-all-button">
-              전체 선택
-            </button>
-          )}
-        </div>
+        <Select
+          isMulti
+          name="endpoints"
+          options={[allEndpointsOption, ...endpoints]}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+          closeMenuOnSelect={false}
+        />
         <DatePicker
           selectsRange={true}
           startDate={startDate}
