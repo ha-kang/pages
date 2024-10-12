@@ -3,6 +3,8 @@ import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
+import React, { useState, useEffect } from 'react';
+
 
 const formatDate = (date) => {
   if (!date) return '';
@@ -28,6 +30,37 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
+  
+  const renderResult = (endpoint, result) => {
+    if (result && typeof result === 'object') {
+      switch (endpoint) {
+        case 'data_transfer_request':
+          return (
+            <>
+              <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+              <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+            </>
+          );
+        case 'bot_management_request':
+          return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+        case 'foundation_dns_queries':
+          return (
+            <>
+              <h4>Zone Results:</h4>
+              {Object.entries(result.zoneResults || {}).map(([zoneId, zoneResult]) => (
+                <div key={zoneId}>
+                  <h5>Zone ID: {zoneId}</h5>
+                  <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
+                </div>
+              ))}
+            </>
+          );
+        default:
+          return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+      }
+    }
+    return <span className="result-item">No valid data available</span>;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -231,36 +264,7 @@ const SearchForm = () => {
             <div className="endpoint-results">
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
-                  <h3>{endpoint}</h3>
-                  {result && typeof result === 'object' ? (
-                    endpoint === 'foundation_dns_queries' ? (
-                      <>
-                        <p>Total Query Count: {formatNumber(result.totalQueryCount)}</p>
-                        <h4>Zone Results:</h4>
-                        {Object.entries(result.zoneResults || {}).map(([zoneId, zoneResult]) => (
-                          <div key={zoneId}>
-                            <h5>Zone ID: {zoneId}</h5>
-                            {typeof zoneResult === 'number' ? (
-                              <p>Query Count: {formatNumber(zoneResult)}</p>
-                            ) : (
-                              <pre>{JSON.stringify(zoneResult, null, 2)}</pre>
-                            )}
-                          </div>
-                        ))}
-                      </>
-                    ) : endpoint === 'data_transfer_request' ? (
-                      <>
-                        <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-                        <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-                      </>
-                    ) : endpoint === 'bot_management_request' ? (
-                      <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>
-                    ) : (
-                      <span className="result-item">{JSON.stringify(result, null, 2)}</span>
-                    )
-                  ) : (
-                    <span className="result-item">No valid data available</span>
-                  )}
+                  {renderResult(endpoint, result)}
                 </div>
               ))}
             </div>
@@ -270,4 +274,5 @@ const SearchForm = () => {
     </div>
   );
 };
+
 export default SearchForm;
