@@ -170,6 +170,7 @@ const SearchForm = () => {
   
   const formatNumber = (number) => {
     if (number === undefined || number === null) return 'N/A';
+    if (typeof number === 'string') return number; // Handle error messages
     if (number >= 1000000) {
       const millions = number / 1000000;
       return `${millions.toFixed(2)}MM (${number})`;
