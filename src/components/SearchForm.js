@@ -4,7 +4,6 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-
 const formatDate = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -27,7 +26,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-  // 전체 선택 옵션 추가
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
 
   useEffect(() => {
@@ -108,11 +106,6 @@ const SearchForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Customer:', customer);
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
-    console.log('Selected Endpoints:', selectedEndpoints);
-
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
       setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
       return;
@@ -167,8 +160,8 @@ const SearchForm = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
     return `${convertedValue} ${sizes[i]} (${bytes})`;
-
-    
+  };
+  
   const formatNumber = (number) => {
     if (number === undefined || number === null) return 'N/A';
     if (typeof number === 'string') return number; // Handle error messages
@@ -183,7 +176,7 @@ const SearchForm = () => {
     <div className="search-form-container">
       {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit} className="search-form">
-           <Select
+        <Select
           options={customerOptions}
           onChange={(selectedOption) => setCustomer(selectedOption.value)}
           placeholder="고객사"
