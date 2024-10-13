@@ -4,6 +4,7 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
+// eslint-disable-next-line no-unused-vars
 const formatDate = (date) => {
   if (!date) return '';
   const year = date.getFullYear();
