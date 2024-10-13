@@ -125,11 +125,8 @@ const renderResult = (endpoint, result) => {
         let totalBytes = 0;
         let errorCount = 0;
         result.forEach(zoneResult => {
-          if (zoneResult.data && zoneResult.data.data && zoneResult.data.data.viewer && zoneResult.data.data.viewer.zones) {
-            const requests = zoneResult.data.data.viewer.zones[0].requests;
-            if (requests && requests.length > 0) {
-              totalBytes += requests[0].sum.edgeResponseBytes || 0;
-            }
+          if (zoneResult.edgeResponseBytes !== undefined) {
+            totalBytes += zoneResult.edgeResponseBytes;
           } else if (zoneResult.error) {
             errorCount++;
             console.error(`Error for zone ${zoneResult.zoneId}:`, zoneResult.error);
@@ -143,6 +140,7 @@ const renderResult = (endpoint, result) => {
         );
       }
       return <span className="result-item">China NTW Data Transfer: Error fetching data</span>;
+
     default:
       // 기본적으로 결과를 JSON 문자열로 표시
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
