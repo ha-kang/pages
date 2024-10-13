@@ -28,6 +28,7 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
+
   const formatBytes = (bytes) => {
     if (bytes === 0 || bytes === undefined) return '0 B';
     const k = 1000;
@@ -47,55 +48,56 @@ const SearchForm = () => {
     return number.toLocaleString();
   };
   
-  const renderResult = (endpoint, result) => {
-    if (!result || typeof result !== 'object') {
-      return <span className="result-item">No valid data available for {endpoint}</span>;
-    }
+const renderResult = (endpoint, result) => {
+  if (!result || typeof result !== 'object') {
+    return <span className="result-item">No valid data available</span>;
+  }
 
-    try {
-      switch (endpoint) {
-        case 'data_transfer_request':
-          return (
-            <>
-              <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-              <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-            </>
-          );
-        case 'bot_management_request':
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
-        case 'foundation_dns_queries':
-          if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
-            return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-          }
-          return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
-        case 'workers_kv_read':
-          return (
-            <span className="result-item">Workers KV - Read: {formatNumber(result.readRequestsMM)} MM ({formatNumber(result.readRequests)})</span>
-          );
-        case 'workers_kv_storage':
-          return (
-            <span className="result-item">Workers KV - Storage: {result.storageGB.toFixed(2)} GB ({formatNumber(result.storageBytes)} bytes)</span>
-          );
-        case 'workers_kv_write_list_delete':
-          return (
-            <span className="result-item">
-              Workers KV - Write/List/Delete: {formatNumber(result.totalRequestsMM)} MM ({formatNumber(result.totalRequests)})
-              (Write: {formatNumber(result.writeRequests)}, 
-               List: {formatNumber(result.listRequests)}, 
-               Delete: {formatNumber(result.deleteRequests)})
-            </span>
-          );
-        default:
-          if (result.errors) {
-            return <span className="result-item">Error: {result.errors[0]?.message || 'Unknown error'}</span>;
-          }
-          return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+  switch (endpoint) {
+    case 'data_transfer_request':
+      return (
+        <>
+          <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+          <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+        </>
+      );
+    case 'bot_management_request':
+      return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+    case 'foundation_dns_queries':
+      if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
       }
-    } catch (error) {
-      console.error(`Error rendering result for ${endpoint}:`, error);
-      return <span className="result-item">Error rendering result for {endpoint}</span>;
-    }
-  };
+      return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+    case 'workers_kv_read':
+      const readRequests = result.readRequests || 0;
+      const readRequestsMM = result.readRequestsMM || 0;
+      return (
+        <span className="result-item">Workers KV - Read: {formatNumber(readRequestsMM)} MM ({readRequests})</span>
+      );
+    case 'workers_kv_storage':
+      const storageGB = result.storageGB || 0;
+      const storageBytes = result.storageBytes || 0;
+      return (
+        <span className="result-item">Workers KV - Storage: {storageGB.toFixed(2)} GB ({storageBytes} bytes)</span>
+      );
+    case 'workers_kv_write_list_delete':
+      const totalRequestsMM = result.totalRequestsMM || 0;
+      const totalRequests = result.totalRequests || 0;
+      const writeRequests = result.writeRequests || 0;
+      const listRequests = result.listRequests || 0;
+      const deleteRequests = result.deleteRequests || 0;
+      return (
+        <span className="result-item">
+          Workers KV - Write/List/Delete: {formatNumber(totalRequestsMM)} MM ({totalRequests})
+          {totalRequests > 0 && (
+            <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
+          )}
+        </span>
+      );
+    default:
+      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+  }
+};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,6 +167,8 @@ const SearchForm = () => {
     }
   };
 
+
+
   const handleEndpointChange = (selectedOptions) => {
     if (!selectedOptions) {
       setSelectedEndpoints([]);
@@ -177,61 +181,64 @@ const SearchForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
-      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+    setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+
+  const formattedStartDate = formatDate(startDate);
+  const formattedEndDate = formatDate(endDate);
+  const accountTag = customerAccounts[customer];
+  const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
+
+  try {
+    console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
+    
+    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountTag,
+        customerName: customer,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        endpoints: selectedEndpoints.map(e => e.value),
+        zoneIds
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    setIsLoading(true);
-    setError(null);
+    const data = await response.json();
+    console.log('Received data:', JSON.stringify(data, null, 2));
 
-    const formattedStartDate = formatDate(startDate);
-    const formattedEndDate = formatDate(endDate);
-    const accountTag = customerAccounts[customer];
-    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
-
-    try {
-      console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
-      
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          accountTag,
-          customerName: customer,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-          endpoints: selectedEndpoints.map(e => e.value),
-          zoneIds
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Received data:', JSON.stringify(data, null, 2));
-
-      if (data && typeof data === 'object') {
-        setResults(data);
-      } else {
-        throw new Error('Invalid data received from server');
-      }
-    } catch (error) {
-      console.error('Error occurred:', error);
-      setError(`데이터 조회 중 오류가 발생했습니다: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+    if (data && typeof data === 'object') {
+      setResults(data);
+    } else {
+      throw new Error('Invalid data received from server');
     }
-  };
+  } catch (error) {
+    console.log('Error occurred, but continuing with available data');
+    setResults({}); // 에러 발생 시 빈 객체로 설정
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
     label: name
   }));
+
+
 
   return (
     <div className="search-form-container">
@@ -274,14 +281,13 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results !== null && (
+      {results && typeof results === 'object' && Object.keys(results).length > 0 && (
         <div className="results-container">
           <h2 className="results-title">결과</h2>
           <div className="results-box">
             <div className="endpoint-results">
               {Object.entries(results).map(([endpoint, result]) => (
                 <div key={endpoint} className="result-group">
-                  <h3>{endpoint}</h3>
                   {renderResult(endpoint, result)}
                 </div>
               ))}
