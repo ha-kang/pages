@@ -49,58 +49,68 @@ const SearchForm = () => {
   };
   
 const renderResult = (endpoint, result) => {
-  if (!result || typeof result !== 'object' || !result.data || !result.data.viewer || !result.data.viewer.accounts || result.data.viewer.accounts.length === 0) {
+  if (!result || typeof result !== 'object') {
     return <span className="result-item">No valid data available</span>;
   }
 
-  const account = result.data.viewer.accounts[0];
-
   switch (endpoint) {
     case 'data_transfer_request':
-      return (
-        <>
-          <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-          <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-        </>
-      );
+      if (result.bytes !== undefined && result.requests !== undefined) {
+        return (
+          <>
+            <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+          </>
+        );
+      }
+      break;
     case 'bot_management_request':
-      return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+      if (typeof result === 'number') {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+      }
+      break;
     case 'foundation_dns_queries':
       if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
         return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
       }
-      return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+      break;
     case 'workers_kv_read':
-      const readRequests = account.reads[0]?.sum.requests || 0;
-      const readRequestsMM = readRequests / 1000000;
-      return (
-        <span className="result-item">Workers KV - Read: {readRequestsMM.toFixed(2)} MM ({readRequests})</span>
-      );
-
     case 'workers_kv_storage':
-      const storageBytes = account.storage[0]?.max.byteCount || 0;
-      const storageGB = storageBytes / (1000 * 1000 * 1000);
-      return (
-        <span className="result-item">Workers KV - Storage: {storageGB.toFixed(2)} GB ({storageBytes} bytes)</span>
-      );
-
     case 'workers_kv_write_list_delete':
-      const writeRequests = account.writes[0]?.sum.requests || 0;
-      const listRequests = account.lists[0]?.sum.requests || 0;
-      const deleteRequests = account.deletes[0]?.sum.requests || 0;
-      const totalRequests = writeRequests + listRequests + deleteRequests;
-      const totalRequestsMM = totalRequests / 1000000;
-      return (
-        <span className="result-item">
-          Workers KV - Write/List/Delete: {totalRequestsMM.toFixed(2)} MM ({totalRequests})
-          {totalRequests > 0 && (
-            <span> (Write: {writeRequests}, List: {listRequests}, Delete: {deleteRequests})</span>
-          )}
-        </span>
-      );
-      default:
+      if (result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
+        const account = result.data.viewer.accounts[0];
+        
+        if (endpoint === 'workers_kv_read') {
+          const readRequests = account.reads[0]?.sum.requests || 0;
+          return (
+            <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>
+          );
+        } else if (endpoint === 'workers_kv_storage') {
+          const storageBytes = account.storage[0]?.max.byteCount || 0;
+          return (
+            <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>
+          );
+        } else if (endpoint === 'workers_kv_write_list_delete') {
+          const writeRequests = account.writes[0]?.sum.requests || 0;
+          const listRequests = account.lists[0]?.sum.requests || 0;
+          const deleteRequests = account.deletes[0]?.sum.requests || 0;
+          const totalRequests = writeRequests + listRequests + deleteRequests;
+          return (
+            <span className="result-item">
+              Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
+              {totalRequests > 0 && (
+                <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
+              )}
+            </span>
+          );
+        }
+      }
+      break;
+    default:
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
   }
+
+  return <span className="result-item">No valid data available</span>;
 };
 
   useEffect(() => {
