@@ -49,24 +49,26 @@ const SearchForm = () => {
   };
   
 const renderResult = (endpoint, result) => {
-  if (!result || (typeof result === 'object' && result.errors)) {
+  if (!result || !result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
     return <span className="result-item">No valid data available</span>;
   }
 
   switch (endpoint) {
     case 'data_transfer_request':
-      if (result.bytes !== undefined && result.requests !== undefined) {
+      const dtGroups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
+      if (dtGroups && dtGroups.length > 0) {
         return (
           <>
-            <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-            <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+            <span className="result-item">Data Transferred: {formatBytes(dtGroups[0].sum.bytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(dtGroups[0].sum.requests)}</span>
           </>
         );
       }
       break;
     case 'bot_management_request':
-      if (typeof result === 'number') {
-        return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+      const likelyHuman = result.data.viewer.zones[0].likely_human;
+      if (likelyHuman && likelyHuman.length > 0) {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman[0].count)}</span>;
       }
       break;
     case 'foundation_dns_queries':
