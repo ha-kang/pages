@@ -38,15 +38,22 @@ const SearchForm = () => {
     return `${convertedValue} ${sizes[i]} (${bytes})`;
   };
   
-  const formatNumber = (number) => {
-    if (number === undefined || number === null) return 'N/A';
-    if (typeof number === 'string') return number; // Handle error messages
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
-    }
-    return number.toLocaleString();
-  };
+const formatNumber = (number) => {
+  if (number === undefined || number === null) return 'N/A';
+  if (typeof number === 'string') return number; // Handle error messages
+  if (number >= 1000000) {
+    const millions = number / 1000000;
+    return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
+  }
+  return number.toLocaleString();
+};
+
+const formatCPUTime = (microseconds) => {
+  if (microseconds === undefined || microseconds === null) return 'N/A';
+  const milliseconds = microseconds / 1000; // 마이크로초를 밀리초로 변환
+  const millions = milliseconds / 1000000; // 밀리초를 밀리언 단위로 변환
+  return `${millions.toFixed(2)}MM ms (${milliseconds.toLocaleString()} ms)`;
+};
   
 const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
@@ -97,6 +104,21 @@ const renderResult = (endpoint, result) => {
             </span>
           );
         }
+      }
+      break;
+    case 'workers_std_requests':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardRequests = result.data.viewer.accounts[0].workersInvocationsAdaptive
+          .find(item => item.dimensions.usageModel === "standard")?.sum.Standatd_request || 0;
+        return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
+      }
+      break;
+    
+    case 'workers_std_cpu':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
+          .find(item => item.dimensions.usageModel === 2)?.sum.CPU_Time || 0;
+        return <span className="result-item">Workers STD CPU: {formatCPUTime(standardCPU)}</span>;
       }
       break;
     default:
