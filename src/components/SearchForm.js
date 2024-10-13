@@ -98,6 +98,10 @@ const renderResult = (endpoint, result) => {
           )}
         </span>
       );
+      default:
+      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+  }
+};
 
   useEffect(() => {
     const fetchData = async () => {
