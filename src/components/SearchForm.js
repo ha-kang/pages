@@ -48,48 +48,56 @@ const SearchForm = () => {
     return number.toLocaleString();
   };
   
-  const renderResult = (endpoint, result) => {
-    if (result && typeof result === 'object') {
-      switch (endpoint) {
-        case 'data_transfer_request':
-          return (
-            <>
-              <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-              <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-            </>
-          );
-        case 'bot_management_request':
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
-        case 'foundation_dns_queries':
-          if (result.summary && result.summary.totalQueryCount !== undefined) {
-            return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-          }
-          return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
-        // 새로 추가된 Workers KV 관련 case들
-        case 'workers_kv_read':
-          return (
-            <span className="result-item">Workers KV - Read: {formatNumber(result.readRequestsMM)} MM ({result.readRequests})</span>
-          );
-        case 'workers_kv_storage':
-          return (
-            <span className="result-item">Workers KV - Storage: {result.storageGB.toFixed(2)} GB ({result.storageBytes} bytes)</span>
-          );
-        case 'workers_kv_write_list_delete':
-          return (
-            <>
-              <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(result.totalRequestsMM)} MM ({result.totalRequests})</span>
-              <span className="result-item">Write: {formatNumber(result.writeRequests)}</span>
-              <span className="result-item">List: {formatNumber(result.listRequests)}</span>
-              <span className="result-item">Delete: {formatNumber(result.deleteRequests)}</span>
-            </>
-          );
-        default:
-          return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
-      }
-    }
+const renderResult = (endpoint, result) => {
+  if (!result || typeof result !== 'object') {
     return <span className="result-item">No valid data available</span>;
-  };
+  }
 
+  switch (endpoint) {
+    case 'data_transfer_request':
+      return (
+        <>
+          <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
+          <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+        </>
+      );
+    case 'bot_management_request':
+      return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+    case 'foundation_dns_queries':
+      if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
+      }
+      return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+    case 'workers_kv_read':
+      if (typeof result.readRequestsMM !== 'undefined' && typeof result.readRequests !== 'undefined') {
+        return (
+          <span className="result-item">Workers KV - Read: {formatNumber(result.readRequestsMM)} MM ({result.readRequests})</span>
+        );
+      }
+      return <span className="result-item">Workers KV - Read: No valid data available</span>;
+    case 'workers_kv_storage':
+      if (typeof result.storageGB !== 'undefined' && typeof result.storageBytes !== 'undefined') {
+        return (
+          <span className="result-item">Workers KV - Storage: {result.storageGB.toFixed(2)} GB ({result.storageBytes} bytes)</span>
+        );
+      }
+      return <span className="result-item">Workers KV - Storage: No valid data available</span>;
+    case 'workers_kv_write_list_delete':
+      if (typeof result.totalRequestsMM !== 'undefined' && typeof result.totalRequests !== 'undefined') {
+        return (
+          <>
+            <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(result.totalRequestsMM)} MM ({result.totalRequests})</span>
+            <span className="result-item">Write: {formatNumber(result.writeRequests)}</span>
+            <span className="result-item">List: {formatNumber(result.listRequests)}</span>
+            <span className="result-item">Delete: {formatNumber(result.deleteRequests)}</span>
+          </>
+        );
+      }
+      return <span className="result-item">Workers KV - Write/List/Delete: No valid data available</span>;
+    default:
+      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+  }
+};
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -208,7 +216,7 @@ const handleSubmit = async (e) => {
     }
 
     const data = await response.json();
-    console.log('Received data:', data);
+    console.log('Received data:', JSON.stringify(data, null, 2));
 
     if (data && typeof data === 'object') {
       console.log('Setting results:', data);
