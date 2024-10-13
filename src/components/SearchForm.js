@@ -217,6 +217,9 @@ const SearchForm = () => {
           </span>
         );
       default:
+        if (result.errors) {
+          return <span className="result-item error">{result.errors[0].message}</span>;
+        }
         return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
     }
   };
