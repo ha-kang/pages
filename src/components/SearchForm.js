@@ -49,49 +49,42 @@ const SearchForm = () => {
   };
   
 const renderResult = (endpoint, result) => {
-  if (!result || !result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
-    return <span className="result-item">No valid data available</span>;
-  }
+  console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
   switch (endpoint) {
     case 'data_transfer_request':
-      const dtGroups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
-      if (dtGroups && dtGroups.length > 0) {
+      if (result && result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups) {
+        const group = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups[0];
         return (
           <>
-            <span className="result-item">Data Transferred: {formatBytes(dtGroups[0].sum.bytes)}</span>
-            <span className="result-item">Total Requests: {formatNumber(dtGroups[0].sum.requests)}</span>
+            <span className="result-item">Data Transferred: {formatBytes(group.sum.bytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(group.sum.requests)}</span>
           </>
         );
       }
       break;
     case 'bot_management_request':
-      const likelyHuman = result.data.viewer.zones[0].likely_human;
-      if (likelyHuman && likelyHuman.length > 0) {
-        return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman[0].count)}</span>;
+      if (result && result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0].likely_human) {
+        const likelyHuman = result.data.viewer.zones[0].likely_human[0];
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman.count)}</span>;
       }
       break;
     case 'foundation_dns_queries':
-      if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+      if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
         return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
       }
       break;
     case 'workers_kv_read':
     case 'workers_kv_storage':
     case 'workers_kv_write_list_delete':
-      if (result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
         const account = result.data.viewer.accounts[0];
-        
         if (endpoint === 'workers_kv_read') {
           const readRequests = account.reads[0]?.sum.requests || 0;
-          return (
-            <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>
-          );
+          return <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>;
         } else if (endpoint === 'workers_kv_storage') {
           const storageBytes = account.storage[0]?.max.byteCount || 0;
-          return (
-            <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>
-          );
+          return <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>;
         } else if (endpoint === 'workers_kv_write_list_delete') {
           const writeRequests = account.writes[0]?.sum.requests || 0;
           const listRequests = account.lists[0]?.sum.requests || 0;
@@ -109,10 +102,12 @@ const renderResult = (endpoint, result) => {
       }
       break;
     default:
-      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+      // 기본적으로 결과를 JSON 문자열로 표시
+      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
   }
 
-  return <span className="result-item">No valid data available</span>;
+  // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
+  return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
 };
 
   useEffect(() => {
