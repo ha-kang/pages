@@ -27,16 +27,17 @@ const ENDPOINTS = {
     label: 'Workers STD CPU'
   },
   'workers_kv_read': {
-    handler: handleWorkersKVRead,
-    label: 'Workers KV - Read'
+    handler: handleWorkersKVOperations,
+    label: 'Workers KV Read'
   },
   'workers_kv_storage': {
-    handler: handleWorkersKVStorage,
-    label: 'Workers KV - Storage'
+    handler: handleWorkersKVOperations,
+    label: 'Workers KV Storage'
   },
   'workers_kv_write_list_delete': {
-    handler: handleWorkersKVWriteListDelete,
-    label: 'Workers KV - Write/List/Delete'
+    handler: handleWorkersKVOperations,
+    label: 'Workers KV Write List Delete'
+
   },
   'stream_minutes_stored': {
     handler: handleStreamMinutesStored,
@@ -288,42 +289,36 @@ async function handleFoundationDNSQueries(accountTag, zoneIds, params) {
 
 
 //====================================================Workers_KV===================================================
-async function handleWorkersKVRead(accountTag, zoneId, params) {
+async function handleWorkersKVOperations(accountTag, zoneId, params) {
+  const startDate = new Date(params.get('start_date')).toISOString();
+  const endDate = new Date(params.get('end_date')).toISOString();
+  console.log('Handling KV Operations with:', { accountTag, startDate, endDate });
+
   const query = `
-    query getWorkersKVRead($accountTag: string!, $fromDatetimeMinute: Date!, $toDatetimeMinute: Date!) {
+    query KVOperationsSummaryByAccount($accountTag: String!, $startDate: String!, $endDate: String!) {
       viewer {
         accounts(filter: {accountTag: $accountTag}) {
-          reads: kvOperationsAdaptiveGroups(filter: {actionType: read, datetimeMinute_geq: $fromDatetimeMinute, datetimeMinute_leq: $toDatetimeMinute}) {
+          reads: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: read, datetime_geq: $startDate, datetime_leq: $endDate}) {
             sum {
               requests
             }
           }
-        }
-      }
-    }
-  `;
-  const variables = {
-    accountTag,
-    fromDatetimeMinute: `${params.get('start_date')}T00:00:00Z`,
-    toDatetimeMinute: `${params.get('end_date')}T00:00:00Z`
-  };
-  const result = await performGraphQLRequest(query, variables);
-  const readRequests = result.data?.viewer?.accounts[0]?.reads[0]?.sum?.requests || 0;
-  
-  return {
-    summary: {
-      readRequests,
-      readRequestsMM: readRequests / 1000000
-    }
-  };
-}
-
-async function handleWorkersKVStorage(accountTag, zoneId, params) {
-  const query = `
-    query getWorkersKVStorage($accountTag: string!, $fromDatetimeMinute: Date!, $toDatetimeMinute: Date!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          storage: kvStorageAdaptiveGroups(filter: {datetimeMinute_geq: $fromDatetimeMinute, datetimeMinute_leq: $toDatetimeMinute}) {
+          writes: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: write, datetime_geq: $startDate, datetime_leq: $endDate}) {
+            sum {
+              requests
+            }
+          }
+          lists: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: list, datetime_geq: $startDate, datetime_leq: $endDate}) {
+            sum {
+              requests
+            }
+          }
+          deletes: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: delete, datetime_geq: $startDate, datetime_leq: $endDate}) {
+            sum {
+              requests
+            }
+          }
+          storage: kvStorageAdaptiveGroups(limit: 744, filter: {datetime_geq: $startDate, datetime_leq: $endDate}) {
             max {
               byteCount
             }
@@ -332,81 +327,29 @@ async function handleWorkersKVStorage(accountTag, zoneId, params) {
       }
     }
   `;
-  const variables = {
-    accountTag,
-    fromDatetimeMinute: `${params.get('start_date')}T00:00:00Z`,
-    toDatetimeMinute: `${params.get('end_date')}T00:00:00Z`
-  };
-  const result = await performGraphQLRequest(query, variables);
-  const storageBytes = result.data?.viewer?.accounts[0]?.storage[0]?.max?.byteCount || 0;
-  
-  return {
-    summary: {
-      storageBytes,
-      storageGB: storageBytes / (1024 * 1024 * 1024)
-    }
-  };
+  return await performGraphQLRequest(query, { 
+    accountTag, 
+    startDate,
+    endDate
+  });
 }
-
-async function handleWorkersKVWriteListDelete(accountTag, zoneId, params) {
-  const query = `
-    query getWorkersKVWriteListDelete($accountTag: string!, $fromDatetimeMinute: Date!, $toDatetimeMinute: Date!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          writes: kvOperationsAdaptiveGroups(filter: {actionType: write, datetimeMinute_geq: $fromDatetimeMinute, datetimeMinute_leq: $toDatetimeMinute}) {
-            sum {
-              requests
-            }
-          }
-          lists: kvOperationsAdaptiveGroups(filter: {actionType: list, datetimeMinute_geq: $fromDatetimeMinute, datetimeMinute_leq: $toDatetimeMinute}) {
-            sum {
-              requests
-            }
-          }
-          deletes: kvOperationsAdaptiveGroups(filter: {actionType: delete, datetimeMinute_geq: $fromDatetimeMinute, datetimeMinute_leq: $toDatetimeMinute}) {
-            sum {
-              requests
-            }
-          }
-        }
-      }
-    }
-  `;
-  const variables = {
-    accountTag,
-    fromDatetimeMinute: `${params.get('start_date')}T00:00:00Z`,
-    toDatetimeMinute: `${params.get('end_date')}T00:00:00Z`
-  };
-  const result = await performGraphQLRequest(query, variables);
-  const account = result.data?.viewer?.accounts[0];
-  const writeRequests = account?.writes[0]?.sum?.requests || 0;
-  const listRequests = account?.lists[0]?.sum?.requests || 0;
-  const deleteRequests = account?.deletes[0]?.sum?.requests || 0;
-  const totalRequests = writeRequests + listRequests + deleteRequests;
-  
-  return {
-    summary: {
-      writeRequests,
-      listRequests,
-      deleteRequests,
-      totalRequests,
-      totalRequestsMM: totalRequests / 1000000
-    }
-  };
-}
-
 
 
 
 function processEndpointResult(endpoint, result) {
-  if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
+  console.log(`Processing result for endpoint: ${endpoint}`, result);
+
+  if (!result.data) {
     console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
-    return null;
+    return result.errors ? { errors: result.errors } : null;
   }
+  
+  const account = result.data.viewer.accounts ? result.data.viewer.accounts[0] : null;
+  const zone = result.data.viewer.zones ? result.data.viewer.zones[0] : null;
 
   switch (endpoint) {
     case 'data_transfer_request':
-      const groups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
+      const groups = zone?.httpRequestsOverviewAdaptiveGroups;
       if (groups && groups.length > 0) {
         return {
           bytes: groups[0].sum.bytes,
@@ -415,18 +358,39 @@ function processEndpointResult(endpoint, result) {
       }
       return null;
     case 'bot_management_request':
-      const likelyHuman = result.data.viewer.zones[0].likely_human;
+      const likelyHuman = zone?.likely_human;
       if (likelyHuman && likelyHuman.length > 0) {
         return likelyHuman[0].count;
       }
       return null;
-
     case 'foundation_dns_queries':
-      return result.data.viewer.zones[0].dns.analytics.queries.count;
+      return result.summary;
+    case 'workers_kv_read':
+      return account?.reads[0]?.sum.requests || 0;
+    case 'workers_kv_storage':
+      return account?.storage[0]?.max.byteCount || 0;
+    case 'workers_kv_write_list_delete':
+      const writeRequests = account?.writes[0]?.sum.requests || 0;
+      const listRequests = account?.lists[0]?.sum.requests || 0;
+      const deleteRequests = account?.deletes[0]?.sum.requests || 0;
+      return {
+        writeRequests,
+        listRequests,
+        deleteRequests,
+        totalRequests: writeRequests + listRequests + deleteRequests
+      };
     case 'china_ntw_data_transfer':
-      const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
+      const chinaGroups = zone?.httpRequests1dGroups;
       return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
-    // 다른 엔드포인트에 대한 처리를 추가할 수 있습니다.
+    case 'workers_std_requests':
+    case 'workers_std_cpu':
+    case 'stream_minutes_stored':
+    case 'stream_minutes_viewed':
+    case 'images_delivered':
+    case 'images_stored':
+    case 'images_unique_transformations':
+      // These endpoints might need specific processing based on their structure
+      return result.data;
     default:
       console.error(`Unknown endpoint: ${endpoint}`);
       return null;
