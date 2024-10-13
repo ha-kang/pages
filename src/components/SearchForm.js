@@ -50,7 +50,7 @@ const SearchForm = () => {
   
 const renderResult = (endpoint, result) => {
   if (!result || typeof result !== 'object') {
-    return <span className="result-item">No valid data available</span>;
+    return <span className="result-item">No valid data available for {endpoint}</span>;
   }
 
   switch (endpoint) {
@@ -86,6 +86,9 @@ const renderResult = (endpoint, result) => {
         </span>
       );
     default:
+      if (result.errors) {
+        return <span className="result-item">Error: {result.errors[0]?.message || 'Unknown error'}</span>;
+      }
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
   }
 };
@@ -216,8 +219,9 @@ const handleSubmit = async (e) => {
       throw new Error('Invalid data received from server');
     }
   } catch (error) {
-    console.log('Error occurred, but continuing with available data');
-    setResults({}); // 에러 발생 시 빈 객체로 설정
+    console.error('Error occurred:', error);
+    setError(`데이터 조회 중 오류가 발생했습니다: ${error.message}`);
+    setResults(null);
   } finally {
     setIsLoading(false);
   }
@@ -272,22 +276,22 @@ const handleSubmit = async (e) => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && typeof results === 'object' && Object.keys(results).length > 0 && (
-        <div className="results-container">
-          <h2 className="results-title">결과</h2>
-          <div className="results-box">
-            <div className="endpoint-results">
-              {Object.entries(results).map(([endpoint, result]) => (
-                <div key={endpoint} className="result-group">
-                  {renderResult(endpoint, result)}
-                </div>
-              ))}
-            </div>
+    {results && (
+      <div className="results-container">
+        <h2 className="results-title">결과</h2>
+        <div className="results-box">
+          <div className="endpoint-results">
+            {Object.entries(results).map(([endpoint, result]) => (
+              <div key={endpoint} className="result-group">
+                <h3>{endpoint}</h3>
+                {renderResult(endpoint, result)}
+              </div>
+            ))}
           </div>
         </div>
-      )}
-    </div>
-  );
-};
+      </div>
+    )}
+  </div>
+);
 
 export default SearchForm;
