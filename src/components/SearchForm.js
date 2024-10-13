@@ -3,7 +3,7 @@ import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
-
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const formatDate = (date) => {
   if (!date) return '';
@@ -27,13 +27,31 @@ const SearchForm = () => {
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
   const formatQueryCount = (count) => {
     if (count === undefined || count === null) return 'N/A';
     const millions = count / 1000000;
     return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+  };
+
+  const formatBytes = (bytes) => {
+    if (bytes === 0 || bytes === undefined) return '0 B';
+    const k = 1000;
+    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
+    return `${convertedValue} ${sizes[i]} (${bytes})`;
+  };
+  
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) return 'N/A';
+    if (typeof number === 'string') return number; // Handle error messages
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
+    }
+    return number.toLocaleString();
   };
   
   const renderResult = (endpoint, result) => {
@@ -50,9 +68,27 @@ const SearchForm = () => {
           return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
         case 'foundation_dns_queries':
           if (result.summary && result.summary.totalQueryCount !== undefined) {
-            return <span className="result-item">Foundation DNS Queries: {formatQueryCount(result.summary.totalQueryCount)}</span>;
+            return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
           }
           return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+        // 새로 추가된 Workers KV 관련 case들
+        case 'workers_kv_read':
+          return (
+            <span className="result-item">Workers KV - Read: {formatNumber(result.readRequestsMM)} MM ({result.readRequests})</span>
+          );
+        case 'workers_kv_storage':
+          return (
+            <span className="result-item">Workers KV - Storage: {result.storageGB.toFixed(2)} GB ({result.storageBytes} bytes)</span>
+          );
+        case 'workers_kv_write_list_delete':
+          return (
+            <>
+              <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(result.totalRequestsMM)} MM ({result.totalRequests})</span>
+              <span className="result-item">Write: {formatNumber(result.writeRequests)}</span>
+              <span className="result-item">List: {formatNumber(result.listRequests)}</span>
+              <span className="result-item">Delete: {formatNumber(result.deleteRequests)}</span>
+            </>
+          );
         default:
           return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
       }
@@ -200,24 +236,7 @@ const SearchForm = () => {
     label: name
   }));
 
-  const formatBytes = (bytes) => {
-    if (bytes === 0 || bytes === undefined) return '0 B';
-    const k = 1000;
-    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes})`;
-  };
-  
-  const formatNumber = (number) => {
-    if (number === undefined || number === null) return 'N/A';
-    if (typeof number === 'string') return number; // Handle error messages
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
-    }
-    return number.toLocaleString();
-  };
+
 
   return (
     <div className="search-form-container">
