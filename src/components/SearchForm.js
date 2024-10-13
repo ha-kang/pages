@@ -180,8 +180,14 @@ const SearchForm = () => {
   };
 
   const renderResult = (endpoint, result) => {
+    console.log(`Rendering result for endpoint: ${endpoint}`, result);
+
     if (result === null || result === undefined) {
       return <span className="result-item">No valid data available</span>;
+    }
+
+    if (result.errors) {
+      return <span className="result-item error">{result.errors[0].message}</span>;
     }
 
     switch (endpoint) {
@@ -195,10 +201,7 @@ const SearchForm = () => {
       case 'bot_management_request':
         return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
       case 'foundation_dns_queries':
-        if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
-          return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-        }
-        return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.totalQueryCount)}</span>;
       case 'workers_kv_read':
         return <span className="result-item">Workers KV - Read: {formatNumber(result)}</span>;
       case 'workers_kv_storage':
@@ -216,10 +219,23 @@ const SearchForm = () => {
             )}
           </span>
         );
+      case 'china_ntw_data_transfer':
+        return <span className="result-item">China Network Data Transfer: {formatBytes(result)}</span>;
+      case 'workers_std_requests':
+        return <span className="result-item">Workers Standard Requests: {formatNumber(result.viewer.accounts[0].workersInvocations[0].sum.requests)}</span>;
+      case 'workers_std_cpu':
+        return <span className="result-item">Workers Standard CPU Time: {formatNumber(result.viewer.accounts[0].workersInvocations[0].sum.cpuTime)} ms</span>;
+      case 'stream_minutes_stored':
+        return <span className="result-item">Stream Minutes Stored: {formatNumber(result.viewer.accounts[0].stream.minutesStored[0].sum.minutes)}</span>;
+      case 'stream_minutes_viewed':
+        return <span className="result-item">Stream Minutes Viewed: {formatNumber(result.viewer.accounts[0].stream.minutesDelivered[0].sum.minutes)}</span>;
+      case 'images_delivered':
+        return <span className="result-item">Images Delivered: {formatNumber(result.viewer.accounts[0].imagesAdaptiveGroups[0].sum.requests)}</span>;
+      case 'images_stored':
+        return <span className="result-item">Images Stored: {formatBytes(result.viewer.accounts[0].imagesAdaptiveGroups[0].sum.bytes)}</span>;
+      case 'images_unique_transformations':
+        return <span className="result-item">Images Unique Transformations: {formatNumber(result.viewer.accounts[0].imagesAdaptiveGroups[0].count)}</span>;
       default:
-        if (result.errors) {
-          return <span className="result-item error">{result.errors[0].message}</span>;
-        }
         return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
     }
   };
