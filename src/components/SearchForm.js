@@ -49,7 +49,7 @@ const SearchForm = () => {
   };
   
 const renderResult = (endpoint, result) => {
-  if (!result || typeof result !== 'object') {
+  if (!result || (typeof result === 'object' && result.errors)) {
     return <span className="result-item">No valid data available</span>;
   }
 
