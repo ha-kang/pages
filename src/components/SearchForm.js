@@ -74,6 +74,21 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
       }
       break;
+    case 'china_ntw_data_transfer':
+      if (Array.isArray(result)) {
+        let totalBytes = 0;
+        result.forEach(zoneResult => {
+          if (zoneResult.data && zoneResult.data.data && zoneResult.data.data.viewer && zoneResult.data.data.viewer.zones) {
+            const requests = zoneResult.data.data.viewer.zones[0].requests;
+            if (requests && requests.length > 0) {
+              totalBytes += requests[0].sum.edgeResponseBytes || 0;
+            }
+          }
+        });
+        return <span className="result-item">China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)</span>;
+      }
+      return <span className="result-item">China NTW Data Transfer: Error fetching data</span>;
+
     case 'foundation_dns_queries':
       if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
         return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
