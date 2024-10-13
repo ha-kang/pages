@@ -91,7 +91,7 @@ const renderResult = (endpoint, result) => {
         }
         return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
     }
-  } catch (error) {
+  }; catch (error) {
     console.error(`Error rendering result for ${endpoint}:`, error);
     return <span className="result-item">Error rendering result for {endpoint}</span>;
   }
