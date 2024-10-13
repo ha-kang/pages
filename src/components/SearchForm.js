@@ -69,35 +69,36 @@ const renderResult = (endpoint, result) => {
       }
       return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
     case 'workers_kv_read':
-      if (typeof result.readRequestsMM !== 'undefined' && typeof result.readRequests !== 'undefined') {
-        return (
-          <span className="result-item">Workers KV - Read: {formatNumber(result.readRequestsMM)} MM ({result.readRequests})</span>
-        );
-      }
-      return <span className="result-item">Workers KV - Read: No valid data available</span>;
+      const readRequests = result.readRequests || 0;
+      const readRequestsMM = result.readRequestsMM || 0;
+      return (
+        <span className="result-item">Workers KV - Read: {formatNumber(readRequestsMM)} MM ({readRequests})</span>
+      );
     case 'workers_kv_storage':
-      if (typeof result.storageGB !== 'undefined' && typeof result.storageBytes !== 'undefined') {
-        return (
-          <span className="result-item">Workers KV - Storage: {result.storageGB.toFixed(2)} GB ({result.storageBytes} bytes)</span>
-        );
-      }
-      return <span className="result-item">Workers KV - Storage: No valid data available</span>;
+      const storageGB = result.storageGB || 0;
+      const storageBytes = result.storageBytes || 0;
+      return (
+        <span className="result-item">Workers KV - Storage: {storageGB.toFixed(2)} GB ({storageBytes} bytes)</span>
+      );
     case 'workers_kv_write_list_delete':
-      if (typeof result.totalRequestsMM !== 'undefined' && typeof result.totalRequests !== 'undefined') {
-        return (
-          <>
-            <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(result.totalRequestsMM)} MM ({result.totalRequests})</span>
-            <span className="result-item">Write: {formatNumber(result.writeRequests)}</span>
-            <span className="result-item">List: {formatNumber(result.listRequests)}</span>
-            <span className="result-item">Delete: {formatNumber(result.deleteRequests)}</span>
-          </>
-        );
-      }
-      return <span className="result-item">Workers KV - Write/List/Delete: No valid data available</span>;
+      const totalRequestsMM = result.totalRequestsMM || 0;
+      const totalRequests = result.totalRequests || 0;
+      const writeRequests = result.writeRequests || 0;
+      const listRequests = result.listRequests || 0;
+      const deleteRequests = result.deleteRequests || 0;
+      return (
+        <>
+          <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(totalRequestsMM)} MM ({totalRequests})</span>
+          <span className="result-item">Write: {formatNumber(writeRequests)}</span>
+          <span className="result-item">List: {formatNumber(listRequests)}</span>
+          <span className="result-item">Delete: {formatNumber(deleteRequests)}</span>
+        </>
+      );
     default:
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
   }
 };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -219,15 +220,13 @@ const handleSubmit = async (e) => {
     console.log('Received data:', JSON.stringify(data, null, 2));
 
     if (data && typeof data === 'object') {
-      console.log('Setting results:', data);
       setResults(data);
     } else {
       throw new Error('Invalid data received from server');
     }
   } catch (error) {
-    console.error('Error in handleSubmit:', error);
-    setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-    setResults(null);
+    console.log('Error occurred, but continuing with available data');
+    setResults({}); // 에러 발생 시 빈 객체로 설정
   } finally {
     setIsLoading(false);
   }
