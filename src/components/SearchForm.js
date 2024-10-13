@@ -74,21 +74,6 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
       }
       break;
-    case 'china_ntw_data_transfer':
-      if (Array.isArray(result)) {
-        let totalBytes = 0;
-        result.forEach(zoneResult => {
-          if (zoneResult.data && zoneResult.data.data && zoneResult.data.data.viewer && zoneResult.data.data.viewer.zones) {
-            const requests = zoneResult.data.data.viewer.zones[0].requests;
-            if (requests && requests.length > 0) {
-              totalBytes += requests[0].sum.edgeResponseBytes || 0;
-            }
-          }
-        });
-        return <span className="result-item">China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)</span>;
-      }
-      return <span className="result-item">China NTW Data Transfer: Error fetching data</span>;
-
     case 'foundation_dns_queries':
       if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
         return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
@@ -128,7 +113,6 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
       }
       break;
-    
     case 'workers_std_cpu':
       if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
         const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
@@ -136,6 +120,20 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD CPU: {formatCPUTime(standardCPU)}</span>;
       }
       break;
+    case 'china_ntw_data_transfer':
+      if (Array.isArray(result)) {
+        let totalBytes = 0;
+        result.forEach(zoneResult => {
+          if (zoneResult.data && zoneResult.data.data && zoneResult.data.data.viewer && zoneResult.data.data.viewer.zones) {
+            const requests = zoneResult.data.data.viewer.zones[0].requests;
+            if (requests && requests.length > 0) {
+              totalBytes += requests[0].sum.edgeResponseBytes || 0;
+            }
+          }
+        });
+        return <span className="result-item">China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)</span>;
+      }
+      return <span className="result-item">China NTW Data Transfer: Error fetching data</span>;
     default:
       // 기본적으로 결과를 JSON 문자열로 표시
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
@@ -144,6 +142,7 @@ const renderResult = (endpoint, result) => {
   // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
   return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
 };
+
 
   useEffect(() => {
     const fetchData = async () => {
