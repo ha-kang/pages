@@ -71,7 +71,13 @@ const renderResult = (endpoint, result) => {
     case 'workers_kv_read':
     case 'workers_kv_storage':
     case 'workers_kv_write_list_delete':
-      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+      return (
+        <div className="result-item">
+          <h3>{endpoint}</h3>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+        </div>
+      );
+    // 다른 엔드포인트들에 대한 처리는 그대로 유지
     default:
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
   }
@@ -128,23 +134,36 @@ const renderResult = (endpoint, result) => {
   };
   
   const fetchEndpoints = async () => {
-    try {
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      const formattedEndpoints = data.map(endpoint => ({
-        value: endpoint.value,
-        label: endpoint.label
-      }));
-      setEndpoints(formattedEndpoints);
-    } catch (error) {
-      console.error('Error fetching endpoints:', error);
-      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
-      setEndpoints([]);
+  try {
+    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountTag,
+        customerName: customer,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        endpoints: selectedEndpoints.map(e => e.value),
+        zoneIds
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+    console.log('Received data:', JSON.stringify(data, null, 2));
+
+    // GraphQL 응답을 그대로 설정
+    setResults(data);
+  } catch (error) {
+    console.error('Error occurred:', error);
+    setResults({ error: error.message });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 
 
