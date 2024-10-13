@@ -180,6 +180,7 @@ async function handleRequest(request) {
 
 
 // 각 엔드포인트 결과를 처리하는 함수=======================================================================================================
+// handleDataTransferRequest 함수 수정
 async function handleDataTransferRequest(accountTag, zoneId, params) {
   const query = `
     query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
@@ -204,7 +205,7 @@ async function handleDataTransferRequest(accountTag, zoneId, params) {
   });
 }
 
-//====================================================bot===================================================
+// handleBotManagementRequest 함수 수정
 async function handleBotManagementRequest(accountTag, zoneId, params) {
   const query = `
     query getBotManagementRequests($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!, $likelyHumanFilter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
@@ -337,60 +338,48 @@ async function handleWorkersKVOperations(accountTag, zoneId, params) {
 
 
 function processEndpointResult(endpoint, result) {
-  console.log(`Processing result for endpoint: ${endpoint}`, result);
-
-  if (!result.data) {
+  if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
     console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
-    return result.errors ? { errors: result.errors } : null;
+    return null;
   }
   
-  const account = result.data.viewer.accounts ? result.data.viewer.accounts[0] : null;
-  const zone = result.data.viewer.zones ? result.data.viewer.zones[0] : null;
+  const account = result.data.viewer.accounts[0];
 
   switch (endpoint) {
     case 'data_transfer_request':
-      const groups = zone?.httpRequestsOverviewAdaptiveGroups;
-      if (groups && groups.length > 0) {
-        return {
-          bytes: groups[0].sum.bytes,
-          requests: groups[0].sum.requests
-        };
+      if (result.bytes !== undefined && result.requests !== undefined) {
+        return result;
       }
       return null;
     case 'bot_management_request':
-      const likelyHuman = zone?.likely_human;
-      if (likelyHuman && likelyHuman.length > 0) {
-        return likelyHuman[0].count;
+      if (typeof result === 'number') {
+        return result;
       }
       return null;
+
     case 'foundation_dns_queries':
-      return result.summary;
+      return result.data.viewer.zones[0].dns.analytics.queries.count;
+
     case 'workers_kv_read':
-      return account?.reads[0]?.sum.requests || 0;
+      return account.reads[0]?.sum.requests || 0;
     case 'workers_kv_storage':
-      return account?.storage[0]?.max.byteCount || 0;
+      return account.storage[0]?.max.byteCount || 0;
     case 'workers_kv_write_list_delete':
-      const writeRequests = account?.writes[0]?.sum.requests || 0;
-      const listRequests = account?.lists[0]?.sum.requests || 0;
-      const deleteRequests = account?.deletes[0]?.sum.requests || 0;
+      const writeRequests = account.writes[0]?.sum.requests || 0;
+      const listRequests = account.lists[0]?.sum.requests || 0;
+      const deleteRequests = account.deletes[0]?.sum.requests || 0;
       return {
         writeRequests,
         listRequests,
         deleteRequests,
         totalRequests: writeRequests + listRequests + deleteRequests
       };
+
+
     case 'china_ntw_data_transfer':
-      const chinaGroups = zone?.httpRequests1dGroups;
+      const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
       return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
-    case 'workers_std_requests':
-    case 'workers_std_cpu':
-    case 'stream_minutes_stored':
-    case 'stream_minutes_viewed':
-    case 'images_delivered':
-    case 'images_stored':
-    case 'images_unique_transformations':
-      // These endpoints might need specific processing based on their structure
-      return result.data;
+    // 다른 엔드포인트에 대한 처리를 추가할 수 있습니다.
     default:
       console.error(`Unknown endpoint: ${endpoint}`);
       return null;
