@@ -195,7 +195,10 @@ const SearchForm = () => {
       case 'bot_management_request':
         return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
       case 'foundation_dns_queries':
-        return <span className="result-item">Foundation DNS Queries: {formatNumber(result)}</span>;
+        if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+          return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
+        }
+        return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
       case 'workers_kv_read':
         return <span className="result-item">Workers KV - Read: {formatNumber(result)}</span>;
       case 'workers_kv_storage':
