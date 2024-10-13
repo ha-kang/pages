@@ -69,35 +69,14 @@ const renderResult = (endpoint, result) => {
       }
       return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
     case 'workers_kv_read':
-      const readRequests = result.readRequests || 0;
-      const readRequestsMM = result.readRequestsMM || 0;
-      return (
-        <span className="result-item">Workers KV - Read: {formatNumber(readRequestsMM)} MM ({readRequests})</span>
-      );
     case 'workers_kv_storage':
-      const storageGB = result.storageGB || 0;
-      const storageBytes = result.storageBytes || 0;
-      return (
-        <span className="result-item">Workers KV - Storage: {storageGB.toFixed(2)} GB ({storageBytes} bytes)</span>
-      );
     case 'workers_kv_write_list_delete':
-      const totalRequestsMM = result.totalRequestsMM || 0;
-      const totalRequests = result.totalRequests || 0;
-      const writeRequests = result.writeRequests || 0;
-      const listRequests = result.listRequests || 0;
-      const deleteRequests = result.deleteRequests || 0;
-      return (
-        <span className="result-item">
-          Workers KV - Write/List/Delete: {formatNumber(totalRequestsMM)} MM ({totalRequests})
-          {totalRequests > 0 && (
-            <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
-          )}
-        </span>
-      );
+      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
     default:
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
   }
 };
+
 
   useEffect(() => {
     const fetchData = async () => {
