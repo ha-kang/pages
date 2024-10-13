@@ -100,13 +100,18 @@ const renderResult = (endpoint, result) => {
       }
       break;
     case 'workers_std_requests':
-      if (typeof result === 'number') {
-        return <span className="result-item">Workers STD Requests: {formatNumber(result)}</span>;
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardRequests = result.data.viewer.accounts[0].workersInvocationsAdaptive
+          .find(item => item.dimensions.usageModel === "standard")?.sum.Standatd_request || 0;
+        return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
       }
       break;
+    
     case 'workers_std_cpu':
-      if (typeof result === 'number') {
-        return <span className="result-item">Workers STD CPU: {formatNumber(result)} μs</span>;
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
+          .find(item => item.dimensions.usageModel === 2)?.sum.CPU_Time || 0;
+        return <span className="result-item">Workers STD CPU: {formatNumber(standardCPU)} μs</span>;
       }
       break;
     default:
