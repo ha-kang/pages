@@ -99,6 +99,16 @@ const renderResult = (endpoint, result) => {
         }
       }
       break;
+    case 'workers_std_requests':
+      if (typeof result === 'number') {
+        return <span className="result-item">Workers STD Requests: {formatNumber(result)}</span>;
+      }
+      break;
+    case 'workers_std_cpu':
+      if (typeof result === 'number') {
+        return <span className="result-item">Workers STD CPU: {formatNumber(result)} μs</span>;
+      }
+      break;
     default:
       // 기본적으로 결과를 JSON 문자열로 표시
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
