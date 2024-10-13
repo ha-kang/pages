@@ -136,8 +136,8 @@ const SearchForm = () => {
     setIsLoading(true);
     setError(null);
 
-    const formattedStartDate = formatDate(startDate);
-    const formattedEndDate = formatDate(endDate);
+    const formattedStartDate = startDate.toISOString().split('T')[0];
+    const formattedEndDate = endDate.toISOString().split('T')[0];
     const accountTag = customerAccounts[customer];
     const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
 
@@ -170,7 +170,8 @@ const SearchForm = () => {
         throw new Error('Invalid data received from server');
       }
     } catch (error) {
-      console.log('Error occurred, but continuing with available data');
+      console.log('Error occurred:', error);
+      setError('데이터를 가져오는 중 오류가 발생했습니다.');
       setResults({});
     } finally {
       setIsLoading(false);
