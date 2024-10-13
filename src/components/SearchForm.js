@@ -27,7 +27,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
-  
 
   const formatBytes = (bytes) => {
     if (bytes === 0 || bytes === undefined) return '0 B';
@@ -37,52 +36,58 @@ const SearchForm = () => {
     const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
     return `${convertedValue} ${sizes[i]} (${bytes})`;
   };
-  
+
   const formatNumber = (number) => {
     if (number === undefined || number === null) return 'N/A';
-    if (typeof number === 'string') return number; // Handle error messages
+    if (typeof number === 'string') return number;
     if (number >= 1000000) {
       const millions = number / 1000000;
       return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
     }
     return number.toLocaleString();
   };
-  
-const renderResult = (endpoint, result) => {
-  if (!result || typeof result !== 'object') {
-    return <span className="result-item">No valid data available</span>;
-  }
 
-  switch (endpoint) {
-    case 'data_transfer_request':
-      return (
-        <>
-          <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-          <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-        </>
-      );
-    case 'bot_management_request':
-      return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
-    case 'foundation_dns_queries':
-      if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
-        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-      }
-      return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
-    case 'workers_kv_read':
-    case 'workers_kv_storage':
-    case 'workers_kv_write_list_delete':
-      return (
-        <div className="result-item">
-          <h3>{endpoint}</h3>
-          <pre>{JSON.stringify(result, null, 2)}</pre>
-        </div>
-      );
-    // 다른 엔드포인트들에 대한 처리는 그대로 유지
-    default:
-      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
-  }
-};
+  const renderResult = (endpoint, result) => {
+    if (!result || typeof result !== 'object') {
+      return <span className="result-item">No valid data available</span>;
+    }
 
+    switch (endpoint) {
+      case 'workers_kv_read':
+      case 'workers_kv_storage':
+      case 'workers_kv_write_list_delete':
+        return (
+          <div className="result-item">
+            <h3>{endpoint}</h3>
+            <pre>{JSON.stringify(result, null, 2)}</pre>
+          </div>
+        );
+      case 'data_transfer_request':
+        const groups = result.data?.viewer?.zones[0]?.httpRequestsOverviewAdaptiveGroups;
+        if (groups && groups.length > 0) {
+          return (
+            <>
+              <span className="result-item">Data Transferred: {formatBytes(groups[0].sum.bytes)}</span>
+              <span className="result-item">Total Requests: {formatNumber(groups[0].sum.requests)}</span>
+            </>
+          );
+        }
+        return <span className="result-item">No valid data available for Data Transfer/Request</span>;
+      case 'bot_management_request':
+        const likelyHuman = result.data?.viewer?.zones[0]?.likely_human;
+        if (likelyHuman && likelyHuman.length > 0) {
+          return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman[0].count)}</span>;
+        }
+        return <span className="result-item">No valid data available for Bot Management Request</span>;
+      case 'foundation_dns_queries':
+        if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+          return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
+        }
+        return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
+      default:
+        return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,40 +137,25 @@ const renderResult = (endpoint, result) => {
       setCustomerZones({});
     }
   };
-  
+
   const fetchEndpoints = async () => {
-  try {
-    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        accountTag,
-        customerName: customer,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        endpoints: selectedEndpoints.map(e => e.value),
-        zoneIds
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const formattedEndpoints = data.map(endpoint => ({
+        value: endpoint.value,
+        label: endpoint.label
+      }));
+      setEndpoints(formattedEndpoints);
+    } catch (error) {
+      console.error('Error fetching endpoints:', error);
+      setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
+      setEndpoints([]);
     }
-
-    const data = await response.json();
-    console.log('Received data:', JSON.stringify(data, null, 2));
-
-    // GraphQL 응답을 그대로 설정
-    setResults(data);
-  } catch (error) {
-    console.error('Error occurred:', error);
-    setResults({ error: error.message });
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
+  };
 
   const handleEndpointChange = (selectedOptions) => {
     if (!selectedOptions) {
@@ -179,64 +169,58 @@ const renderResult = (endpoint, result) => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
-    setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
-    return;
-  }
-
-  setIsLoading(true);
-  setError(null);
-
-  const formattedStartDate = formatDate(startDate);
-  const formattedEndDate = formatDate(endDate);
-  const accountTag = customerAccounts[customer];
-  const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
-
-  try {
-    console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
-    
-    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        accountTag,
-        customerName: customer,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        endpoints: selectedEndpoints.map(e => e.value),
-        zoneIds
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
+      return;
     }
 
-    const data = await response.json();
-    console.log('Received data:', JSON.stringify(data, null, 2));
+    setIsLoading(true);
+    setError(null);
 
-    if (data && typeof data === 'object') {
+    const formattedStartDate = formatDate(startDate);
+    const formattedEndDate = formatDate(endDate);
+    const accountTag = customerAccounts[customer];
+    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
+
+    try {
+      console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
+      
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountTag,
+          customerName: customer,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
+          endpoints: selectedEndpoints.map(e => e.value),
+          zoneIds
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Received data:', JSON.stringify(data, null, 2));
+
+      // GraphQL 응답을 그대로 설정
       setResults(data);
-    } else {
-      throw new Error('Invalid data received from server');
+    } catch (error) {
+      console.error('Error occurred:', error);
+      setResults({ error: error.message });
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.log('Error occurred, but continuing with available data');
-    setResults({}); // 에러 발생 시 빈 객체로 설정
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
     label: name
   }));
-
-
 
   return (
     <div className="search-form-container">
