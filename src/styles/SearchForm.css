@@ -225,6 +225,13 @@ select,
   display: block;
 }
 
+.result-item pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-radius: 5px;
+}
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
