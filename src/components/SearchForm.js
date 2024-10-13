@@ -28,11 +28,6 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
-  const formatQueryCount = (count) => {
-    if (count === undefined || count === null) return 'N/A';
-    const millions = count / 1000000;
-    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
-  };
 
   const formatBytes = (bytes) => {
     if (bytes === 0 || bytes === undefined) return '0 B';
