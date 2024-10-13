@@ -87,12 +87,12 @@ const renderResult = (endpoint, result) => {
       const listRequests = result.listRequests || 0;
       const deleteRequests = result.deleteRequests || 0;
       return (
-        <>
-          <span className="result-item">Workers KV - Write/List/Delete: {formatNumber(totalRequestsMM)} MM ({totalRequests})</span>
-          <span className="result-item">Write: {formatNumber(writeRequests)}</span>
-          <span className="result-item">List: {formatNumber(listRequests)}</span>
-          <span className="result-item">Delete: {formatNumber(deleteRequests)}</span>
-        </>
+        <span className="result-item">
+          Workers KV - Write/List/Delete: {formatNumber(totalRequestsMM)} MM ({totalRequests})
+          {totalRequests > 0 && (
+            <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
+          )}
+        </span>
       );
     default:
       return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
