@@ -123,15 +123,24 @@ const renderResult = (endpoint, result) => {
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
         let totalBytes = 0;
+        let errorCount = 0;
         result.forEach(zoneResult => {
           if (zoneResult.data && zoneResult.data.data && zoneResult.data.data.viewer && zoneResult.data.data.viewer.zones) {
             const requests = zoneResult.data.data.viewer.zones[0].requests;
             if (requests && requests.length > 0) {
               totalBytes += requests[0].sum.edgeResponseBytes || 0;
             }
+          } else if (zoneResult.error) {
+            errorCount++;
+            console.error(`Error for zone ${zoneResult.zoneId}:`, zoneResult.error);
           }
         });
-        return <span className="result-item">China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)</span>;
+        return (
+          <span className="result-item">
+            China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)
+            {errorCount > 0 && ` (Errors: ${errorCount})`}
+          </span>
+        );
       }
       return <span className="result-item">China NTW Data Transfer: Error fetching data</span>;
     default:
