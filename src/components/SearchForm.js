@@ -4,7 +4,6 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-
 const formatDate = (date) => {
   if (!date) return '';
   const year = date.getFullYear();
@@ -27,38 +26,87 @@ const SearchForm = () => {
 
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
-  const formatQueryCount = (count) => {
-    if (count === undefined || count === null) return 'N/A';
-    const millions = count / 1000000;
-    return `${millions.toFixed(2)}MM (${count.toLocaleString()})`;
+
+  const formatBytes = (bytes) => {
+    if (bytes === 0 || bytes === undefined) return '0 B';
+    const k = 1000;
+    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
+    return `${convertedValue} ${sizes[i]} (${bytes})`;
   };
   
-  const renderResult = (endpoint, result) => {
-    if (result && typeof result === 'object') {
-      switch (endpoint) {
-        case 'data_transfer_request':
-          return (
-            <>
-              <span className="result-item">Data Transferred: {formatBytes(result.bytes)}</span>
-              <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
-            </>
-          );
-        case 'bot_management_request':
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
-        case 'foundation_dns_queries':
-          if (result.summary && result.summary.totalQueryCount !== undefined) {
-            return <span className="result-item">Foundation DNS Queries: {formatQueryCount(result.summary.totalQueryCount)}</span>;
-          }
-          return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
-        default:
-          return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
-      }
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) return 'N/A';
+    if (typeof number === 'string') return number; // Handle error messages
+    if (number >= 1000000) {
+      const millions = number / 1000000;
+      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
     }
-    return <span className="result-item">No valid data available</span>;
+    return number.toLocaleString();
   };
+  
+const renderResult = (endpoint, result) => {
+  console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
+
+  switch (endpoint) {
+    case 'data_transfer_request':
+      if (result && typeof result.totalBytes !== 'undefined' && typeof result.totalRequests !== 'undefined') {
+        return (
+          <>
+            <span className="result-item">Data Transferred: {formatBytes(result.totalBytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(result.totalRequests)}</span>
+          </>
+        );
+      }
+      break;
+    case 'bot_management_request':
+      if (result && typeof result.totalLikelyHuman !== 'undefined') {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
+      }
+      break;
+    case 'foundation_dns_queries':
+      if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
+      }
+      break;
+    case 'workers_kv_read':
+    case 'workers_kv_storage':
+    case 'workers_kv_write_list_delete':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
+        const account = result.data.viewer.accounts[0];
+        if (endpoint === 'workers_kv_read') {
+          const readRequests = account.reads[0]?.sum.requests || 0;
+          return <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>;
+        } else if (endpoint === 'workers_kv_storage') {
+          const storageBytes = account.storage[0]?.max.byteCount || 0;
+          return <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>;
+        } else if (endpoint === 'workers_kv_write_list_delete') {
+          const writeRequests = account.writes[0]?.sum.requests || 0;
+          const listRequests = account.lists[0]?.sum.requests || 0;
+          const deleteRequests = account.deletes[0]?.sum.requests || 0;
+          const totalRequests = writeRequests + listRequests + deleteRequests;
+          return (
+            <span className="result-item">
+              Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
+              {totalRequests > 0 && (
+                <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
+              )}
+            </span>
+          );
+        }
+      }
+      break;
+    default:
+      // 기본적으로 결과를 JSON 문자열로 표시
+      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+  }
+
+  // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
+  return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+};
 
   useEffect(() => {
     const fetchData = async () => {
@@ -142,82 +190,64 @@ const SearchForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
-      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+    setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+
+  const formattedStartDate = formatDate(startDate);
+  const formattedEndDate = formatDate(endDate);
+  const accountTag = customerAccounts[customer];
+  const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
+
+  try {
+    console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
+    
+    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountTag,
+        customerName: customer,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        endpoints: selectedEndpoints.map(e => e.value),
+        zoneIds
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    setIsLoading(true);
-    setError(null);
+    const data = await response.json();
+    console.log('Received data:', JSON.stringify(data, null, 2));
 
-    const formattedStartDate = formatDate(startDate);
-    const formattedEndDate = formatDate(endDate);
-    const accountTag = customerAccounts[customer];
-    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
-
-    try {
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          accountTag,
-          customerName: customer,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-          endpoints: selectedEndpoints.map(e => e.value),
-          zoneIds
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data && typeof data === 'object') {
-        setResults(data);
-        
-        // Foundation DNS Queries 결과를 콘솔에 출력
-        if (data.foundation_dns_queries) {
-          console.log('Foundation DNS Queries Result:', data.foundation_dns_queries);
-        }
-      } else {
-        throw new Error('Invalid data received from server');
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-      setResults(null);
-    } finally {
-      setIsLoading(false);
+    if (data && typeof data === 'object') {
+      setResults(data);
+    } else {
+      throw new Error('Invalid data received from server');
     }
-  };
+  } catch (error) {
+    console.log('Error occurred, but continuing with available data');
+    setResults({}); // 에러 발생 시 빈 객체로 설정
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
     label: name
   }));
 
-  const formatBytes = (bytes) => {
-    if (bytes === 0 || bytes === undefined) return '0 B';
-    const k = 1000;
-    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes})`;
-  };
-  
-  const formatNumber = (number) => {
-    if (number === undefined || number === null) return 'N/A';
-    if (typeof number === 'string') return number; // Handle error messages
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
-    }
-    return number.toLocaleString();
-  };
+
 
   return (
     <div className="search-form-container">
@@ -260,7 +290,7 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
+      {results && typeof results === 'object' && Object.keys(results).length > 0 && (
         <div className="results-container">
           <h2 className="results-title">결과</h2>
           <div className="results-box">

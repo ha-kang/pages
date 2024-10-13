@@ -27,16 +27,17 @@ const ENDPOINTS = {
     label: 'Workers STD CPU'
   },
   'workers_kv_read': {
-    handler: handleWorkersKVRead,
+    handler: handleWorkersKVOperations,
     label: 'Workers KV Read'
   },
   'workers_kv_storage': {
-    handler: handleWorkersKVStorage,
+    handler: handleWorkersKVOperations,
     label: 'Workers KV Storage'
   },
   'workers_kv_write_list_delete': {
-    handler: handleWorkersKVWriteListDelete,
+    handler: handleWorkersKVOperations,
     label: 'Workers KV Write List Delete'
+
   },
   'stream_minutes_stored': {
     handler: handleStreamMinutesStored,
@@ -66,6 +67,7 @@ const AUTH_KEY = 'f6f652701a00dc80fc3c5e764adb1b84461e3';
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request));
 });
+
 
 async function handleRequest(request) {
   const corsHeaders = {
@@ -107,15 +109,7 @@ async function handleRequest(request) {
           try {
             if (endpointConfig.useZoneId) {
               if (endpoint === 'foundation_dns_queries') {
-                // Foundation DNS Queries에 대한 특별 처리
-                results[endpoint] = await endpointConfig.handler(
-                  accountTag,
-                  zoneIds,
-                  { get: (key) => key === 'start_date' ? startDate : endDate }
-                );
-              } else {
-                let totalResult = endpoint === 'data_transfer_request' ? { bytes: 0, requests: 0 } : 0;
-                let validResultCount = 0;
+
                 for (const zoneId of zoneIds) {
                   try {
                     const result = await endpointConfig.handler(
@@ -123,31 +117,15 @@ async function handleRequest(request) {
                       zoneId, 
                       { get: (key) => key === 'start_date' ? startDate : endDate }
                     );
-                    
-                    const processedResult = processEndpointResult(endpoint, result);
-                    if (processedResult !== null) {
-                      if (endpoint === 'data_transfer_request') {
-                        totalResult.bytes += processedResult.bytes || 0;
-                        totalResult.requests += processedResult.requests || 0;
-                      } else {
-                        totalResult += processedResult;
-                      }
-                      validResultCount++;
+
                     }
                   } catch (zoneError) {
                     console.error(`Error processing zoneId ${zoneId} for endpoint ${endpoint}:`, zoneError);
                   }
                 }
-                if (validResultCount > 0) {
-                  results[endpoint] = totalResult;
-                } else {
-                  results[endpoint] = { 
-                    errors: [{ message: "No valid results found for any zone" }]
-                  };
-                }
+
               }
             } else {
-              // accountTag를 사용하는 엔드포인트는 기존 방식대로 처리합니다.
               results[endpoint] = await endpointConfig.handler(
                 accountTag, 
                 null, 
@@ -156,9 +134,7 @@ async function handleRequest(request) {
             }
           } catch (endpointError) {
             console.error(`Error processing endpoint ${endpoint}:`, endpointError);
-            results[endpoint] = { 
-              errors: [{ message: endpointError.message || "Unknown error occurred" }]
-            };
+            results[endpoint] = { error: endpointError.message || "Unknown error occurred" };
           }
         }
       }
@@ -177,8 +153,8 @@ async function handleRequest(request) {
   return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 }
 
-
 // 각 엔드포인트 결과를 처리하는 함수=======================================================================================================
+// handleDataTransferRequest 함수 수정
 async function handleDataTransferRequest(accountTag, zoneId, params) {
   const query = `
     query getDataTransferRequest($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
@@ -202,7 +178,6 @@ async function handleDataTransferRequest(accountTag, zoneId, params) {
     }
   });
 }
-
 
 async function handleBotManagementRequest(accountTag, zoneId, params) {
   const query = `
@@ -238,7 +213,7 @@ async function handleBotManagementRequest(accountTag, zoneId, params) {
   return await performGraphQLRequest(query, variables);
 }
 
-
+//====================================================FoundationDNS===================================================
 
 async function handleFoundationDNSQueries(accountTag, zoneIds, params) {
   const startDate = params.get('start_date');
@@ -284,31 +259,46 @@ async function handleFoundationDNSQueries(accountTag, zoneIds, params) {
   };
 }
 
+
 function processEndpointResult(endpoint, result) {
   if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
     console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
     return null;
   }
+  
+  const account = result.data.viewer.accounts[0];
 
   switch (endpoint) {
     case 'data_transfer_request':
-      const groups = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
-      if (groups && groups.length > 0) {
-        return {
-          bytes: groups[0].sum.bytes,
-          requests: groups[0].sum.requests
-        };
+      if (result.bytes !== undefined && result.requests !== undefined) {
+        return result;
       }
       return null;
     case 'bot_management_request':
-      const likelyHuman = result.data.viewer.zones[0].likely_human;
-      if (likelyHuman && likelyHuman.length > 0) {
-        return likelyHuman[0].count;
+      if (typeof result === 'number') {
+        return result;
       }
       return null;
 
     case 'foundation_dns_queries':
       return result.data.viewer.zones[0].dns.analytics.queries.count;
+
+    case 'workers_kv_read':
+      return account.reads[0]?.sum.requests || 0;
+    case 'workers_kv_storage':
+      return account.storage[0]?.max.byteCount || 0;
+    case 'workers_kv_write_list_delete':
+      const writeRequests = account.writes[0]?.sum.requests || 0;
+      const listRequests = account.lists[0]?.sum.requests || 0;
+      const deleteRequests = account.deletes[0]?.sum.requests || 0;
+      return {
+        writeRequests,
+        listRequests,
+        deleteRequests,
+        totalRequests: writeRequests + listRequests + deleteRequests
+      };
+
+
     case 'china_ntw_data_transfer':
       const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
       return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
@@ -343,9 +333,6 @@ async function performGraphQLRequest(query, variables = {}) {
   return await response.json();
 }
 
-// Endpoint handler functions
-
-
 
 
 async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
@@ -369,8 +356,6 @@ async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
   });
 }
 
-
-// Endpoint handler functions
 
 
 async function handleWorkersStdRequests(accountTag, zoneId, params) {
@@ -415,74 +400,8 @@ async function handleWorkersStdCPU(accountTag, zoneId, params) {
   });
 }
 
-async function handleWorkersKVRead(accountTag, zoneId, params) {
-  const query = `
-    query getWorkersKVRead($accountTag: String!, $start: String!, $end: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          workersInvocations(filter: {date_geq: $start, date_leq: $end}) {
-            sum {
-              kvRequests
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
-}
 
-async function handleWorkersKVStorage(accountTag, zoneId, params) {
-  const query = `
-    query getWorkersKVStorage($accountTag: String!, $start: String!, $end: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          workersKvProperties {
-            kvUsage(filter: {date_geq: $start, date_leq: $end}) {
-              sum {
-                storedBytes
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
-}
 
-async function handleWorkersKVWriteListDelete(accountTag, zoneId, params) {
-  const query = `
-    query getWorkersKVWriteListDelete($accountTag: String!, $start: String!, $end: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          workersKvProperties {
-            kvUsage(filter: {date_geq: $start, date_leq: $end}) {
-              sum {
-                writtenBytes
-                deletedKeys
-                listedKeys
-              }
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
-}
 
 async function handleStreamMinutesStored(accountTag, zoneId, params) {
   const query = `
