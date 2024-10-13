@@ -276,22 +276,22 @@ const handleSubmit = async (e) => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-    {results && (
-      <div className="results-container">
-        <h2 className="results-title">결과</h2>
-        <div className="results-box">
-          <div className="endpoint-results">
-            {Object.entries(results).map(([endpoint, result]) => (
-              <div key={endpoint} className="result-group">
-                <h3>{endpoint}</h3>
-                {renderResult(endpoint, result)}
-              </div>
-            ))}
+      {results && (
+        <div className="results-container">
+          <h2 className="results-title">결과</h2>
+          <div className="results-box">
+            <div className="endpoint-results">
+              {Object.entries(results).map(([endpoint, result]) => (
+                <div key={endpoint} className="result-group">
+                  <h3>{endpoint}</h3>
+                  {renderResult(endpoint, result)}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 
 export default SearchForm;
