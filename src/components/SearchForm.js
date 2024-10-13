@@ -172,58 +172,59 @@ const SearchForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
-      setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
+    setError('고객사, 시작 기간, 종료 기간, 그리고 최소 하나의 엔드포인트를 선택해주세요.');
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+
+  const formattedStartDate = formatDate(startDate);
+  const formattedEndDate = formatDate(endDate);
+  const accountTag = customerAccounts[customer];
+  const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
+
+  try {
+    console.log('Sending request with:', { accountTag, customer, formattedStartDate, formattedEndDate, endpoints: selectedEndpoints.map(e => e.value), zoneIds });
+    
+    const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        accountTag,
+        customerName: customer,
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        endpoints: selectedEndpoints.map(e => e.value),
+        zoneIds
+      }),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    setIsLoading(true);
-    setError(null);
+    const data = await response.json();
+    console.log('Received data:', data);
 
-    const formattedStartDate = formatDate(startDate);
-    const formattedEndDate = formatDate(endDate);
-    const accountTag = customerAccounts[customer];
-    const zoneIds = customerZones[customer] ? Object.values(customerZones[customer]) : [];
-
-    try {
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          accountTag,
-          customerName: customer,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate,
-          endpoints: selectedEndpoints.map(e => e.value),
-          zoneIds
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data && typeof data === 'object') {
-        setResults(data);
-        
-        // Foundation DNS Queries 결과를 콘솔에 출력
-        if (data.foundation_dns_queries) {
-          console.log('Foundation DNS Queries Result:', data.foundation_dns_queries);
-        }
-      } else {
-        throw new Error('Invalid data received from server');
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
-      setResults(null);
-    } finally {
-      setIsLoading(false);
+    if (data && typeof data === 'object') {
+      console.log('Setting results:', data);
+      setResults(data);
+    } else {
+      throw new Error('Invalid data received from server');
     }
-  };
+  } catch (error) {
+    console.error('Error in handleSubmit:', error);
+    setError('데이터 조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    setResults(null);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const customerOptions = Object.keys(customerAccounts).map(name => ({
     value: name,
@@ -273,7 +274,7 @@ const SearchForm = () => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
+      {results && typeof results === 'object' && Object.keys(results).length > 0 && (
         <div className="results-container">
           <h2 className="results-title">결과</h2>
           <div className="results-box">
