@@ -85,11 +85,15 @@ const renderResult = (endpoint, result) => {
            Delete: {formatNumber(result.deleteRequests)})
         </span>
       );
-    default:
-      if (result.errors) {
-        return <span className="result-item">Error: {result.errors[0]?.message || 'Unknown error'}</span>;
-      }
-      return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+      default:
+        if (result.errors) {
+          return <span className="result-item">Error: {result.errors[0]?.message || 'Unknown error'}</span>;
+        }
+        return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+    }
+  } catch (error) {
+    console.error(`Error rendering result for ${endpoint}:`, error);
+    return <span className="result-item">Error rendering result for {endpoint}</span>;
   }
 };
 
@@ -175,6 +179,37 @@ const renderResult = (endpoint, result) => {
     }
   };
 
+네, 이해했습니다. UI가 사라지는 문제는 주로 렌더링 과정에서 에러가 발생할 때 일어납니다. 이 문제를 해결하기 위해 다음과 같이 코드를 수정해보겠습니다:
+
+에러 처리를 강화합니다.
+결과 렌더링 부분을 더 안전하게 만듭니다.
+SearchForm.js 파일을 다음과 같이 수정해주세요:
+
+javascript
+
+Copy
+// ... (이전 코드는 그대로 유지)
+
+const renderResult = (endpoint, result) => {
+  if (!result || typeof result !== 'object') {
+    return <span className="result-item">No valid data available for {endpoint}</span>;
+  }
+
+  try {
+    switch (endpoint) {
+      // ... (기존 case들은 그대로 유지)
+      default:
+        if (result.errors) {
+          return <span className="result-item">Error: {result.errors[0]?.message || 'Unknown error'}</span>;
+        }
+        return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
+    }
+  } catch (error) {
+    console.error(`Error rendering result for ${endpoint}:`, error);
+    return <span className="result-item">Error rendering result for {endpoint}</span>;
+  }
+};
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
@@ -221,7 +256,7 @@ const handleSubmit = async (e) => {
   } catch (error) {
     console.error('Error occurred:', error);
     setError(`데이터 조회 중 오류가 발생했습니다: ${error.message}`);
-    setResults(null);
+    // 여기서 results를 null로 설정하지 않습니다.
   } finally {
     setIsLoading(false);
   }
@@ -276,22 +311,22 @@ const handleSubmit = async (e) => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
-        <div className="results-container">
-          <h2 className="results-title">결과</h2>
-          <div className="results-box">
-            <div className="endpoint-results">
-              {Object.entries(results).map(([endpoint, result]) => (
-                <div key={endpoint} className="result-group">
-                  <h3>{endpoint}</h3>
-                  {renderResult(endpoint, result)}
-                </div>
-              ))}
-            </div>
+    {results !== null && (
+      <div className="results-container">
+        <h2 className="results-title">결과</h2>
+        <div className="results-box">
+          <div className="endpoint-results">
+            {Object.entries(results).map(([endpoint, result]) => (
+              <div key={endpoint} className="result-group">
+                <h3>{endpoint}</h3>
+                {renderResult(endpoint, result)}
+              </div>
+            ))}
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    )}
+  </div>
   );
 };
 
