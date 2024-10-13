@@ -109,15 +109,7 @@ async function handleRequest(request) {
           try {
             if (endpointConfig.useZoneId) {
               if (endpoint === 'foundation_dns_queries') {
-                results[endpoint] = await endpointConfig.handler(
-                  accountTag,
-                  zoneIds,
-                  { get: (key) => key === 'start_date' ? startDate : endDate }
-                );
-              } else if (endpoint === 'data_transfer_request' || endpoint === 'bot_management_request') {
-                let totalBytes = 0;
-                let totalRequests = 0;
-                let totalLikelyHuman = 0;
+
                 for (const zoneId of zoneIds) {
                   try {
                     const result = await endpointConfig.handler(
@@ -125,37 +117,13 @@ async function handleRequest(request) {
                       zoneId, 
                       { get: (key) => key === 'start_date' ? startDate : endDate }
                     );
-                    if (endpoint === 'data_transfer_request') {
-                      const group = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups[0];
-                      totalBytes += group.sum.bytes;
-                      totalRequests += group.sum.requests;
-                    } else if (endpoint === 'bot_management_request') {
-                      const likelyHuman = result.data.viewer.zones[0].likely_human[0];
-                      totalLikelyHuman += likelyHuman.count;
+
                     }
                   } catch (zoneError) {
                     console.error(`Error processing zoneId ${zoneId} for endpoint ${endpoint}:`, zoneError);
                   }
                 }
-                results[endpoint] = endpoint === 'data_transfer_request'
-                  ? { totalBytes, totalRequests }
-                  : { totalLikelyHuman };
-              } else {
-                let totalResult = [];
-                for (const zoneId of zoneIds) {
-                  try {
-                    const result = await endpointConfig.handler(
-                      accountTag, 
-                      zoneId, 
-                      { get: (key) => key === 'start_date' ? startDate : endDate }
-                    );
-                    totalResult.push({ zoneId, result });
-                  } catch (zoneError) {
-                    console.error(`Error processing zoneId ${zoneId} for endpoint ${endpoint}:`, zoneError);
-                    totalResult.push({ zoneId, error: zoneError.message });
-                  }
-                }
-                results[endpoint] = totalResult;
+
               }
             } else {
               results[endpoint] = await endpointConfig.handler(
@@ -290,55 +258,6 @@ async function handleFoundationDNSQueries(accountTag, zoneIds, params) {
     }
   };
 }
-
-
-
-//====================================================Workers_KV===================================================
-async function handleWorkersKVOperations(accountTag, zoneId, params) {
-  const startDate = new Date(params.get('start_date')).toISOString();
-  const endDate = new Date(params.get('end_date')).toISOString();
-  console.log('Handling KV Operations with:', { accountTag, startDate, endDate });
-
-  const query = `
-    query KVOperationsSummaryByAccount($accountTag: String!, $startDate: String!, $endDate: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          reads: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: read, datetime_geq: $startDate, datetime_leq: $endDate}) {
-            sum {
-              requests
-            }
-          }
-          writes: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: write, datetime_geq: $startDate, datetime_leq: $endDate}) {
-            sum {
-              requests
-            }
-          }
-          lists: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: list, datetime_geq: $startDate, datetime_leq: $endDate}) {
-            sum {
-              requests
-            }
-          }
-          deletes: kvOperationsAdaptiveGroups(limit: 1, filter: {actionType: delete, datetime_geq: $startDate, datetime_leq: $endDate}) {
-            sum {
-              requests
-            }
-          }
-          storage: kvStorageAdaptiveGroups(limit: 744, filter: {datetime_geq: $startDate, datetime_leq: $endDate}) {
-            max {
-              byteCount
-            }
-          }
-        }
-      }
-    }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    startDate,
-    endDate
-  });
-}
-
 
 
 function processEndpointResult(endpoint, result) {
