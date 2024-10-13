@@ -185,6 +185,82 @@ async function handleRequest(request) {
   return new Response('Method not allowed', { status: 405, headers: corsHeaders });
 }
 
+
+
+function processEndpointResult(endpoint, result) {
+  if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
+    console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
+    return null;
+  }
+  
+  const account = result.data.viewer.accounts[0];
+
+  switch (endpoint) {
+    case 'data_transfer_request':
+      if (result.bytes !== undefined && result.requests !== undefined) {
+        return result;
+      }
+      return null;
+    case 'bot_management_request':
+      if (typeof result === 'number') {
+        return result;
+      }
+      return null;
+
+    case 'foundation_dns_queries':
+      return result.data.viewer.zones[0].dns.analytics.queries.count;
+
+    case 'workers_kv_read':
+      return account.reads[0]?.sum.requests || 0;
+    case 'workers_kv_storage':
+      return account.storage[0]?.max.byteCount || 0;
+    case 'workers_kv_write_list_delete':
+      const writeRequests = account.writes[0]?.sum.requests || 0;
+      const listRequests = account.lists[0]?.sum.requests || 0;
+      const deleteRequests = account.deletes[0]?.sum.requests || 0;
+      return {
+        writeRequests,
+        listRequests,
+        deleteRequests,
+        totalRequests: writeRequests + listRequests + deleteRequests
+      };
+
+
+    case 'china_ntw_data_transfer':
+      const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
+      return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
+    // 다른 엔드포인트에 대한 처리를 추가할 수 있습니다.
+    default:
+      console.error(`Unknown endpoint: ${endpoint}`);
+      return null;
+  }
+}
+
+
+async function getZoneIds(customerName) {
+  // KV에서 고객사의 zone ID들을 가져옵니다.
+  const zonesData = await ZONES.get(`zones_${customerName}`);
+  if (!zonesData) {
+    throw new Error(`No zones found for customer: ${customerName}`);
+  }
+  const zones = JSON.parse(zonesData);
+  return Object.values(zones);
+}
+
+async function performGraphQLRequest(query, variables = {}) {
+  const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+    method: 'POST',
+    headers: {
+      'X-Auth-Email': AUTH_EMAIL,
+      'X-Auth-Key': AUTH_KEY,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ query, variables })
+  });
+  return await response.json();
+}
+
+
 // 각 엔드포인트 결과를 처리하는 함수=======================================================================================================
 // handleDataTransferRequest 함수 수정
 async function handleDataTransferRequest(accountTag, zoneId, params) {
@@ -341,80 +417,6 @@ async function handleWorkersKVOperations(accountTag, zoneId, params) {
 
 
 
-function processEndpointResult(endpoint, result) {
-  if (!result.data || !result.data.viewer || !result.data.viewer.zones || result.data.viewer.zones.length === 0) {
-    console.error(`Invalid result structure for endpoint ${endpoint}:`, result);
-    return null;
-  }
-  
-  const account = result.data.viewer.accounts[0];
-
-  switch (endpoint) {
-    case 'data_transfer_request':
-      if (result.bytes !== undefined && result.requests !== undefined) {
-        return result;
-      }
-      return null;
-    case 'bot_management_request':
-      if (typeof result === 'number') {
-        return result;
-      }
-      return null;
-
-    case 'foundation_dns_queries':
-      return result.data.viewer.zones[0].dns.analytics.queries.count;
-
-    case 'workers_kv_read':
-      return account.reads[0]?.sum.requests || 0;
-    case 'workers_kv_storage':
-      return account.storage[0]?.max.byteCount || 0;
-    case 'workers_kv_write_list_delete':
-      const writeRequests = account.writes[0]?.sum.requests || 0;
-      const listRequests = account.lists[0]?.sum.requests || 0;
-      const deleteRequests = account.deletes[0]?.sum.requests || 0;
-      return {
-        writeRequests,
-        listRequests,
-        deleteRequests,
-        totalRequests: writeRequests + listRequests + deleteRequests
-      };
-
-
-    case 'china_ntw_data_transfer':
-      const chinaGroups = result.data.viewer.zones[0].httpRequests1dGroups;
-      return chinaGroups && chinaGroups.length > 0 ? chinaGroups[0].sum.bytes : null;
-    // 다른 엔드포인트에 대한 처리를 추가할 수 있습니다.
-    default:
-      console.error(`Unknown endpoint: ${endpoint}`);
-      return null;
-  }
-}
-
-
-async function getZoneIds(customerName) {
-  // KV에서 고객사의 zone ID들을 가져옵니다.
-  const zonesData = await ZONES.get(`zones_${customerName}`);
-  if (!zonesData) {
-    throw new Error(`No zones found for customer: ${customerName}`);
-  }
-  const zones = JSON.parse(zonesData);
-  return Object.values(zones);
-}
-
-async function performGraphQLRequest(query, variables = {}) {
-  const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
-    method: 'POST',
-    headers: {
-      'X-Auth-Email': AUTH_EMAIL,
-      'X-Auth-Key': AUTH_KEY,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query, variables })
-  });
-  return await response.json();
-}
-
-
 
 async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
   const query = `
@@ -438,50 +440,83 @@ async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
 }
 
 
-
+//====================================================Workers_Std_Request===================================================
 async function handleWorkersStdRequests(accountTag, zoneId, params) {
   const query = `
-    query getWorkersRequests($accountTag: String!, $start: String!, $end: String!) {
+    query getBillingMetrics($accountTag: String!, $filter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
       viewer {
         accounts(filter: {accountTag: $accountTag}) {
-          workersInvocations(filter: {date_geq: $start, date_leq: $end}) {
+          workersInvocationsAdaptive(limit: 10000, filter: $filter) {
             sum {
-              requests
+              Standatd_request: requests
+            }
+            dimensions {
+              usageModel
             }
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
+  
+  const startDate = params.get('start_date');
+  const endDate = params.get('end_date');
+  
+  const variables = {
+    accountTag,
+    filter: {
+      date_geq: startDate,
+      date_leq: endDate
+    }
+  };
+
+  const result = await performGraphQLRequest(query, variables);
+  
+  // 전체 쿼리 응답을 콘솔에 로그
+  console.log('Workers STD Requests Query Response:', JSON.stringify(result, null, 2));
+
+  // 결과 전체를 반환
+  return result;
 }
 
+//====================================================Workers_Std_CPU===================================================
 async function handleWorkersStdCPU(accountTag, zoneId, params) {
   const query = `
-    query getWorkersCPU($accountTag: String!, $start: String!, $end: String!) {
+    query getBillingMetrics($accountTag: String!, $overviewFilter: AccountWorkersInvocationsAdaptiveFilter_InputObject) {
       viewer {
         accounts(filter: {accountTag: $accountTag}) {
-          workersInvocations(filter: {date_geq: $start, date_leq: $end}) {
+          workersOverviewRequestsAdaptiveGroups(limit: 1000, filter: $overviewFilter) {
             sum {
-              cpuTime
+              CPU_Time: cpuTimeUs
+            }
+            dimensions {
+              usageModel
             }
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
+  
+  const startDate = params.get('start_date');
+  const endDate = params.get('end_date');
+  
+  const variables = {
+    accountTag,
+    overviewFilter: {
+      datetime_geq: `${startDate}T00:00:00.000Z`,
+      datetime_leq: `${endDate}T23:59:59.999Z`
+    }
+  };
+
+  const result = await performGraphQLRequest(query, variables);
+  
+  // 전체 쿼리 응답을 콘솔에 로그
+  console.log('Workers STD CPU Query Response:', JSON.stringify(result, null, 2));
+
+  // 결과 전체를 반환
+  return result;
 }
-
-
 
 
 async function handleStreamMinutesStored(accountTag, zoneId, params) {
