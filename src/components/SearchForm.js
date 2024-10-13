@@ -53,20 +53,18 @@ const renderResult = (endpoint, result) => {
 
   switch (endpoint) {
     case 'data_transfer_request':
-      if (result && result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups) {
-        const group = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups[0];
+      if (result && typeof result.totalBytes !== 'undefined' && typeof result.totalRequests !== 'undefined') {
         return (
           <>
-            <span className="result-item">Data Transferred: {formatBytes(group.sum.bytes)}</span>
-            <span className="result-item">Total Requests: {formatNumber(group.sum.requests)}</span>
+            <span className="result-item">Data Transferred: {formatBytes(result.totalBytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(result.totalRequests)}</span>
           </>
         );
       }
       break;
     case 'bot_management_request':
-      if (result && result.data && result.data.viewer && result.data.viewer.zones && result.data.viewer.zones[0].likely_human) {
-        const likelyHuman = result.data.viewer.zones[0].likely_human[0];
-        return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman.count)}</span>;
+      if (result && typeof result.totalLikelyHuman !== 'undefined') {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
       }
       break;
     case 'foundation_dns_queries':
