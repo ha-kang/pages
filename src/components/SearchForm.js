@@ -12,6 +12,24 @@ const formatDate = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+const formatNumber = (number) => {
+  if (number === undefined || number === null) return 'N/A';
+  if (typeof number === 'string') return number;
+  if (number >= 1000000) {
+    const millions = number / 1000000;
+    return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
+  }
+  return number.toLocaleString();
+};
+
+const formatBytes = (bytes) => {
+  if (bytes === 0 || bytes === undefined) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
@@ -27,67 +45,6 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
-
-  const formatBytes = (bytes) => {
-    if (bytes === 0 || bytes === undefined) return '0 B';
-    const k = 1000;
-    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes})`;
-  };
-
-  const formatNumber = (number) => {
-    if (number === undefined || number === null) return 'N/A';
-    if (typeof number === 'string') return number;
-    if (number >= 1000000) {
-      const millions = number / 1000000;
-      return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
-    }
-    return number.toLocaleString();
-  };
-
-  const renderResult = (endpoint, result) => {
-    if (!result || typeof result !== 'object') {
-      return <span className="result-item">No valid data available</span>;
-    }
-
-    switch (endpoint) {
-      case 'workers_kv_read':
-      case 'workers_kv_storage':
-      case 'workers_kv_write_list_delete':
-        return (
-          <div className="result-item">
-            <h3>{endpoint}</h3>
-            <pre>{JSON.stringify(result, null, 2)}</pre>
-          </div>
-        );
-      case 'data_transfer_request':
-        const groups = result.data?.viewer?.zones[0]?.httpRequestsOverviewAdaptiveGroups;
-        if (groups && groups.length > 0) {
-          return (
-            <>
-              <span className="result-item">Data Transferred: {formatBytes(groups[0].sum.bytes)}</span>
-              <span className="result-item">Total Requests: {formatNumber(groups[0].sum.requests)}</span>
-            </>
-          );
-        }
-        return <span className="result-item">No valid data available for Data Transfer/Request</span>;
-      case 'bot_management_request':
-        const likelyHuman = result.data?.viewer?.zones[0]?.likely_human;
-        if (likelyHuman && likelyHuman.length > 0) {
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(likelyHuman[0].count)}</span>;
-        }
-        return <span className="result-item">No valid data available for Bot Management Request</span>;
-      case 'foundation_dns_queries':
-        if (result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
-          return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-        }
-        return <span className="result-item">Foundation DNS Queries: No valid data available</span>;
-      default:
-        return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,7 +94,7 @@ const SearchForm = () => {
       setCustomerZones({});
     }
   };
-
+  
   const fetchEndpoints = async () => {
     try {
       const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
@@ -207,13 +164,55 @@ const SearchForm = () => {
       const data = await response.json();
       console.log('Received data:', JSON.stringify(data, null, 2));
 
-      // GraphQL 응답을 그대로 설정
-      setResults(data);
+      if (data && typeof data === 'object') {
+        setResults(data);
+      } else {
+        throw new Error('Invalid data received from server');
+      }
     } catch (error) {
-      console.error('Error occurred:', error);
-      setResults({ error: error.message });
+      console.log('Error occurred, but continuing with available data');
+      setResults({});
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const renderResult = (endpoint, result) => {
+    if (result === null || result === undefined) {
+      return <span className="result-item">No valid data available</span>;
+    }
+
+    switch (endpoint) {
+      case 'data_transfer_request':
+        return (
+          <>
+            <span className="result-item">Data Transferred: {formatBytes(result.bytes)} ({formatNumber(result.bytes)} bytes)</span>
+            <span className="result-item">Total Requests: {formatNumber(result.requests)}</span>
+          </>
+        );
+      case 'bot_management_request':
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result)}</span>;
+      case 'foundation_dns_queries':
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result)}</span>;
+      case 'workers_kv_read':
+        return <span className="result-item">Workers KV - Read: {formatNumber(result)}</span>;
+      case 'workers_kv_storage':
+        return (
+          <span className="result-item">
+            Workers KV - Storage: {formatBytes(result)} ({formatNumber(result)} bytes)
+          </span>
+        );
+      case 'workers_kv_write_list_delete':
+        return (
+          <span className="result-item">
+            Workers KV - Write/List/Delete: {formatNumber(result.totalRequests)}
+            {result.totalRequests > 0 && (
+              <span> (Write: {formatNumber(result.writeRequests)}, List: {formatNumber(result.listRequests)}, Delete: {formatNumber(result.deleteRequests)})</span>
+            )}
+          </span>
+        );
+      default:
+        return <span className="result-item">{JSON.stringify(result, null, 2)}</span>;
     }
   };
 
