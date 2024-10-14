@@ -285,9 +285,9 @@ const renderResult = (endpoint, result) => {
 
   // 엔드포인트 옵션 생성 함수
   const getEndpointOptions = () => {
-    // 모든 엔드포인트가 선택되었는지 확인
     const allSelected = selectedEndpoints.length === endpoints.length;
-
+    return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
+  };
     // 모든 엔드포인트가 선택되지 않았을 때만 '전체 선택' 옵션 포함
     return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
   };
@@ -372,6 +372,8 @@ const handleSubmit = async (e) => {
           value={selectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
+          noOptionsMessage={() => null} // "No options" 메시지 제거
+
         />
         <div className="date-picker-wrapper">
           <DatePicker
