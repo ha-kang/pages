@@ -243,7 +243,29 @@ const renderResult = (endpoint, result) => {
         return <DataTransferDownload data={dataWithZoneInfo} />;
       }
       break;
-      
+
+      case 'stream_minutes_stored':
+        if (result && result.result && result.result.storage_usage_bytes !== undefined) {
+          const storageUsageGB = formatStorageUsage(result.result.storage_usage_bytes);
+          return (
+            <span className="result-item">
+              Stream Minutes Stored: {storageUsageGB} ({result.result.storage_usage_bytes} bytes)
+            </span>
+          );
+        }
+        break;
+
+      case 'images_stored':
+        if (result && result.result && result.result.stored_total_bytes !== undefined) {
+          const storedTotalGB = formatStorageUsage(result.result.stored_total_bytes);
+          return (
+            <span className="result-item">
+              Images Stored: {storedTotalGB} ({result.result.stored_total_bytes} bytes)
+            </span>
+          );
+        }
+        break;
+
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
         console.log('China NTW Data Transfer results:', result);
