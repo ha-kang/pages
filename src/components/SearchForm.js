@@ -4,14 +4,7 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-const formatDate = (date) => {
-  if (!date) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
+//컴포넌트 정의
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
@@ -28,7 +21,15 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
-
+//유틸리티 함수 시작======================================================
+const formatDate = (date) => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+  
 const formatBytes = (bytes) => {
   if (bytes === 0 || bytes === undefined) return '0 B';
   const k = 1000;
@@ -83,6 +84,59 @@ const formatCPUTime = (microseconds) => {
   return `${millions.toFixed(2)}MM ms (${milliseconds.toLocaleString()} ms)`;
 };
   
+const DataTransferDownload = ({ data }) => {
+  return (
+    <div className="data-transfer-download result-item">
+      <span>Data Transfer by Country: </span>
+      <button onClick={() => downloadCSV(data)}>Download CSV</button>
+    </div>
+  );
+};
+
+
+const downloadCSV = (data) => {
+  // 모든 존의 데이터를 국가별로 합산
+  const countryData = data.reduce((acc, item) => {
+    if (!acc[item.country]) {
+      acc[item.country] = { bytes: 0, requests: 0 };
+    }
+    acc[item.country].bytes += item.bytes;
+    acc[item.country].requests += item.requests;
+    return acc;
+  }, {});
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+
+  let totalBytes = 0;
+  let totalRequests = 0;
+
+  Object.entries(countryData).forEach(([country, stats]) => {
+    csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
+    totalBytes += stats.bytes;
+    totalRequests += stats.requests;
+  });
+
+  // 빈 줄 추가
+  csvContent += "\n";
+
+  // 총계 행 추가
+  csvContent += `Total,${totalBytes},"${formatBytes(totalBytes)}",${totalRequests},"${formatNumber(totalRequests)}"\n`;
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "data_transfer_by_country.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+  
+//유틸리티 함수 끝======================================================
+
+
+
+// 콘솔 렌더링
 const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
@@ -174,6 +228,19 @@ const renderResult = (endpoint, result) => {
       if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].imagesUniqueTransformations) {
         const transformations = result.data.viewer.accounts[0].imagesUniqueTransformations.reduce((sum, item) => sum + item.transformations, 0);
         return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(transformations)}</span>;
+      }
+      break;
+
+    case 'data_transfer_by_country':
+      if (Array.isArray(result)) {
+        const dataWithZoneInfo = result.map(zoneData => {
+          return zoneData.result.map(item => ({
+            ...item,
+            zoneId: zoneData.zoneId,
+            zoneName: zoneData.zoneName || zoneData.zoneId
+          }));
+        }).flat();
+        return <DataTransferDownload data={dataWithZoneInfo} />;
       }
       break;
       
