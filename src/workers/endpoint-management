@@ -16,7 +16,8 @@ const ENDPOINTS = {
   },
   'china_ntw_data_transfer': {
     handler: handleChinaNtwDataTransfer,
-    label: 'China NTW Data Transfer'
+    label: 'China NTW Data Transfer',
+    useZoneId: true
   },
   'workers_std_requests': {
     handler: handleWorkersStdRequests,
@@ -417,28 +418,48 @@ async function handleWorkersKVOperations(accountTag, zoneId, params) {
 
 
 
-
-async function handleChinaNtwDataTransfer(accountTag, zoneId, params) {
+//====================================================ChinaNtwDataTransfer===================================================
+async function handleChinaNtwDataTransfer(accountTag, zoneIds, params) {
   const query = `
-    query getChinaDataTransfer($zoneId: String!, $start: String!, $end: String!) {
+    query getChinaDataTransfer($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject!) {
       viewer {
-        zones(filter: {zoneTag: $zoneId}) {
-          httpRequests1dGroups(limit: 1, filter: {date_geq: $start, date_leq: $end, clientCountryName: "CN"}) {
+        zones(filter: {zoneTag: $zoneTag}) {
+          httpRequestsAdaptiveGroups(limit: 1, filter: $filter) {
             sum {
-              bytes
+              edgeResponseBytes
             }
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    zoneId, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
-}
 
+  let zoneResults = [];
+
+  // zoneIds가 배열인지 확인하고, 배열이 아니면 배열로 변환
+  const zoneIdsArray = Array.isArray(zoneIds) ? zoneIds : [zoneIds];
+
+  for (const zoneId of zoneIdsArray) {
+    try {
+      const result = await performGraphQLRequest(query, { 
+        zoneTag: zoneId,  // zoneId를 그대로 사용
+        filter: {
+          date_geq: params.get('start_date'),
+          date_leq: params.get('end_date'),
+          clientCountryName: "CN",
+          requestSource: "eyeball"
+        }
+      });
+
+      zoneResults.push({ zoneId, result });
+    } catch (error) {
+      console.error(`Error processing zoneId ${zoneId} for China NTW Data Transfer:`, error);
+      zoneResults.push({ zoneId, error: error.message });
+    }
+  }
+
+  return zoneResults;
+}
 
 //====================================================Workers_Std_Request===================================================
 async function handleWorkersStdRequests(accountTag, zoneId, params) {
