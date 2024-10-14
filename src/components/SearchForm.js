@@ -108,13 +108,37 @@ const DataTransferTable = ({ data }) => {
       </table>
     </div>
   );
-};  
+};
 
 
 const downloadCSV = (data) => {
-  const csvContent = "data:text/csv;charset=utf-8," 
-    + "Country,Bytes,Requests\n"
-    + data.map(row => `${row.country},${row.bytes},${row.requests}`).join("\n");
+  // 존 별로 데이터 그룹화
+  const zoneGroups = data.reduce((acc, item) => {
+    if (!acc[item.zoneId]) {
+      acc[item.zoneId] = {
+        zoneName: item.zoneName || item.zoneId,
+        data: {}
+      };
+    }
+    if (!acc[item.zoneId].data[item.country]) {
+      acc[item.zoneId].data[item.country] = { bytes: 0, requests: 0 };
+    }
+    acc[item.zoneId].data[item.country].bytes += item.bytes;
+    acc[item.zoneId].data[item.country].requests += item.requests;
+    return acc;
+  }, {});
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+   // 각 존에 대한 데이터 추가
+  Object.entries(zoneGroups).forEach(([zoneId, zoneData], index) => {
+    if (index > 0) csvContent += "\n\n"; // 존 사이에 빈 줄 추가
+    csvContent += `${zoneData.zoneName} - ${zoneId}\n`;
+    csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+
+    Object.entries(zoneData.data).forEach(([country, stats]) => {
+      csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
+    });
+  });
   
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
@@ -225,9 +249,17 @@ const renderResult = (endpoint, result) => {
 
     case 'data_transfer_by_country':
       if (Array.isArray(result)) {
-        return <DataTransferTable data={result} />;
+        // 존 정보 추가
+        const dataWithZoneInfo = result.map(zoneData => {
+          return zoneData.result.map(item => ({
+            ...item,
+            zoneId: zoneData.zoneId,
+            zoneName: zoneData.zoneName || zoneData.zoneId // zoneName이 없으면 zoneId 사용
+          }));
+        }).flat();
+        return <DataTransferTable data={dataWithZoneInfo} />;
       }
-      break;    
+      break;  
       
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
