@@ -21,7 +21,7 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
-//유틸리티 함수들
+//유틸리티 함수 시작======================================================
 const formatDate = (date) => {
   if (!date) return '';
   const year = date.getFullYear();
@@ -123,6 +123,10 @@ const downloadCSV = (data) => {
   link.click();
   document.body.removeChild(link);
 };
+//유틸리티 함수 끝======================================================
+
+
+
 // 콘솔 렌더링
 const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
