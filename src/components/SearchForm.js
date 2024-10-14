@@ -108,9 +108,20 @@ const downloadCSV = (data) => {
   let csvContent = "data:text/csv;charset=utf-8,";
   csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
 
+  let totalBytes = 0;
+  let totalRequests = 0;
+
   Object.entries(countryData).forEach(([country, stats]) => {
     csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
+    totalBytes += stats.bytes;
+    totalRequests += stats.requests;
   });
+
+  // 빈 줄 추가
+  csvContent += "\n";
+
+  // 총계 행 추가
+  csvContent += `Total,${totalBytes},"${formatBytes(totalBytes)}",${totalRequests},"${formatNumber(totalRequests)}"\n`;
   
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
