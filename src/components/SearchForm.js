@@ -119,27 +119,11 @@ const renderResult = (endpoint, result) => {
         const listRequests = account.lists[0]?.sum.requests || 0;
         const deleteRequests = account.deletes[0]?.sum.requests || 0;
         const totalRequests = writeRequests + listRequests + deleteRequests;
-        
-        // 결과의 고유 식별자 생성 (예: 총 요청 수)
-        const resultId = `workers_kv_${totalRequests}`;
-        
-        // 이미 렌더링된 결과인지 확인
-        if (renderedResults.has(resultId)) {
-          return null; // 이미 렌더링된 결과는 무시
-        }
-        
-        // 새로운 결과를 Set에 추가
-        renderedResults.add(resultId);
-
         return (
           <span className="result-item">
             Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
             <br />
-            <div style={{ marginLeft: '20px', whiteSpace: 'pre-line' }}>
-              * Write: {formatNumber(writeRequests)}
-              * List: {formatNumber(listRequests)}
-              * Delete: {formatNumber(deleteRequests)}
-            </div>
+            - Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)}
           </span>
         );
       }
