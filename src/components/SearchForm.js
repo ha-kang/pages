@@ -125,14 +125,9 @@ const renderResult = (endpoint, result) => {
         console.log('China NTW Data Transfer results:', result);
         let totalBytes = 0;
         result.forEach(zoneResult => {
-          if (zoneResult.result && zoneResult.result.data && 
-              zoneResult.result.data.viewer && 
-              zoneResult.result.data.viewer.zones && 
-              zoneResult.result.data.viewer.zones[0] && 
-              zoneResult.result.data.viewer.zones[0].requests && 
-              zoneResult.result.data.viewer.zones[0].requests[0] && 
-              zoneResult.result.data.viewer.zones[0].requests[0].sum) {
-            totalBytes += zoneResult.result.data.viewer.zones[0].requests[0].sum.edgeResponseBytes || 0;
+          const edgeResponseBytes = zoneResult.result?.data?.viewer?.zones[0]?.requests[0]?.sum?.edgeResponseBytes;
+          if (typeof edgeResponseBytes === 'number') {
+            totalBytes += edgeResponseBytes;
           }
         });
         return (
