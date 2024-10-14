@@ -230,17 +230,16 @@ const renderResult = (endpoint, result) => {
 
     case 'data_transfer_by_country':
       if (Array.isArray(result)) {
-        // 존 정보 추가
         const dataWithZoneInfo = result.map(zoneData => {
           return zoneData.result.map(item => ({
             ...item,
             zoneId: zoneData.zoneId,
-            zoneName: zoneData.zoneName || zoneData.zoneId // zoneName이 없으면 zoneId 사용
+            zoneName: zoneData.zoneName || zoneData.zoneId
           }));
         }).flat();
-        return <DataTransferTable data={dataWithZoneInfo} />;
+        return <DataTransferDownload data={dataWithZoneInfo} />;
       }
-      break;  
+      break;
       
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
