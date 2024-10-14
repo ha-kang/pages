@@ -121,14 +121,6 @@ const downloadCSV = (data) => {
   document.body.removeChild(link);
 };
   
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "data_transfer_by_country.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
 //유틸리티 함수 끝======================================================
 
 
