@@ -84,32 +84,13 @@ const formatCPUTime = (microseconds) => {
   return `${millions.toFixed(2)}MM ms (${milliseconds.toLocaleString()} ms)`;
 };
   
-const DataTransferTable = ({ data }) => {
+const DataTransferDownload = ({ data }) => {
   return (
-    <div className="data-transfer-table">
+    <div className="data-transfer-download">
       <button onClick={() => downloadCSV(data)}>Download CSV</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Country</th>
-            <th>Bytes</th>
-            <th>Requests</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, index) => (
-            <tr key={index}>
-              <td>{item.country}</td>
-              <td>{formatBytes(item.bytes)}</td>
-              <td>{formatNumber(item.requests)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };
-
 
 const downloadCSV = (data) => {
   // 존 별로 데이터 그룹화
