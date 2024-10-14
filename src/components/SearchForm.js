@@ -48,6 +48,16 @@ const formatNumber = (number) => {
   return number.toLocaleString();
 };
 
+const formatImagesTransformations = (number) => {
+  if (number === undefined || number === null) return 'N/A';
+  if (typeof number === 'string') return number; // Handle error messages
+  if (number >= 1000) {
+    const thousands = number / 1000;
+    return `${thousands.toFixed(2)}k (${number.toLocaleString()})`;
+  }
+  return number.toLocaleString();
+};
+  
 const formatCPUTime = (microseconds) => {
   if (microseconds === undefined || microseconds === null) return 'N/A';
   const milliseconds = microseconds / 1000; // 마이크로초를 밀리초로 변환
@@ -69,16 +79,19 @@ const renderResult = (endpoint, result) => {
         );
       }
       break;
+      
     case 'bot_management_request':
       if (result && typeof result.totalLikelyHuman !== 'undefined') {
         return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
       }
       break;
+      
     case 'foundation_dns_queries':
       if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
         return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
       }
       break;
+      
     case 'workers_kv_read':
     case 'workers_kv_storage':
     case 'workers_kv_write_list_delete':
@@ -106,6 +119,7 @@ const renderResult = (endpoint, result) => {
         }
       }
       break;
+      
     case 'workers_std_requests':
       if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
         const standardRequests = result.data.viewer.accounts[0].workersInvocationsAdaptive
@@ -113,6 +127,7 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
       }
       break;
+      
     case 'workers_std_cpu':
       if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
         const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
@@ -120,6 +135,14 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD CPU: {formatCPUTime(standardCPU)}</span>;
       }
       break;
+      
+    case 'images_unique_transformations':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].imagesUniqueTransformations) {
+        const transformations = result.data.viewer.accounts[0].imagesUniqueTransformations.reduce((sum, item) => sum + item.transformations, 0);
+        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(transformations)}</span>;
+      }
+      break;
+      
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
         console.log('China NTW Data Transfer results:', result);
