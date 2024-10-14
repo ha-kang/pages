@@ -276,10 +276,20 @@ const renderResult = (endpoint, result) => {
       return;
     }
     if (selectedOptions.some(option => option.value === 'all')) {
+      // '전체 선택'이 선택되면 모든 엔드포인트를 선택하되, '전체 선택' 옵션은 제외
       setSelectedEndpoints(endpoints);
     } else {
       setSelectedEndpoints(selectedOptions);
     }
+  };
+
+  // 엔드포인트 옵션 생성 함수
+  const getEndpointOptions = () => {
+    // 모든 엔드포인트가 선택되었는지 확인
+    const allSelected = selectedEndpoints.length === endpoints.length;
+
+    // 모든 엔드포인트가 선택되지 않았을 때만 '전체 선택' 옵션 포함
+    return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
   };
 
 const handleSubmit = async (e) => {
@@ -355,7 +365,7 @@ const handleSubmit = async (e) => {
         <Select
           isMulti
           name="endpoints"
-          options={[allEndpointsOption, ...endpoints]}
+          options={getEndpointOptions()}
           className="basic-multi-select"
           classNamePrefix="select"
           onChange={handleEndpointChange}
