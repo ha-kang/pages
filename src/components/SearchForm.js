@@ -51,11 +51,15 @@ const formatNumber = (number) => {
 const formatImagesTransformations = (number) => {
   if (number === undefined || number === null) return 'N/A';
   if (typeof number === 'string') return number; // Handle error messages
-  if (number >= 1000) {
-    const thousands = number / 1000;
-    return `${thousands.toFixed(2)}k (${number.toLocaleString()})`;
+  
+  const kValue = number / 1000;
+  if (kValue < 1) {
+    // 1000 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k (${number})`;
+  } else {
+    // 1000 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k (${number})`;
   }
-  return number.toLocaleString();
 };
 
 const formatStreamMinutes = (minutes) => {
