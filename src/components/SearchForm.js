@@ -95,7 +95,7 @@ const DataTransferDownload = ({ data }) => {
 
 
 const downloadCSV = (data) => {
-  // 국가별로 데이터 합산
+  // 모든 존의 데이터를 국가별로 합산
   const countryData = data.reduce((acc, item) => {
     if (!acc[item.country]) {
       acc[item.country] = { bytes: 0, requests: 0 };
