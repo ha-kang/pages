@@ -271,7 +271,7 @@ const renderResult = (endpoint, result) => {
 
 
   const handleEndpointChange = (selectedOptions) => {
-    if (!selectedOptions) {
+    if (!selectedOptions || selectedOptions.length === 0) {
       setSelectedEndpoints([]);
       return;
     }
@@ -280,6 +280,12 @@ const renderResult = (endpoint, result) => {
     } else {
       setSelectedEndpoints(selectedOptions);
     }
+  };
+
+  // 엔드포인트 옵션 생성 함수
+  const getEndpointOptions = () => {
+    const allSelected = selectedEndpoints.length === endpoints.length;
+    return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
   };
 
 const handleSubmit = async (e) => {
@@ -355,13 +361,14 @@ const handleSubmit = async (e) => {
         <Select
           isMulti
           name="endpoints"
-          options={[allEndpointsOption, ...endpoints]}
+          options={getEndpointOptions()}
           className="basic-multi-select"
           classNamePrefix="select"
           onChange={handleEndpointChange}
           value={selectedEndpoints}
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
+          noOptionsMessage={() => null} // "No options" 메시지 제거
         />
         <div className="date-picker-wrapper">
           <DatePicker
