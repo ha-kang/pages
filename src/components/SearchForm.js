@@ -61,11 +61,15 @@ const formatImagesTransformations = (number) => {
 const formatStreamMinutes = (minutes) => {
   if (minutes === undefined || minutes === null) return 'N/A';
   if (typeof minutes === 'string') return minutes; // Handle error messages
-  if (minutes >= 1000) {
-    const thousands = minutes / 1000;
-    return `${thousands.toFixed(2)}k (${minutes.toLocaleString()})`;
+  
+  const kValue = minutes / 1000;
+  if (kValue < 1) {
+    // 1000 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k (${minutes.toLocaleString()})`;
+  } else {
+    // 1000 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k (${minutes.toLocaleString()})`;
   }
-  return minutes.toLocaleString();
 };
   
 const formatCPUTime = (microseconds) => {
