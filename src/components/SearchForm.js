@@ -271,12 +271,11 @@ const renderResult = (endpoint, result) => {
 
 
   const handleEndpointChange = (selectedOptions) => {
-    if (!selectedOptions) {
+    if (!selectedOptions || selectedOptions.length === 0) {
       setSelectedEndpoints([]);
       return;
     }
     if (selectedOptions.some(option => option.value === 'all')) {
-      // '전체 선택'이 선택되면 모든 엔드포인트를 선택하되, '전체 선택' 옵션은 제외
       setSelectedEndpoints(endpoints);
     } else {
       setSelectedEndpoints(selectedOptions);
@@ -286,9 +285,6 @@ const renderResult = (endpoint, result) => {
   // 엔드포인트 옵션 생성 함수
   const getEndpointOptions = () => {
     const allSelected = selectedEndpoints.length === endpoints.length;
-    return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
-  };
-    // 모든 엔드포인트가 선택되지 않았을 때만 '전체 선택' 옵션 포함
     return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
   };
 
@@ -373,7 +369,6 @@ const handleSubmit = async (e) => {
           placeholder="엔드포인트 선택 (다중 선택 가능)"
           closeMenuOnSelect={false}
           noOptionsMessage={() => null} // "No options" 메시지 제거
-
         />
         <div className="date-picker-wrapper">
           <DatePicker
