@@ -86,13 +86,12 @@ const formatCPUTime = (microseconds) => {
   
 const DataTransferDownload = ({ data }) => {
   return (
-    <div className="data-transfer-download">
-      <span>Data Transfer by Country </span>
+    <div className="data-transfer-download result-item">
+      <span>Data Transfer by Country: </span>
       <button onClick={() => downloadCSV(data)}>Download CSV</button>
     </div>
   );
 };
-
 const downloadCSV = (data) => {
   // 존 별로 데이터 그룹화
   const zoneGroups = data.reduce((acc, item) => {
