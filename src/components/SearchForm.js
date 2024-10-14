@@ -121,10 +121,12 @@ const renderResult = (endpoint, result) => {
       }
       break;
     case 'china_ntw_data_transfer':
-      if (result && typeof result.totalBytes === 'number') {
+      if (result && result.zoneResults) {
+        console.log('China NTW Data Transfer zone results:', result.zoneResults);
+        const totalBytes = Object.values(result.zoneResults).reduce((sum, bytes) => sum + bytes, 0);
         return (
           <span className="result-item">
-            China NTW Data Transfer: {formatBytes(result.totalBytes)} ({result.totalBytes} bytes)
+            China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)
             {result.errorCount > 0 && ` (Errors: ${result.errorCount}/${result.totalZones} zones)`}
           </span>
         );
