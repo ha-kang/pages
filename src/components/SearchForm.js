@@ -136,7 +136,7 @@ const renderResult = (endpoint, result) => {
         });
         return (
           <span className="result-item">
-            China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)
+            China NTW Data Transfer: {formatBytes(totalBytes)}
           </span>
         );
       }
