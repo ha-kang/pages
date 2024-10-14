@@ -122,17 +122,26 @@ const renderResult = (endpoint, result) => {
       break;
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
-        console.log('China NTW Data Transfer results:', result);
         let totalBytes = 0;
+        let errorCount = 0;
         result.forEach(zoneResult => {
-          const edgeResponseBytes = zoneResult.result?.data?.viewer?.zones[0]?.requests[0]?.sum?.edgeResponseBytes;
-          if (typeof edgeResponseBytes === 'number') {
-            totalBytes += edgeResponseBytes;
+          if (zoneResult.result && zoneResult.result.data && 
+              zoneResult.result.data.viewer && 
+              zoneResult.result.data.viewer.zones && 
+              zoneResult.result.data.viewer.zones[0] && 
+              zoneResult.result.data.viewer.zones[0].httpRequestsAdaptiveGroups && 
+              zoneResult.result.data.viewer.zones[0].httpRequestsAdaptiveGroups[0] && 
+              zoneResult.result.data.viewer.zones[0].httpRequestsAdaptiveGroups[0].sum) {
+            totalBytes += zoneResult.result.data.viewer.zones[0].httpRequestsAdaptiveGroups[0].sum.edgeResponseBytes || 0;
+          } else {
+            errorCount++;
+            console.error(`Error for zone ${zoneResult.zoneId}:`, zoneResult.result || zoneResult.error);
           }
         });
         return (
           <span className="result-item">
             China NTW Data Transfer: {formatBytes(totalBytes)} ({totalBytes} bytes)
+            {errorCount > 0 && ` (Errors: ${errorCount}/${result.length} zones)`}
           </span>
         );
       }
