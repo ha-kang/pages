@@ -113,7 +113,6 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
       }
       break;
-    
     case 'workers_std_cpu':
       if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
         const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
@@ -121,6 +120,29 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Workers STD CPU: {formatCPUTime(standardCPU)}</span>;
       }
       break;
+    case 'china_ntw_data_transfer':
+      if (Array.isArray(result)) {
+        console.log('China NTW Data Transfer results:', result);
+        let totalBytes = 0;
+        result.forEach(zoneData => {
+          if (Array.isArray(zoneData.result)) {
+            zoneData.result.forEach(innerResult => {
+              const edgeResponseBytes = innerResult.result?.data?.viewer?.zones[0]?.httpRequestsAdaptiveGroups[0]?.sum?.edgeResponseBytes;
+              if (typeof edgeResponseBytes === 'number') {
+                totalBytes += edgeResponseBytes;
+              }
+            });
+          }
+        });
+        return (
+          <span className="result-item">
+            China NTW Data Transfer: {formatBytes(totalBytes)}
+          </span>
+        );
+      }
+      return <span className="result-item">China NTW Data Transfer: No data available</span>;
+
+
     default:
       // 기본적으로 결과를 JSON 문자열로 표시
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
@@ -129,6 +151,7 @@ const renderResult = (endpoint, result) => {
   // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
   return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
 };
+
 
   useEffect(() => {
     const fetchData = async () => {
