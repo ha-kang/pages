@@ -4,14 +4,7 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-const formatDate = (date) => {
-  if (!date) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
+//컴포넌트 정의
 const SearchForm = () => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
@@ -28,7 +21,15 @@ const SearchForm = () => {
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
-
+//유틸리티 함수들
+const formatDate = (date) => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+  
 const formatBytes = (bytes) => {
   if (bytes === 0 || bytes === undefined) return '0 B';
   const k = 1000;
@@ -83,6 +84,46 @@ const formatCPUTime = (microseconds) => {
   return `${millions.toFixed(2)}MM ms (${milliseconds.toLocaleString()} ms)`;
 };
   
+const DataTransferTable = ({ data }) => {
+  return (
+    <div className="data-transfer-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>Bytes</th>
+            <th>Requests</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item, index) => (
+            <tr key={index}>
+              <td>{item.country}</td>
+              <td>{formatBytes(item.bytes)}</td>
+              <td>{formatNumber(item.requests)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};  
+
+
+const downloadCSV = (data) => {
+  const csvContent = "data:text/csv;charset=utf-8," 
+    + "Country,Bytes,Requests\n"
+    + data.map(row => `${row.country},${row.bytes},${row.requests}`).join("\n");
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "data_transfer_by_country.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+// 콘솔 렌더링
 const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
@@ -176,6 +217,12 @@ const renderResult = (endpoint, result) => {
         return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(transformations)}</span>;
       }
       break;
+
+    case 'data_transfer_by_country':
+      if (Array.isArray(result)) {
+        return <DataTransferTable data={result} />;
+      }
+      break;    
       
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
