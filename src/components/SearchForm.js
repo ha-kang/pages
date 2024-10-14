@@ -87,6 +87,7 @@ const formatCPUTime = (microseconds) => {
 const DataTransferTable = ({ data }) => {
   return (
     <div className="data-transfer-table">
+      <button onClick={() => downloadCSV(data)}>Download CSV</button>
       <table>
         <thead>
           <tr>
