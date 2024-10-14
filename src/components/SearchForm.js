@@ -115,26 +115,21 @@ const renderResult = (endpoint, result) => {
     case 'workers_kv_write_list_delete':
       if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
         const account = result.data.viewer.accounts[0];
-        if (endpoint === 'workers_kv_read') {
-          const readRequests = account.reads[0]?.sum.requests || 0;
-          return <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>;
-        } else if (endpoint === 'workers_kv_storage') {
-          const storageBytes = account.storage[0]?.max.byteCount || 0;
-          return <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>;
-        } else if (endpoint === 'workers_kv_write_list_delete') {
-          const writeRequests = account.writes[0]?.sum.requests || 0;
-          const listRequests = account.lists[0]?.sum.requests || 0;
-          const deleteRequests = account.deletes[0]?.sum.requests || 0;
-          const totalRequests = writeRequests + listRequests + deleteRequests;
-          return (
-            <span className="result-item">
-              Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
-              {totalRequests > 0 && (
-                <span> (Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)})</span>
-              )}
-            </span>
-          );
-        }
+        const writeRequests = account.writes[0]?.sum.requests || 0;
+        const listRequests = account.lists[0]?.sum.requests || 0;
+        const deleteRequests = account.deletes[0]?.sum.requests || 0;
+        const totalRequests = writeRequests + listRequests + deleteRequests;
+        return (
+          <span className="result-item">
+            Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
+            <br />
+            <div style={{ marginLeft: '20px', whiteSpace: 'pre-line' }}>
+              * Write: {formatNumber(writeRequests)}
+              * List: {formatNumber(listRequests)}
+              * Delete: {formatNumber(deleteRequests)}
+            </div>
+          </span>
+        );
       }
       break;
       
