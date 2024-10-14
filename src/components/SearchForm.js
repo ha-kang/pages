@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
@@ -246,10 +246,10 @@ const renderResult = (endpoint, result) => {
 
       case 'stream_minutes_stored':
         if (result && result.result && result.result.storage_usage_bytes !== undefined) {
-          const storageUsageGB = formatStorageUsage(result.result.storage_usage_bytes);
+          const storageUsageFormatted = formatBytes(result.result.storage_usage_bytes);
           return (
             <span className="result-item">
-              Stream Minutes Stored: {storageUsageGB} ({result.result.storage_usage_bytes} bytes)
+              Stream Minutes Stored: {storageUsageFormatted}
             </span>
           );
         }
@@ -257,10 +257,10 @@ const renderResult = (endpoint, result) => {
 
       case 'images_stored':
         if (result && result.result && result.result.stored_total_bytes !== undefined) {
-          const storedTotalGB = formatStorageUsage(result.result.stored_total_bytes);
+          const storedTotalFormatted = formatBytes(result.result.stored_total_bytes);
           return (
             <span className="result-item">
-              Images Stored: {storedTotalGB} ({result.result.stored_total_bytes} bytes)
+              Images Stored: {storedTotalFormatted}
             </span>
           );
         }
