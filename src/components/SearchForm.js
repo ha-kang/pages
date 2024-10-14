@@ -29,23 +29,23 @@ const SearchForm = () => {
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
   
 
-  const formatBytes = (bytes) => {
-    if (bytes === 0 || bytes === undefined) return '0 B';
-    const k = 1000;
-    const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
-    return `${convertedValue} ${sizes[i]} (${bytes})`;
-  };
+const formatBytes = (bytes) => {
+  if (bytes === 0 || bytes === undefined) return '0 B';
+  const k = 1000;
+  const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
+  return `${convertedValue} ${sizes[i]} (${bytes})`;
+};
   
 const formatNumber = (number) => {
   if (number === undefined || number === null) return 'N/A';
   if (typeof number === 'string') return number; // Handle error messages
   if (number >= 1000000) {
     const millions = number / 1000000;
-    return `${millions.toFixed(2)}MM (${number.toLocaleString()})`;
+    return `${millions.toFixed(2)}MM (${number})`;
   }
-  return number.toLocaleString();
+  return number.toString(); // Remove comma formatting
 };
 
 const formatImagesTransformations = (number) => {
