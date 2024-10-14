@@ -1,4 +1,10 @@
 const ENDPOINTS = {
+  'ent_zone': {
+    handler: handleEntZone,
+    label: 'Ent Zone',
+    useZoneId: false
+  },
+
   'data_transfer_request': {
     handler: handleDataTransferRequest,
     label: 'Data Transfer/Request',
@@ -263,6 +269,31 @@ async function performGraphQLRequest(query, variables = {}) {
 
 
 // 각 엔드포인트 결과를 처리하는 함수=======================================================================================================
+async function handleEntZone(accountTag) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountTag}`;
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'X-Auth-Email': AUTH_EMAIL,
+        'X-Auth-Key': AUTH_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await response.json();
+    if (data.success && data.result && data.result.legacy_flags && data.result.legacy_flags.enterprise_zone_quota) {
+      const { maximum, current } = data.result.legacy_flags.enterprise_zone_quota;
+      return { maximum, current };
+    } else {
+      throw new Error('Invalid response structure');
+    }
+  } catch (error) {
+    console.error('Error fetching Ent Zone data:', error);
+    return { error: error.message };
+  }
+}
+
+
+
 // handleDataTransferRequest 함수 수정
 async function handleDataTransferRequest(accountTag, zoneId, params) {
   const query = `
@@ -565,25 +596,28 @@ async function handleStreamMinutesStored(accountTag, zoneId, params) {
 
 async function handleStreamMinutesViewed(accountTag, zoneId, params) {
   const query = `
-    query getStreamMinutesViewed($accountTag: String!, $start: String!, $end: String!) {
+    query getStreamMinutesViewed($accountTag: String!, $filter: AccountStreamMinutesViewedAdaptiveGroupsFilter_InputObject!) {
       viewer {
         accounts(filter: {accountTag: $accountTag}) {
-          stream {
-            minutesDelivered(filter: {date_geq: $start, date_leq: $end}) {
-              sum {
-                minutes
-              }
+          Total: streamMinutesViewedAdaptiveGroups(filter: $filter, limit: 10000) {
+            sum {
+              minutesViewed
             }
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
+  
+  const variables = {
+    accountTag,
+    filter: {
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date')
+    }
+  };
+
+  return await performGraphQLRequest(query, variables);
 }
 
 async function handleImagesDelivered(accountTag, zoneId, params) {
@@ -630,19 +664,25 @@ async function handleImagesStored(accountTag, zoneId, params) {
 
 async function handleImagesUniqueTransformations(accountTag, zoneId, params) {
   const query = `
-    query getImagesUniqueTransformations($accountTag: String!, $start: String!, $end: String!) {
+    query getImagesUniqueTransformations($accountTag: String!, $filter: AccountImagesUniqueTransformationAdaptiveGroupsFilter_InputObject!) {
       viewer {
         accounts(filter: {accountTag: $accountTag}) {
-          imagesAdaptiveGroups(filter: {date_geq: $start, date_leq: $end}) {
-            count
+          imagesUniqueTransformations(filter: $filter, limit: 10000) {
+            transformations
+            date
           }
         }
       }
     }
   `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
-  });
+  
+  const variables = {
+    accountTag,
+    filter: {
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date')
+    }
+  };
+
+  return await performGraphQLRequest(query, variables);
 }

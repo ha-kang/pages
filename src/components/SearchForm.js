@@ -87,6 +87,16 @@ const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
   switch (endpoint) {
+    case 'ent_zone':
+      if (result && typeof result.maximum !== 'undefined' && typeof result.current !== 'undefined') {
+        return (
+          <span className="result-item">
+            Ent Zone: 최대 {result.maximum} 개, 현재 사용중인 존 갯수 {result.current} 개
+          </span>
+        );
+      }
+      break;
+      
     case 'data_transfer_request':
       if (result && typeof result.totalBytes !== 'undefined' && typeof result.totalRequests !== 'undefined') {
         return (
