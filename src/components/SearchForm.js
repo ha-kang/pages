@@ -92,34 +92,34 @@ const DataTransferDownload = ({ data }) => {
     </div>
   );
 };
+
+
 const downloadCSV = (data) => {
-  // 존 별로 데이터 그룹화
-  const zoneGroups = data.reduce((acc, item) => {
-    if (!acc[item.zoneId]) {
-      acc[item.zoneId] = {
-        zoneName: item.zoneName || item.zoneId,
-        data: {}
-      };
+  // 국가별로 데이터 합산
+  const countryData = data.reduce((acc, item) => {
+    if (!acc[item.country]) {
+      acc[item.country] = { bytes: 0, requests: 0 };
     }
-    if (!acc[item.zoneId].data[item.country]) {
-      acc[item.zoneId].data[item.country] = { bytes: 0, requests: 0 };
-    }
-    acc[item.zoneId].data[item.country].bytes += item.bytes;
-    acc[item.zoneId].data[item.country].requests += item.requests;
+    acc[item.country].bytes += item.bytes;
+    acc[item.country].requests += item.requests;
     return acc;
   }, {});
 
   let csvContent = "data:text/csv;charset=utf-8,";
-   // 각 존에 대한 데이터 추가
-  Object.entries(zoneGroups).forEach(([zoneId, zoneData], index) => {
-    if (index > 0) csvContent += "\n\n"; // 존 사이에 빈 줄 추가
-    csvContent += `${zoneData.zoneName} - ${zoneId}\n`;
-    csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+  csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
 
-    Object.entries(zoneData.data).forEach(([country, stats]) => {
-      csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
-    });
+  Object.entries(countryData).forEach(([country, stats]) => {
+    csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
   });
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "data_transfer_by_country.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
   
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement("a");
