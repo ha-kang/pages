@@ -102,13 +102,14 @@ const SearchForm = () => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setResults(data);
+      onSearchComplete(data);  // 부모 컴포넌트에 결과 전달
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터를 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones]);
+  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, onSearchComplete]);
 
   const renderResult = useCallback((endpoint, result) => {
     if (process.env.NODE_ENV === 'development') {
