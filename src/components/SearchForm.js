@@ -49,6 +49,19 @@ const formatNumber = (number) => {
   return number.toString(); // Remove comma formatting
 };
 
+  // k 단위로 포맷팅하는 새로운 함수 추가
+const formatMinutesToK = (minutes) => {
+  if (minutes === undefined || minutes === null) return 'N/A';
+  const kValue = minutes / 1000;
+  if (kValue < 1) {
+    // 1k 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k`;
+  } else {
+    // 1k 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k`;
+  }
+};
+  
 const formatImagesTransformations = (number) => {
   if (number === undefined || number === null) return 'N/A';
   if (typeof number === 'string') return number; // Handle error messages
@@ -243,7 +256,41 @@ const renderResult = (endpoint, result) => {
         return <DataTransferDownload data={dataWithZoneInfo} />;
       }
       break;
-      
+
+    case 'stream_minutes_stored':
+      if (result && result.result) {
+        const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
+        const currentFormatted = formatMinutesToK(totalStorageMinutes);
+        const limitFormatted = formatMinutesToK(totalStorageMinutesLimit);
+        return (
+          <span className="result-item">
+            Stream Minutes Stored: Current: {currentFormatted} ({totalStorageMinutes}) / Limit: {limitFormatted} ({totalStorageMinutesLimit})
+          </span>
+        );
+      }
+      break;
+
+    case 'images_stored':
+      if (result.errors && result.errors.length > 0) {
+        // 에러가 있는 경우
+        return (
+          <span className="result-item error">
+            Images Stored: Error - {result.errors[0].message}
+          </span>
+        );
+      } else if (result.result && result.result.count) {
+        const { current, allowed } = result.result.count;
+        const currentFormatted = formatNumber(current / 1000); // k 단위로 변환
+        const allowedFormatted = formatNumber(allowed / 1000); // k 단위로 변환
+        return (
+          <span className="result-item">
+            Images Stored: Current: {currentFormatted}k ({current}) / Limit: {allowedFormatted}k ({allowed})
+          </span>
+        );
+      } else {
+        return <span className="result-item">Images Stored: No data available</span>;
+      }
+
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
         console.log('China NTW Data Transfer results:', result);
@@ -272,7 +319,6 @@ const renderResult = (endpoint, result) => {
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
   }
 
-  // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
   return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
 };
 
