@@ -12,7 +12,6 @@ const SearchForm = ({ onSearchComplete }) => {
   const [selectedEndpoints, setSelectedEndpoints] = useState([]);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
-  const [results, setResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -42,7 +41,7 @@ const SearchForm = ({ onSearchComplete }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       const accountsData = await fetchData('https://account-list.megazone-cloud---partner-demo-account.workers.dev', '고객사 목록을 불러오는 데 실패했습니다.');
-  setCustomerAccounts(accountsData.reduce((acc, customer) => {
+      setCustomerAccounts(accountsData.reduce((acc, customer) => {
         acc[customer.name] = customer.accountTag;
         return acc;
       }, {}));
@@ -69,12 +68,6 @@ const SearchForm = ({ onSearchComplete }) => {
       setSelectedEndpoints(selectedOptions);
     }
   }, [endpoints]);
-
-  const memoizedOnSearchComplete = useCallback((data) => {
-    if (typeof onSearchComplete === 'function') {
-      onSearchComplete(data);
-    }
-  }, [onSearchComplete]);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
@@ -115,25 +108,6 @@ const SearchForm = ({ onSearchComplete }) => {
       setIsLoading(false);
     }
   }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, onSearchComplete]);
-
-
-
-
-  const renderResult = useCallback((endpoint, result) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`Rendering result for ${endpoint}:`, result);
-    }
-
-    if (typeof result === 'string') {
-      return <span className="result-item">{result}</span>;
-    } else if (typeof result === 'object' && result !== null) {
-      return Object.entries(result).map(([key, value]) => (
-        <span key={key} className="result-item">{value}</span>
-      ));
-    } else {
-      return <span className="result-item">No data available</span>;
-    }
-  }, []);
 
   const getEndpointOptions = useCallback(() => {
     const allSelected = selectedEndpoints.length === endpoints.length;
@@ -179,20 +153,6 @@ const SearchForm = ({ onSearchComplete }) => {
           {isLoading ? '로딩 중...' : '검색'}
         </button>
       </form>
-      {results && (
-        <div className="results-container">
-          <h2 className="results-title">결과</h2>
-          <div className="results-box">
-            <div className="endpoint-results">
-              {Object.entries(results).map(([endpoint, result]) => (
-                <div key={endpoint} className="result-group">
-                  {renderResult(endpoint, result)}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
