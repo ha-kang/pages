@@ -4,7 +4,7 @@ import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-const SearchForm = () => {
+const SearchForm = ({ onSearchComplete }) => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
   const [customer, setCustomer] = useState('');
@@ -102,7 +102,7 @@ const SearchForm = () => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setResults(data);
-      if (onSearchComplete) {
+      if (typeof onSearchComplete === 'function') {
         onSearchComplete(data);
       }
     } catch (error) {
@@ -111,7 +111,7 @@ const SearchForm = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, onSearchComplete]);
+  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones]);
 
 
   const renderResult = useCallback((endpoint, result) => {
