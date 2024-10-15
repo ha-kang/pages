@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
@@ -50,7 +50,7 @@ const formatNumber = (number) => {
 };
 
   // k 단위로 포맷팅하는 새로운 함수 추가
-const formatMinutesToK = useCallback((minutes) => {
+const formatMinutesToK = (minutes) => {
   if (minutes === undefined || minutes === null) return 'N/A';
   const kValue = minutes / 1000;
   if (kValue < 1) {
@@ -60,7 +60,7 @@ const formatMinutesToK = useCallback((minutes) => {
     // 1k 이상의 값은 소수점 두 자리까지 표시
     return `${kValue.toFixed(2)}k`;
   }
-}, []);
+};
   
 const formatImagesTransformations = (number) => {
   if (number === undefined || number === null) return 'N/A';
@@ -150,7 +150,7 @@ const downloadCSV = (data) => {
 
 
 // 콘솔 렌더링
-const renderResult = useCallback((endpoint, result) => {
+const renderResult = (endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
   switch (endpoint) {
@@ -320,15 +320,7 @@ const renderResult = useCallback((endpoint, result) => {
   }
 
   return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
-}, [
-  formatBytes, 
-  formatNumber, 
-  formatMinutesToK, 
-  formatStreamMinutes, 
-  formatCPUTime, 
-  formatImagesTransformations,
-  DataTransferDownload
-]);
+};
 
 
   useEffect(() => {
