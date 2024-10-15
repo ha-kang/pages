@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
@@ -57,7 +57,7 @@ const formatMinutesToK = useCallback((minutes) => {
     // 1k 미만의 값은 소수점 세 자리까지 표시
     return `${kValue.toFixed(3)}k`;
   } else {
-      // 1k 이상의 값은 소수점 두 자리까지 표시
+    // 1k 이상의 값은 소수점 두 자리까지 표시
     return `${kValue.toFixed(2)}k`;
   }
 }, []);
@@ -150,7 +150,7 @@ const downloadCSV = (data) => {
 
 
 // 콘솔 렌더링
-const renderResult = (endpoint, result) => {
+const renderResult = useCallback((endpoint, result) => {
   console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
 
   switch (endpoint) {
