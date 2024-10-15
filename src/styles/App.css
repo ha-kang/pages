@@ -44,28 +44,6 @@ p {
   line-height: 1.4;
 }
 
-pre {
-  background-color: var(--result-bg-color);
-  padding: 15px;
-  border-radius: 5px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.image {
-  flex: 1;
-  padding-top: 1vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.image img {
-  max-width: 100%;
-  height: auto;
-}
-
 .image-or-results {
   flex: 1;
   padding-top: 1vw;
@@ -151,17 +129,6 @@ pre {
     text-align: center;
     margin-bottom: 20px;
   }
-
-  .image {
-    margin-top: 20px;
-  }
-
-  .results pre {
-    font-size: 14px;
-    padding: 12px;
-    line-height: 1.4;
-  }
-}
 
   .image-or-results {
     margin-top: 20px;
