@@ -257,16 +257,18 @@ const renderResult = (endpoint, result) => {
       }
       break;
 
-      case 'stream_minutes_stored':
-        if (result && result.result && result.result.storage_usage_bytes !== undefined) {
-          const storageUsageFormatted = formatBytes(result.result.storage_usage_bytes);
-          return (
-            <span className="result-item">
-              Stream Minutes Stored: {storageUsageFormatted}
-            </span>
-          );
-        }
-        break;
+    case 'stream_minutes_stored':
+      if (result && result.result) {
+        const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
+        const currentFormatted = formatMinutesToK(totalStorageMinutes);
+        const limitFormatted = formatMinutesToK(totalStorageMinutesLimit);
+        return (
+          <span className="result-item">
+            Stream Minutes Stored: Current: {currentFormatted} ({totalStorageMinutes}) / Limit: {limitFormatted} ({totalStorageMinutesLimit})
+          </span>
+        );
+      }
+      break;
 
       case 'images_stored':
         if (result && result.result && result.result.stored_total_bytes !== undefined) {
