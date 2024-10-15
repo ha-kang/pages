@@ -1,7 +1,7 @@
 const ENDPOINTS = {
   'ent_zone': {
     handler: handleEntZone,
-    label: 'Ent Zone',
+    label: 'Current Ent Zone',
     useZoneId: false
   },
 
@@ -18,6 +18,11 @@ const ENDPOINTS = {
   'foundation_dns_queries': {
     handler: handleFoundationDNSQueries,
     label: 'Foundation DNS Queries',
+    useZoneId: true
+  },
+  'data_transfer_by_country': {
+    handler: handleDataTransferByCountry,
+    label: 'Data Transfer by Country',
     useZoneId: true
   },
   'china_ntw_data_transfer': {
@@ -53,10 +58,6 @@ const ENDPOINTS = {
   'stream_minutes_viewed': {
     handler: handleStreamMinutesViewed,
     label: 'Stream Minutes Viewed'
-  },
-  'images_delivered': {
-    handler: handleImagesDelivered,
-    label: 'Images Delivered'
   },
   'images_stored': {
     handler: handleImagesStored,
@@ -240,6 +241,50 @@ function processEndpointResult(endpoint, result) {
     default:
       console.error(`Unknown endpoint: ${endpoint}`);
       return null;
+  }
+}
+
+
+
+
+async function handleDataTransferByCountry(accountTag, zoneId, params) {
+  const query = `
+  {
+    viewer {
+      zones(filter: { zoneTag: $zoneTag }) {
+        httpRequestsOverviewAdaptiveGroups(limit: 10000, filter: $filter) {
+          dimensions {
+            clientCountryName
+          }
+          sum {
+            bytes
+            requests
+          }
+        }
+      }
+    }
+  }
+  `;
+
+  const variables = {
+    zoneTag: zoneId,
+    filter: {
+      date_geq: params.get('start_date'),
+      date_leq: params.get('end_date')
+    }
+  };
+
+  try {
+    const result = await performGraphQLRequest(query, variables);
+    const countryData = result.data.viewer.zones[0].httpRequestsOverviewAdaptiveGroups;
+    return countryData.map(item => ({
+      country: item.dimensions.clientCountryName,
+      bytes: item.sum.bytes,
+      requests: item.sum.requests
+    }));
+  } catch (error) {
+    console.error('Error fetching data transfer by country:', error);
+    return { error: error.message };
   }
 }
 
@@ -531,6 +576,8 @@ async function handleWorkersStdRequests(accountTag, zoneId, params) {
   return result;
 }
 
+
+
 //====================================================Workers_Std_CPU===================================================
 async function handleWorkersStdCPU(accountTag, zoneId, params) {
   const query = `
@@ -572,26 +619,15 @@ async function handleWorkersStdCPU(accountTag, zoneId, params) {
 
 
 async function handleStreamMinutesStored(accountTag, zoneId, params) {
-  const query = `
-    query getStreamMinutesStored($accountTag: String!, $start: String!, $end: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          stream {
-            minutesStored(filter: {date_geq: $start, date_leq: $end}) {
-              sum {
-                minutes
-              }
-            }
-          }
-        }
-      }
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountTag}/stream/storage-usage`;
+  const response = await fetch(url, {
+    headers: {
+      'X-Auth-Email': AUTH_EMAIL,
+      'X-Auth-Key': AUTH_KEY,
+      'Content-Type': 'application/json'
     }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
   });
+  return await response.json();
 }
 
 async function handleStreamMinutesViewed(accountTag, zoneId, params) {
@@ -642,24 +678,15 @@ async function handleImagesDelivered(accountTag, zoneId, params) {
 }
 
 async function handleImagesStored(accountTag, zoneId, params) {
-  const query = `
-    query getImagesStored($accountTag: String!, $start: String!, $end: String!) {
-      viewer {
-        accounts(filter: {accountTag: $accountTag}) {
-          imagesAdaptiveGroups(filter: {date_geq: $start, date_leq: $end}) {
-            sum {
-              bytes
-            }
-          }
-        }
-      }
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountTag}/images/v1/stats`;
+  const response = await fetch(url, {
+    headers: {
+      'X-Auth-Email': AUTH_EMAIL,
+      'X-Auth-Key': AUTH_KEY,
+      'Content-Type': 'application/json'
     }
-  `;
-  return await performGraphQLRequest(query, { 
-    accountTag, 
-    start: params.get('start_date'), 
-    end: params.get('end_date') 
   });
+  return await response.json();
 }
 
 async function handleImagesUniqueTransformations(accountTag, zoneId, params) {
