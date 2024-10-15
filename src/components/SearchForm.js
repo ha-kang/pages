@@ -70,6 +70,12 @@ const SearchForm = ({ onSearchComplete }) => {
     }
   }, [endpoints]);
 
+  const memoizedOnSearchComplete = useCallback((data) => {
+    if (typeof onSearchComplete === 'function') {
+      onSearchComplete(data);
+    }
+  }, [onSearchComplete]);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!customer || !startDate || !endDate || selectedEndpoints.length === 0) {
@@ -102,16 +108,15 @@ const SearchForm = ({ onSearchComplete }) => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
       setResults(data);
-      if (typeof onSearchComplete === 'function') {
-        onSearchComplete(data);
-      }
+      memoizedOnSearchComplete(data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터를 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones]);
+  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, memoizedOnSearchComplete]);
+
 
 
   const renderResult = useCallback((endpoint, result) => {
