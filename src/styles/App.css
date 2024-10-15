@@ -17,136 +17,79 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 3vw;
+  padding: 2vw;
   box-sizing: border-box;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 main {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
 }
 
 .content {
   flex: 1;
-  max-width: 50%;
+  margin-right: 2rem;
 }
 
-h1 {
-  font-size: 48px;
-  white-space: nowrap;
-  margin-top: 15px;
-  margin-bottom: 0;
+.image-container {
+  flex: 0 0 300px;
 }
 
-p {
-  margin-top: 0;
-  line-height: 1.4;
-}
-
-.image-or-results {
-  flex: 1;
-  padding-top: 1vw;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  transition: all 0.3s ease;
-}
-
-.image-or-results img {
+.image-container img {
   max-width: 100%;
   height: auto;
-  transition: opacity 0.3s ease;
 }
 
-.show-results img {
-  display: none;
+.results-section {
+  background-color: var(--result-bg-color);
+  padding: 1rem;
+  border-radius: 5px;
 }
 
 .results-container {
-  width: 100%;
-  max-height: 80vh;
-  overflow-y: auto;
-  padding: 20px;
-  background-color: var(--result-bg-color);
-  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
-.results-title {
-  color: var(--text-color);
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.result-group {
-  margin-bottom: 20px;
-}
-
-.result-group h3 {
-  color: var(--text-color);
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.result-group pre {
+.result-item {
   background-color: rgba(255, 255, 255, 0.05);
-  padding: 15px;
+  padding: 1rem;
   border-radius: 5px;
-  overflow-x: auto;
-  color: var(--text-color);
-  font-size: 14px;
+}
+
+.result-item h3 {
+  margin-top: 0;
+}
+
+.result-item pre {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (max-width: 768px) {
-  .app {
-    padding: 15px;
-    max-width: 100%;
-  }
-
   main {
     flex-direction: column;
   }
-  
+
   .content {
-    max-width: 100%;
+    margin-right: 0;
+    margin-bottom: 2rem;
   }
 
-  h1 {
-    font-size: 32px;
+  .image-container {
+    flex: 0 0 auto;
     text-align: center;
-    white-space: normal;
-    margin-bottom: 15px;
-  }
-
-  h2 {
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
-
-  p {
-    font-size: 16px;
-    line-height: 1.5;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .image-or-results {
-    margin-top: 20px;
   }
 
   .results-container {
-    padding: 15px;
-  }
-
-  .results-title {
-    font-size: 20px;
-  }
-
-  .result-group h3 {
-    font-size: 16px;
-  }
-
-  .result-group pre {
-    font-size: 12px;
+    grid-template-columns: 1fr;
   }
 }
