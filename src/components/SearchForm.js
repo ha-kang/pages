@@ -49,6 +49,19 @@ const formatNumber = (number) => {
   return number.toString(); // Remove comma formatting
 };
 
+  // k 단위로 포맷팅하는 새로운 함수 추가
+const formatMinutesToK = useCallback((minutes) => {
+  if (minutes === undefined || minutes === null) return 'N/A';
+  const kValue = minutes / 1000;
+  if (kValue < 1) {
+    // 1k 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k`;
+  } else {
+      // 1k 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k`;
+  }
+}, []);
+  
 const formatImagesTransformations = (number) => {
   if (number === undefined || number === null) return 'N/A';
   if (typeof number === 'string') return number; // Handle error messages
