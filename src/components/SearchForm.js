@@ -309,9 +309,16 @@ const renderResult = useCallback((endpoint, result) => {
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
   }
 
-  // 위의 조건에 해당하지 않는 경우, 원본 데이터를 JSON 형식으로 표시
   return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
-};
+}, [
+  formatBytes, 
+  formatNumber, 
+  formatMinutesToK, 
+  formatStreamMinutes, 
+  formatCPUTime, 
+  formatImagesTransformations,
+  DataTransferDownload
+]);
 
 
   useEffect(() => {
