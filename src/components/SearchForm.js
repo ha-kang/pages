@@ -270,16 +270,26 @@ const renderResult = useCallback((endpoint, result) => {
       }
       break;
 
-      case 'images_stored':
-        if (result && result.result && result.result.stored_total_bytes !== undefined) {
-          const storedTotalFormatted = formatBytes(result.result.stored_total_bytes);
-          return (
-            <span className="result-item">
-              Images Stored: {storedTotalFormatted}
-            </span>
-          );
-        }
-        break;
+    case 'images_stored':
+      if (result.errors && result.errors.length > 0) {
+        // 에러가 있는 경우
+        return (
+          <span className="result-item error">
+            Images Stored: Error - {result.errors[0].message}
+          </span>
+        );
+      } else if (result.result && result.result.count) {
+        const { current, allowed } = result.result.count;
+        const currentFormatted = formatNumber(current / 1000); // k 단위로 변환
+        const allowedFormatted = formatNumber(allowed / 1000); // k 단위로 변환
+        return (
+          <span className="result-item">
+            Images Stored: Current: {currentFormatted}k ({current}) / Limit: {allowedFormatted}k ({allowed})
+          </span>
+        );
+      } else {
+        return <span className="result-item">Images Stored: No data available</span>;
+      }
 
     case 'china_ntw_data_transfer':
       if (Array.isArray(result)) {
