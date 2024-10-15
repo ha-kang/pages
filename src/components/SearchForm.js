@@ -103,7 +103,7 @@ const SearchForm = () => {
       const data = await response.json();
       setResults(data);
       if (onSearchComplete) {
-        onSearchComplete(data);  // onSearchComplete가 존재할 때만 호출
+        onSearchComplete(data);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
