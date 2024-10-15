@@ -257,18 +257,31 @@ const renderResult = (endpoint, result) => {
       }
       break;
 
-    case 'stream_minutes_stored':
-      if (result && result.result) {
-        const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
-        const currentFormatted = formatMinutesToK(totalStorageMinutes);
-        const limitFormatted = formatMinutesToK(totalStorageMinutesLimit);
-        return (
-          <span className="result-item">
-            Stream Minutes Stored: Current: {currentFormatted} ({totalStorageMinutes}) / Limit: {limitFormatted} ({totalStorageMinutesLimit})
-          </span>
-        );
-      }
-      break;
+case 'stream_minutes_stored':
+  if (result && result.result && result.success) {
+    const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
+    const currentFormatted = formatMinutesToK(totalStorageMinutes);
+    const limitFormatted = formatMinutesToK(totalStorageMinutesLimit);
+    return (
+      <span className="result-item">
+        Stream Minutes Stored: Current: {currentFormatted} ({totalStorageMinutes}) / Limit: {limitFormatted} ({totalStorageMinutesLimit})
+      </span>
+    );
+  } else if (result && result.messages && result.messages.some(msg => msg.message === "Cloudflare Stream not enabled")) {
+    return (
+      <span className="result-item">
+        Stream Minutes Stored: Cloudflare Stream not enabled
+      </span>
+    );
+  } else if (result && result.errors && result.errors.length > 0) {
+    return (
+      <span className="result-item error">
+        Stream Minutes Stored: Error - {result.errors[0].message}
+      </span>
+    );
+  } else {
+    return <span className="result-item">Stream Minutes Stored: No data available</span>;
+  }
 
     case 'images_stored':
       if (result.errors && result.errors.length > 0) {
