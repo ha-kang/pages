@@ -107,15 +107,15 @@ const SearchForm = ({ onSearchComplete }) => {
       
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data = await response.json();
-      setResults(data);
-      memoizedOnSearchComplete(data);
+      onSearchComplete(data);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('데이터를 불러오는 데 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
-  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, memoizedOnSearchComplete]);
+  }, [customer, startDate, endDate, selectedEndpoints, customerAccounts, customerZones, onSearchComplete]);
+
 
 
 
