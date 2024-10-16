@@ -176,18 +176,10 @@ const renderResult = (endpoint, result) => {
       break;
       
     case 'bot_management_request':
-      if (result && Array.isArray(result)) {
-        let totalLikelyHuman = 0;
-        result.forEach(zoneResult => {
-          if (zoneResult.result && zoneResult.result.data && zoneResult.result.data.viewer && zoneResult.result.data.viewer.zones) {
-            zoneResult.result.data.viewer.zones.forEach(zone => {
-              if (zone.likely_human && zone.likely_human.length > 0) {
-                totalLikelyHuman += zone.likely_human[0].count || 0;
-              }
-            });
-          }
-        });
-        return <span className="result-item">Bot management(Likely Human): {formatNumber(totalLikelyHuman)}</span>;
+      if (result && result.message) {
+        return <span className="result-item">Bot management(Likely Human): {result.message}</span>;
+      } else if (result && typeof result.totalLikelyHuman !== 'undefined') {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
       } else {
         return <span className="result-item">Bot management(Likely Human): No data available</span>;
       }
@@ -242,31 +234,25 @@ const renderResult = (endpoint, result) => {
       break;
       
     case 'stream_minutes_viewed':
-      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].Total) {
-        const minutesViewed = result.data.viewer.accounts[0].Total[0]?.sum.minutesViewed || 0;
-        return <span className="result-item">Stream Minutes Viewed: {formatStreamMinutes(minutesViewed)}</span>;
+      if (result && typeof result.totalMinutesViewed !== 'undefined') {
+        return <span className="result-item">Stream Minutes Viewed: {formatMinutesToK(result.totalMinutesViewed)}</span>;
+      } else {
+        return <span className="result-item">Stream Minutes Viewed: No data available</span>;
       }
-      break;
       
     case 'images_unique_transformations':
-      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].imagesUniqueTransformations) {
-        const transformations = result.data.viewer.accounts[0].imagesUniqueTransformations.reduce((sum, item) => sum + item.transformations, 0);
-        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(transformations)}</span>;
+      if (result && typeof result.totalUniqueTransformations !== 'undefined') {
+        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(result.totalUniqueTransformations)}</span>;
+      } else {
+        return <span className="result-item">Images Unique Transformations: No data available</span>;
       }
-      break;
 
     case 'data_transfer_by_country':
       if (Array.isArray(result)) {
-        const dataWithZoneInfo = result.map(zoneData => {
-          return zoneData.result.map(item => ({
-            ...item,
-            zoneId: zoneData.zoneId,
-            zoneName: zoneData.zoneName || zoneData.zoneId
-          }));
-        }).flat();
-        return <DataTransferDownload data={dataWithZoneInfo} />;
+        return <span className="result-item">Data Transfer by Country: <button onClick={() => downloadCSV(result)}>Download CSV</button></span>;
+      } else {
+        return <span className="result-item">Data Transfer by Country: No data available</span>;
       }
-      break;
 
 case 'stream_minutes_stored':
   if (result && result.result && result.success) {
@@ -316,34 +302,15 @@ case 'stream_minutes_stored':
       }
 
     case 'china_ntw_data_transfer':
-      if (Array.isArray(result)) {
-        console.log('China NTW Data Transfer results:', result);
-        let totalBytes = 0;
-        result.forEach(zoneData => {
-          if (Array.isArray(zoneData.result)) {
-            zoneData.result.forEach(innerResult => {
-              const edgeResponseBytes = innerResult.result?.data?.viewer?.zones[0]?.httpRequestsAdaptiveGroups[0]?.sum?.edgeResponseBytes;
-              if (typeof edgeResponseBytes === 'number') {
-                totalBytes += edgeResponseBytes;
-              }
-            });
-          }
-        });
-        return (
-          <span className="result-item">
-            China NTW Data Transfer: {formatBytes(totalBytes)}
-          </span>
-        );
+      if (result && typeof result.totalEdgeResponseBytes !== 'undefined') {
+        return <span className="result-item">China NTW Data Transfer: {formatBytes(result.totalEdgeResponseBytes)}</span>;
+      } else {
+        return <span className="result-item">China NTW Data Transfer: No data available</span>;
       }
-      return <span className="result-item">China NTW Data Transfer: No data available</span>;
-
 
     default:
-      // 기본적으로 결과를 JSON 문자열로 표시
       return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
   }
-
-  return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
 };
 
 
@@ -430,10 +397,10 @@ case 'stream_minutes_stored':
   };
 
   // 엔드포인트 옵션 생성 함수
-  const getEndpointOptions = () => {
-    const allSelected = selectedEndpoints.length === endpoints.length;
-    return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
-  };
+const getEndpointOptions = useCallback(() => {
+  const allSelected = selectedEndpoints.length === endpoints.length;
+  return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
+}, [selectedEndpoints, endpoints, allEndpointsOption]);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
