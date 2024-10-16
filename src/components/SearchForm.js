@@ -214,10 +214,14 @@ const SearchForm = () => {
         }
         break;
       
-      case 'bot_management_request':
-        if (result && typeof result.totalLikelyHuman !== 'undefined') {
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
-        }
+    case 'bot_management_request':
+      if (result && result.message) {
+        return <span className="result-item">Bot management(Likely Human): {result.message}</span>;
+      } else if (result && typeof result.totalLikelyHuman !== 'undefined') {
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
+      } else {
+        return <span className="result-item">Bot management(Likely Human): No data available</span>;
+      }
         break;
       
       case 'foundation_dns_queries':
