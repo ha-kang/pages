@@ -291,47 +291,118 @@ const SearchForm = () => {
         }
         break;
 
-      case 'stream_minutes_stored':
-        if (result && result.result) {
-          const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
-          return (
-            <span className="result-item">
-              Stream Minutes Stored: Current: {formatMinutesToK(totalStorageMinutes)} / Limit: {formatMinutesToK(totalStorageMinutesLimit)}
-            </span>
-          );
-        } else if (result && result.messages && result.messages.some(msg => msg.message === "Cloudflare Stream not enabled")) {
-          return <span className="result-item">Stream Minutes Stored: Cloudflare Stream not enabled</span>;
-        }
-        break;
+    case 'stream_minutes_viewed':
+      if (result && typeof result.totalMinutesViewed !== 'undefined') {
+        return <span className="result-item">Stream Minutes Viewed: {formatMinutesToK(result.totalMinutesViewed)}</span>;
+      } else {
+        return <span className="result-item">Stream Minutes Viewed: No data available</span>;
+      }
 
-      case 'images_stored':
-        if (result && result.result && result.result.count) {
-          const { current, allowed } = result.result.count;
-          return (
-            <span className="result-item">
-              Images Stored: Current: {formatNumber(current)} / Limit: {formatNumber(allowed)}
-            </span>
-          );
-        } else if (result.errors && result.errors.length > 0) {
-          return <span className="result-item error">Images Stored: Error - {result.errors[0].message}</span>;
-        }
-        break;
+    case 'images_unique_transformations':
+      if (result && typeof result.totalUniqueTransformations !== 'undefined') {
+        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(result.totalUniqueTransformations)}</span>;
+      } else {
+        return <span className="result-item">Images Unique Transformations: No data available</span>;
+      }
 
-      default:
-        return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
-    }
+    case 'data_transfer_by_country':
+      if (Array.isArray(result)) {
+        return <span className="result-item">Data Transfer by Country: <button onClick={() => downloadCSV(result)}>Download CSV</button></span>;
+      } else {
+        return <span className="result-item">Data Transfer by Country: No data available</span>;
+      }
 
-    return <span className="result-item">No data available for {endpoint}</span>;
-  };
+    case 'china_ntw_data_transfer':
+      if (result && typeof result.totalEdgeResponseBytes !== 'undefined') {
+        return <span className="result-item">China NTW Data Transfer: {formatBytes(result.totalEdgeResponseBytes)}</span>;
+      } else {
+        return <span className="result-item">China NTW Data Transfer: No data available</span>;
+      }
 
-  const downloadCSV = (data) => {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+    default:
+      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+  }
+};
 
-    data.forEach(({ country, bytes, requests }) => {
-      csvContent += `${country},${bytes},"${formatBytes(bytes)}",${requests},"${formatNumber(requests)}"\n`;
-    });
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", enco
+const downloadCSV = (data) => {
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+
+  data.forEach(({ country, bytes, requests }) => {
+    csvContent += `${country},${bytes},"${formatBytes(bytes)}",${requests},"${formatNumber(requests)}"\n`;
+  });
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "data_transfer_by_country.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const customerOptions = Object.keys(customerAccounts).map(name => ({
+  value: name,
+  label: name
+}));
+
+return (
+  <div className="search-form-container">
+    {error && <div className="error-message">{error}</div>}
+    <form onSubmit={handleSubmit} className="search-form">
+      <Select
+        options={customerOptions}
+        onChange={(selectedOption) => setCustomer(selectedOption ? selectedOption.value : '')}
+        placeholder="고객사"
+        className="basic-select"
+        classNamePrefix="select"
+      />
+      <Select
+        isMulti
+        name="endpoints"
+        options={getEndpointOptions()}
+        className="basic-multi-select"
+        classNamePrefix="select"
+        onChange={handleEndpointChange}
+        value={selectedEndpoints}
+        placeholder="엔드포인트 선택 (다중 선택 가능)"
+        closeMenuOnSelect={false}
+      />
+      <div className="date-picker-wrapper">
+        <DatePicker
+          selectsRange={true}
+          startDate={startDate}
+          endDate={endDate}
+          onChange={(update) => {
+            setDateRange(update);
+          }}
+          minDate={ninetyOneDaysAgo}
+          maxDate={today}
+          dateFormat="yyyy-MM-dd"
+          placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+          className="date-picker"
+        />
+      </div>
+      <button type="submit" className="search-button" disabled={isLoading}>
+        {isLoading ? '로딩 중...' : '검색'}
+      </button>
+    </form>
+    {results && typeof results === 'object' && Object.keys(results).length > 0 && (
+      <div className="results-container">
+        <h2 className="results-title">결과</h2>
+        <div className="results-box">
+          <div className="endpoint-results">
+            {Object.entries(results).map(([endpoint, result]) => (
+              <div key={endpoint} className="result-group">
+                {renderResult(endpoint, result)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+};
+
+export default SearchForm;
