@@ -116,7 +116,7 @@ const SearchForm = () => {
 
   const fetchEndpoints = async () => {
     try {
-      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
+      const response = await fetch('https://optimization.megazone-cloud---partner-demo-account.workers.dev');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
