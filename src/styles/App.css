@@ -1,40 +1,111 @@
-import React, { useState } from 'react';
-import SearchForm from './components/SearchForm';
-import './styles/App.css';
-import cloudflareImage from './images/cloudflare.png';
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
 
-const App = () => {
-  const [results, setResults] = useState(null);
+:root {
+  --main-bg-color: #1a1a2e;
+  --text-color: white;
+  --result-bg-color: rgba(255, 255, 255, 0.1);
+}
 
-  return (
-    <div className="app">
-      <main>
-        <div className="content">
-          <h1>Cloudflare API</h1>
-          <p>API를 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
-          <SearchForm onResultsReceived={setResults} />
-        </div>
-        <div className="image">
-          {results ? (
-            <div className="results-container">
-              <h2 className="results-title">결과</h2>
-              <div className="results-box">
-                <div className="endpoint-results">
-                  {Object.entries(results).map(([endpoint, result]) => (
-                    <div key={endpoint} className="result-group">
-                      {renderResult(endpoint, result)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <img src={cloudflareImage} alt="Cloudflare logo" />
-          )}
-        </div>
-      </main>
-    </div>
-  );
-};
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--main-bg-color);
+  color: var(--text-color);
+}
 
-export default App;
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10vw 0 2vw 3vw;
+  box-sizing: border-box;
+}
+
+main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.content {
+  flex: 1;
+  max-width: 50%;
+}
+
+h1 {
+  font-size: 48px;
+  white-space: nowrap;
+  margin-top: 15px;
+  margin-bottom: 0;
+}
+
+p {
+  margin-top: 0;
+  line-height: 1.4;
+}
+
+pre {
+  background-color: var(--result-bg-color);
+  padding: 15px;
+  border-radius: 5px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.image {
+  flex: 1;
+  padding-top: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .app {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  main {
+    flex-direction: column;
+  }
+  
+  .content {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 32px;
+    text-align: center;
+    white-space: normal;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .image {
+    margin-top: 20px;
+  }
+
+  .results pre {
+    font-size: 14px;
+    padding: 12px;
+    line-height: 1.4;
+  }
+}
