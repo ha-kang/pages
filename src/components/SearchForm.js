@@ -1,53 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import Select from 'react-select';
 import "react-datepicker/dist/react-datepicker.css";
 import '../styles/SearchForm.css';
 
-// 유틸리티 함수
-const formatDate = (date) => {
-  if (!date) return '';
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-const formatBytes = (bytes) => {
-  if (bytes === 0 || bytes === undefined) return '0 B';
-  const k = 1000;
-  const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-const formatNumber = (number) => {
-  if (number === undefined || number === null) return 'N/A';
-  if (typeof number === 'string') return number;
-  return number.toLocaleString();
-};
-
-const formatMinutesToK = (minutes) => {
-  if (minutes === undefined || minutes === null) return 'N/A';
-  const kValue = minutes / 1000;
-  return kValue < 1 ? `${kValue.toFixed(3)}k` : `${kValue.toFixed(2)}k`;
-};
-
-const formatImagesTransformations = (number) => {
-  if (number === undefined || number === null) return 'N/A';
-  if (typeof number === 'string') return number;
-  const kValue = number / 1000;
-  return kValue < 1 ? `${kValue.toFixed(3)}k` : `${kValue.toFixed(2)}k`;
-};
-
-const formatCPUTime = (microseconds) => {
-  if (microseconds === undefined || microseconds === null) return 'N/A';
-  const milliseconds = microseconds / 1000;
-  return `${(milliseconds / 1000000).toFixed(2)}MM ms`;
-};
-
-// 메인 컴포넌트
-const SearchForm = () => {
+//컴포넌트 정의
+const SearchForm = ({ onResultsReceived }) => {
   const [customerAccounts, setCustomerAccounts] = useState({});
   const [customerZones, setCustomerZones] = useState({});
   const [customer, setCustomer] = useState('');
@@ -62,22 +20,346 @@ const SearchForm = () => {
   const today = new Date();
   const ninetyOneDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
   const allEndpointsOption = { value: 'all', label: '전체 선택' };
+  
+//유틸리티 함수 시작======================================================
+const formatDate = (date) => {
+  if (!date) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+  
+const formatBytes = (bytes) => {
+  if (bytes === 0 || bytes === undefined) return '0 B';
+  const k = 1000;
+  const sizes = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const convertedValue = (bytes / Math.pow(k, i)).toFixed(2);
+  return `${convertedValue} ${sizes[i]} (${bytes})`;
+};
+  
+const formatNumber = (number) => {
+  if (number === undefined || number === null) return 'N/A';
+  if (typeof number === 'string') return number; // Handle error messages
+  if (number >= 1000000) {
+    const millions = number / 1000000;
+    return `${millions.toFixed(2)}MM (${number})`;
+  }
+  return number.toString(); // Remove comma formatting
+};
+
+  // k 단위로 포맷팅하는 새로운 함수 추가
+const formatMinutesToK = (minutes) => {
+  if (minutes === undefined || minutes === null) return 'N/A';
+  const kValue = minutes / 1000;
+  if (kValue < 1) {
+    // 1k 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k`;
+  } else {
+    // 1k 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k`;
+  }
+};
+  
+const formatImagesTransformations = (number) => {
+  if (number === undefined || number === null) return 'N/A';
+  if (typeof number === 'string') return number; // Handle error messages
+  
+  const kValue = number / 1000;
+  if (kValue < 1) {
+    // 1000 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k (${number})`;
+  } else {
+    // 1000 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k (${number})`;
+  }
+};
+
+const formatStreamMinutes = (minutes) => {
+  if (minutes === undefined || minutes === null) return 'N/A';
+  if (typeof minutes === 'string') return minutes; // Handle error messages
+  
+  const kValue = minutes / 1000;
+  if (kValue < 1) {
+    // 1000 미만의 값은 소수점 세 자리까지 표시
+    return `${kValue.toFixed(3)}k (${minutes.toLocaleString()})`;
+  } else {
+    // 1000 이상의 값은 소수점 두 자리까지 표시
+    return `${kValue.toFixed(2)}k (${minutes.toLocaleString()})`;
+  }
+};
+  
+const formatCPUTime = (microseconds) => {
+  if (microseconds === undefined || microseconds === null) return 'N/A';
+  const milliseconds = microseconds / 1000; // 마이크로초를 밀리초로 변환
+  const millions = milliseconds / 1000000; // 밀리초를 밀리언 단위로 변환
+  return `${millions.toFixed(2)}MM ms (${milliseconds.toLocaleString()} ms)`;
+};
+  
+const DataTransferDownload = ({ data }) => {
+  return (
+    <div className="data-transfer-download result-item">
+      <span>Data Transfer by Country: </span>
+      <button onClick={() => downloadCSV(data)}>Download CSV</button>
+    </div>
+  );
+};
+
+
+const downloadCSV = (data) => {
+  // 모든 존의 데이터를 국가별로 합산
+  const countryData = data.reduce((acc, item) => {
+    if (!acc[item.country]) {
+      acc[item.country] = { bytes: 0, requests: 0 };
+    }
+    acc[item.country].bytes += item.bytes;
+    acc[item.country].requests += item.requests;
+    return acc;
+  }, {});
+
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+
+  let totalBytes = 0;
+  let totalRequests = 0;
+
+  Object.entries(countryData).forEach(([country, stats]) => {
+    csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
+    totalBytes += stats.bytes;
+    totalRequests += stats.requests;
+  });
+
+  // 빈 줄 추가
+  csvContent += "\n";
+
+  // 총계 행 추가
+  csvContent += `Total,${totalBytes},"${formatBytes(totalBytes)}",${totalRequests},"${formatNumber(totalRequests)}"\n`;
+  
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "data_transfer_by_country.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+  
+//유틸리티 함수 끝======================================================
+
+
+
+// 콘솔 렌더링
+const renderResult = (endpoint, result) => {
+  console.log(`Rendering result for ${endpoint}:`, result); // 디버깅을 위한 로그
+
+  switch (endpoint) {
+    case 'ent_zone':
+      if (result && typeof result.maximum !== 'undefined' && typeof result.current !== 'undefined') {
+        return (
+          <span className="result-item">
+            Ent Zone: 최대 {result.maximum} 개, 현재 사용중인 존 갯수 {result.current} 개
+          </span>
+        );
+      }
+      break;
+      
+    case 'data_transfer_request':
+      if (result && typeof result.totalBytes !== 'undefined' && typeof result.totalRequests !== 'undefined') {
+        return (
+          <>
+            <span className="result-item">Data Transferred: {formatBytes(result.totalBytes)}</span>
+            <span className="result-item">Total Requests: {formatNumber(result.totalRequests)}</span>
+          </>
+        );
+      }
+      break;
+      
+    case 'bot_management_request':
+      if (result && Array.isArray(result)) {
+        let totalLikelyHuman = 0;
+        result.forEach(zoneResult => {
+          if (zoneResult.result && zoneResult.result.data && zoneResult.result.data.viewer && zoneResult.result.data.viewer.zones) {
+            zoneResult.result.data.viewer.zones.forEach(zone => {
+              if (zone.likely_human && zone.likely_human.length > 0) {
+                totalLikelyHuman += zone.likely_human[0].count || 0;
+              }
+            });
+          }
+        });
+        return <span className="result-item">Bot management(Likely Human): {formatNumber(totalLikelyHuman)}</span>;
+      } else {
+        return <span className="result-item">Bot management(Likely Human): No data available</span>;
+      }
+      
+    case 'foundation_dns_queries':
+      if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
+        return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
+      }
+      break;
+      
+    case 'workers_kv_read':
+    case 'workers_kv_storage':
+    case 'workers_kv_write_list_delete':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts.length > 0) {
+        const account = result.data.viewer.accounts[0];
+        if (endpoint === 'workers_kv_read') {
+          const readRequests = account.reads[0]?.sum.requests || 0;
+          return <span className="result-item">Workers KV - Read: {formatNumber(readRequests)}</span>;
+        } else if (endpoint === 'workers_kv_storage') {
+          const storageBytes = account.storage[0]?.max.byteCount || 0;
+          return <span className="result-item">Workers KV - Storage: {formatBytes(storageBytes)}</span>;
+        } else if (endpoint === 'workers_kv_write_list_delete') {
+          const writeRequests = account.writes[0]?.sum.requests || 0;
+          const listRequests = account.lists[0]?.sum.requests || 0;
+          const deleteRequests = account.deletes[0]?.sum.requests || 0;
+          const totalRequests = writeRequests + listRequests + deleteRequests;
+          return (
+            <span className="result-item">
+              Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
+              <br />
+              * Write: {formatNumber(writeRequests)}, List: {formatNumber(listRequests)}, Delete: {formatNumber(deleteRequests)}
+            </span>
+          );
+        }
+      }
+      break;
+      
+    case 'workers_std_requests':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardRequests = result.data.viewer.accounts[0].workersInvocationsAdaptive
+          .find(item => item.dimensions.usageModel === "standard")?.sum.Standatd_request || 0;
+        return <span className="result-item">Workers STD Requests: {formatNumber(standardRequests)}</span>;
+      }
+      break;
+      
+    case 'workers_std_cpu':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts) {
+        const standardCPU = result.data.viewer.accounts[0].workersOverviewRequestsAdaptiveGroups
+          .find(item => item.dimensions.usageModel === 2)?.sum.CPU_Time || 0;
+        return <span className="result-item">Workers STD CPU: {formatCPUTime(standardCPU)}</span>;
+      }
+      break;
+      
+    case 'stream_minutes_viewed':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].Total) {
+        const minutesViewed = result.data.viewer.accounts[0].Total[0]?.sum.minutesViewed || 0;
+        return <span className="result-item">Stream Minutes Viewed: {formatStreamMinutes(minutesViewed)}</span>;
+      }
+      break;
+      
+    case 'images_unique_transformations':
+      if (result && result.data && result.data.viewer && result.data.viewer.accounts && result.data.viewer.accounts[0].imagesUniqueTransformations) {
+        const transformations = result.data.viewer.accounts[0].imagesUniqueTransformations.reduce((sum, item) => sum + item.transformations, 0);
+        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(transformations)}</span>;
+      }
+      break;
+
+    case 'data_transfer_by_country':
+      if (Array.isArray(result)) {
+        const dataWithZoneInfo = result.map(zoneData => {
+          return zoneData.result.map(item => ({
+            ...item,
+            zoneId: zoneData.zoneId,
+            zoneName: zoneData.zoneName || zoneData.zoneId
+          }));
+        }).flat();
+        return <DataTransferDownload data={dataWithZoneInfo} />;
+      }
+      break;
+
+case 'stream_minutes_stored':
+  if (result && result.result && result.success) {
+    const { totalStorageMinutes, totalStorageMinutesLimit } = result.result;
+    const currentFormatted = formatMinutesToK(totalStorageMinutes);
+    const limitFormatted = formatMinutesToK(totalStorageMinutesLimit);
+    return (
+      <span className="result-item">
+        Stream Minutes Stored: Current: {currentFormatted} ({totalStorageMinutes}) / Limit: {limitFormatted} ({totalStorageMinutesLimit})
+      </span>
+    );
+  } else if (result && result.messages && result.messages.some(msg => msg.message === "Cloudflare Stream not enabled")) {
+    return (
+      <span className="result-item">
+        Stream Minutes Stored: Cloudflare Stream not enabled
+      </span>
+    );
+  } else if (result && result.errors && result.errors.length > 0) {
+    return (
+      <span className="result-item error">
+        Stream Minutes Stored: Error - {result.errors[0].message}
+      </span>
+    );
+  } else {
+    return <span className="result-item">Stream Minutes Stored: No data available</span>;
+  }
+
+    case 'images_stored':
+      if (result.errors && result.errors.length > 0) {
+        // 에러가 있는 경우
+        return (
+          <span className="result-item error">
+            Images Stored: Error - {result.errors[0].message}
+          </span>
+        );
+      } else if (result.result && result.result.count) {
+        const { current, allowed } = result.result.count;
+        const currentFormatted = formatNumber(current / 1000); // k 단위로 변환
+        const allowedFormatted = formatNumber(allowed / 1000); // k 단위로 변환
+        return (
+          <span className="result-item">
+            Images Stored: Current: {currentFormatted}k ({current}) / Limit: {allowedFormatted}k ({allowed})
+          </span>
+        );
+      } else {
+        return <span className="result-item">Images Stored: No data available</span>;
+      }
+
+    case 'china_ntw_data_transfer':
+      if (Array.isArray(result)) {
+        console.log('China NTW Data Transfer results:', result);
+        let totalBytes = 0;
+        result.forEach(zoneData => {
+          if (Array.isArray(zoneData.result)) {
+            zoneData.result.forEach(innerResult => {
+              const edgeResponseBytes = innerResult.result?.data?.viewer?.zones[0]?.httpRequestsAdaptiveGroups[0]?.sum?.edgeResponseBytes;
+              if (typeof edgeResponseBytes === 'number') {
+                totalBytes += edgeResponseBytes;
+              }
+            });
+          }
+        });
+        return (
+          <span className="result-item">
+            China NTW Data Transfer: {formatBytes(totalBytes)}
+          </span>
+        );
+      }
+      return <span className="result-item">China NTW Data Transfer: No data available</span>;
+
+
+    default:
+      // 기본적으로 결과를 JSON 문자열로 표시
+      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+  }
+
+  return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
+};
+
 
   useEffect(() => {
-    const fetchInitialData = async () => {
+    const fetchData = async () => {
       try {
-        await Promise.all([
-          fetchCustomerAccounts(),
-          fetchCustomerZones(),
-          fetchEndpoints()
-        ]);
+        await fetchCustomerAccounts();
+        await fetchCustomerZones();
+        await fetchEndpoints();
       } catch (error) {
         console.error('Error fetching initial data:', error);
         setError('초기 데이터를 불러오는 데 실패했습니다. 페이지를 새로고침해 주세요.');
       }
     };
 
-    fetchInitialData();
+    fetchData();
   }, []);
 
   const fetchCustomerAccounts = async () => {
@@ -113,21 +395,27 @@ const SearchForm = () => {
       setCustomerZones({});
     }
   };
-
+  
   const fetchEndpoints = async () => {
     try {
-      const response = await fetch('https://optimization.megazone-cloud---partner-demo-account.workers.dev');
+      const response = await fetch('https://endpoint-management.megazone-cloud---partner-demo-account.workers.dev');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setEndpoints(data);
+      const formattedEndpoints = data.map(endpoint => ({
+        value: endpoint.value,
+        label: endpoint.label
+      }));
+      setEndpoints(formattedEndpoints);
     } catch (error) {
       console.error('Error fetching endpoints:', error);
       setError('엔드포인트 목록을 불러오는 데 실패했습니다.');
       setEndpoints([]);
     }
   };
+
+
 
   const handleEndpointChange = (selectedOptions) => {
     if (!selectedOptions || selectedOptions.length === 0) {
@@ -141,10 +429,11 @@ const SearchForm = () => {
     }
   };
 
-  const getEndpointOptions = useCallback(() => {
+  // 엔드포인트 옵션 생성 함수
+  const getEndpointOptions = () => {
     const allSelected = selectedEndpoints.length === endpoints.length;
     return allSelected ? endpoints : [allEndpointsOption, ...endpoints];
-  }, [selectedEndpoints, endpoints]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,229 +469,87 @@ const SearchForm = () => {
       }
 
       const data = await response.json();
-      setResults(data);
+      console.log('Received data:', JSON.stringify(data, null, 2));
+
+      if (data && typeof data === 'object') {
+        onResultsReceived(data);  // 결과를 부모 컴포넌트로 전달
+      } else {
+        throw new Error('Invalid data received from server');
+      }
     } catch (error) {
-      console.error('Error fetching results:', error);
-      setError('결과를 불러오는 데 실패했습니다. 다시 시도해 주세요.');
+      console.log('Error occurred:', error);
+      setError('데이터를 가져오는 중 오류가 발생했습니다.');
+      onResultsReceived(null);  // 오류 발생 시 null을 전달
     } finally {
       setIsLoading(false);
     }
   };
 
-  const renderResult = (endpoint, result) => {
-    console.log(`Rendering result for ${endpoint}:`, result);
+  const customerOptions = Object.keys(customerAccounts).map(name => ({
+    value: name,
+    label: name
+  }));
 
-    switch (endpoint) {
-      case 'ent_zone':
-        if (result && typeof result.maximum !== 'undefined' && typeof result.current !== 'undefined') {
-          return (
-            <span className="result-item">
-              Ent Zone: 최대 {result.maximum} 개, 현재 사용중인 존 갯수 {result.current} 개
-            </span>
-          );
-        }
-        break;
-      
-      case 'data_transfer_request':
-        if (result && typeof result.totalBytes !== 'undefined' && typeof result.totalRequests !== 'undefined') {
-          return (
-            <>
-              <span className="result-item">Data Transferred: {formatBytes(result.totalBytes)}</span>
-              <span className="result-item">Total Requests: {formatNumber(result.totalRequests)}</span>
-            </>
-          );
-        }
-        break;
-      
-    case 'bot_management_request':
-      if (result && result.message) {
-        return <span className="result-item">Bot management(Likely Human): {result.message}</span>;
-      } else if (result && typeof result.totalLikelyHuman !== 'undefined') {
-        return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
-      } else {
-        return <span className="result-item">Bot management(Likely Human): No data available</span>;
-      }
-        break;
-      
-      case 'foundation_dns_queries':
-        if (result && result.summary && typeof result.summary.totalQueryCount !== 'undefined') {
-          return <span className="result-item">Foundation DNS Queries: {formatNumber(result.summary.totalQueryCount)}</span>;
-        }
-        break;
-      
-      case 'workers_kv_read':
-        if (result && typeof result.reads !== 'undefined') {
-          return <span className="result-item">Workers KV - Read: {formatNumber(result.reads)}</span>;
-        }
-        break;
 
-      case 'workers_kv_storage':
-        if (result && typeof result.storage !== 'undefined') {
-          return <span className="result-item">Workers KV - Storage: {formatBytes(result.storage)}</span>;
-        }
-        break;
 
-      case 'workers_kv_write_list_delete':
-        if (result && typeof result.writes !== 'undefined' && typeof result.lists !== 'undefined' && typeof result.deletes !== 'undefined') {
-          const totalRequests = result.writes + result.lists + result.deletes;
-          return (
-            <span className="result-item">
-              Workers KV - Write/List/Delete: {formatNumber(totalRequests)}
-              <br />
-              * Write: {formatNumber(result.writes)}, List: {formatNumber(result.lists)}, Delete: {formatNumber(result.deletes)}
-            </span>
-          );
-        }
-        break;
-      
-      case 'workers_std_requests':
-        if (result && typeof result.totalStandardRequests !== 'undefined') {
-          return <span className="result-item">Workers STD Requests: {formatNumber(result.totalStandardRequests)}</span>;
-        }
-        break;
-      
-      case 'workers_std_cpu':
-        if (result && typeof result.totalStandardCPUTime !== 'undefined') {
-          return <span className="result-item">Workers STD CPU: {formatCPUTime(result.totalStandardCPUTime)}</span>;
-        }
-        break;
-      
-      case 'stream_minutes_viewed':
-        if (result && typeof result.totalMinutesViewed !== 'undefined') {
-          return <span className="result-item">Stream Minutes Viewed: {formatMinutesToK(result.totalMinutesViewed)}</span>;
-        }
-        break;
-      
-      case 'images_unique_transformations':
-        if (result && typeof result.totalUniqueTransformations !== 'undefined') {
-          return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(result.totalUniqueTransformations)}</span>;
-        }
-        break;
-
-      case 'data_transfer_by_country':
-        if (Array.isArray(result)) {
-          return <span className="result-item">Data Transfer by Country: <button onClick={() => downloadCSV(result)}>Download CSV</button></span>;
-        }
-        break;
-
-      case 'china_ntw_data_transfer':
-        if (result && typeof result.totalEdgeResponseBytes !== 'undefined') {
-          return <span className="result-item">China NTW Data Transfer: {formatBytes(result.totalEdgeResponseBytes)}</span>;
-        }
-        break;
-
-    case 'stream_minutes_viewed':
-      if (result && typeof result.totalMinutesViewed !== 'undefined') {
-        return <span className="result-item">Stream Minutes Viewed: {formatMinutesToK(result.totalMinutesViewed)}</span>;
-      } else {
-        return <span className="result-item">Stream Minutes Viewed: No data available</span>;
-      }
-
-    case 'images_unique_transformations':
-      if (result && typeof result.totalUniqueTransformations !== 'undefined') {
-        return <span className="result-item">Images Unique Transformations: {formatImagesTransformations(result.totalUniqueTransformations)}</span>;
-      } else {
-        return <span className="result-item">Images Unique Transformations: No data available</span>;
-      }
-
-    case 'data_transfer_by_country':
-      if (Array.isArray(result)) {
-        return <span className="result-item">Data Transfer by Country: <button onClick={() => downloadCSV(result)}>Download CSV</button></span>;
-      } else {
-        return <span className="result-item">Data Transfer by Country: No data available</span>;
-      }
-
-    case 'china_ntw_data_transfer':
-      if (result && typeof result.totalEdgeResponseBytes !== 'undefined') {
-        return <span className="result-item">China NTW Data Transfer: {formatBytes(result.totalEdgeResponseBytes)}</span>;
-      } else {
-        return <span className="result-item">China NTW Data Transfer: No data available</span>;
-      }
-
-    default:
-      return <pre className="result-item">{JSON.stringify(result, null, 2)}</pre>;
-  }
-};
-
-const downloadCSV = (data) => {
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
-
-  data.forEach(({ country, bytes, requests }) => {
-    csvContent += `${country},${bytes},"${formatBytes(bytes)}",${requests},"${formatNumber(requests)}"\n`;
-  });
-  
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "data_transfer_by_country.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
-
-const customerOptions = Object.keys(customerAccounts).map(name => ({
-  value: name,
-  label: name
-}));
-
-return (
-  <div className="search-form-container">
-    {error && <div className="error-message">{error}</div>}
-    <form onSubmit={handleSubmit} className="search-form">
-      <Select
-        options={customerOptions}
-        onChange={(selectedOption) => setCustomer(selectedOption ? selectedOption.value : '')}
-        placeholder="고객사"
-        className="basic-select"
-        classNamePrefix="select"
-      />
-      <Select
-        isMulti
-        name="endpoints"
-        options={getEndpointOptions()}
-        className="basic-multi-select"
-        classNamePrefix="select"
-        onChange={handleEndpointChange}
-        value={selectedEndpoints}
-        placeholder="엔드포인트 선택 (다중 선택 가능)"
-        closeMenuOnSelect={false}
-      />
-      <div className="date-picker-wrapper">
-        <DatePicker
-          selectsRange={true}
-          startDate={startDate}
-          endDate={endDate}
-          onChange={(update) => {
-            setDateRange(update);
-          }}
-          minDate={ninetyOneDaysAgo}
-          maxDate={today}
-          dateFormat="yyyy-MM-dd"
-          placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
-          className="date-picker"
+  return (
+    <div className="search-form-container">
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit} className="search-form">
+        <Select
+          options={customerOptions}
+          onChange={(selectedOption) => setCustomer(selectedOption ? selectedOption.value : '')}
+          placeholder="고객사"
+          className="basic-select"
+          classNamePrefix="select"
         />
-      </div>
-      <button type="submit" className="search-button" disabled={isLoading}>
-        {isLoading ? '로딩 중...' : '검색'}
-      </button>
-    </form>
-    {results && typeof results === 'object' && Object.keys(results).length > 0 && (
-      <div className="results-container">
-        <h2 className="results-title">결과</h2>
-        <div className="results-box">
-          <div className="endpoint-results">
-            {Object.entries(results).map(([endpoint, result]) => (
-              <div key={endpoint} className="result-group">
-                {renderResult(endpoint, result)}
-              </div>
-            ))}
+        <Select
+          isMulti
+          name="endpoints"
+          options={getEndpointOptions()}
+          className="basic-multi-select"
+          classNamePrefix="select"
+          onChange={handleEndpointChange}
+          value={selectedEndpoints}
+          placeholder="엔드포인트 선택 (다중 선택 가능)"
+          closeMenuOnSelect={false}
+          noOptionsMessage={() => null} // "No options" 메시지 제거
+        />
+        <div className="date-picker-wrapper">
+          <DatePicker
+            selectsRange={true}
+            startDate={startDate}
+            endDate={endDate}
+            onChange={(update) => {
+              setDateRange(update);
+            }}
+            minDate={ninetyOneDaysAgo}
+            maxDate={today}
+            dateFormat="yyyy-MM-dd"
+            placeholderText="YYYY-MM-DD ~ YYYY-MM-DD"
+            className="date-picker"
+          />
+        </div>
+        <button type="submit" className="search-button" disabled={isLoading}>
+          {isLoading ? '로딩 중...' : '검색'}
+        </button>
+      </form>
+      {results && typeof results === 'object' && Object.keys(results).length > 0 && (
+        <div className="results-container">
+          <h2 className="results-title">결과</h2>
+          <div className="results-box">
+            <div className="endpoint-results">
+              {Object.entries(results).map(([endpoint, result]) => (
+                <div key={endpoint} className="result-group">
+                  {renderResult(endpoint, result)}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 };
 
 export default SearchForm;
