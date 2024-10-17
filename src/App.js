@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import SearchForm from './components/SearchForm';
 import './styles/App.css';
 import cloudflareImage from './images/cloudflare.png';
+import CloudJumpGame from './components/CloudJumpGame';
+
 import { 
   formatBytes, 
   formatNumber, 
