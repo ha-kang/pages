@@ -57,7 +57,7 @@ p {
   overflow-y: auto; /* 내용이 max-height를 초과할 경우 스크롤 생성 */
   background-color: var(--result-bg-color);
   border-radius: 5px;
-  padding: 15px;
+
 }
 
 .image {
