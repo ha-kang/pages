@@ -12,6 +12,7 @@
 .search-form-container {
   width: 100%;
   max-width: 400px;
+  margin-bottom: 15px;
 }
 
 .search-form {
@@ -24,7 +25,7 @@
 }
 
 .search-form > * {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .search-form > *:last-child {
