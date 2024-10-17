@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SearchForm from './components/SearchForm';
 import './styles/App.css';
 import cloudflareImage from './images/cloudflare.png';
-//import CloudJumpGame from './components/CloudJumpGame';
+import CloudJumpGame from './components/CloudJumpGame';
 
 import { 
   formatBytes, 
@@ -61,9 +61,12 @@ const DataTransferDownload = ({ data }) => {
 
 const App = () => {
   const [results, setResults] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const renderResult = (endpoint, result) => {
-    console.log(`Rendering result for ${endpoint}:`, result);
+  const handleResultsReceived = (newResults) => {
+    setIsLoading(false);
+    setResults(newResults);
+  };
 
     switch (endpoint) {
       case 'ent_zone':
@@ -253,10 +256,15 @@ const App = () => {
         <div className="content">
           <h1>Cloudflare API</h1>
           <p>사용량을 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
-          <SearchForm onResultsReceived={setResults} />
+          <SearchForm onResultsReceived={handleResultsReceived} setIsLoading={setIsLoading} />
         </div>
         <div className="image">
-          {results ? (
+          {isLoading ? (
+            <div className="loading-game">
+              <h2>데이터를 불러오는 중입니다...</h2>
+              <CloudJumpGame />
+            </div>
+          ) : results ? (
             <div className="results-container">
               <div className="results-box">
                 <div className="endpoint-results">
@@ -269,7 +277,7 @@ const App = () => {
               </div>
             </div>
           ) : (
-            <img src={cloudflareImage} alt="Cloudflare logo" />
+            <CloudJumpGame />
           )}
         </div>
       </main>
