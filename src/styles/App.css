@@ -1,95 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
+import React, { useState } from 'react';
+import SearchForm from './components/SearchForm';
+import './styles/App.css';
+import cloudflareImage from './images/cloudflare.png';
 
-:root {
-  --main-bg-color: #1a1a2e;
-  --text-color: white;
-  --result-bg-color: rgba(255, 255, 255, 0.1);
-}
+const App = () => {
+  const [results, setResults] = useState(null);
 
-body {
-  font-family: 'Noto Sans KR', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: var(--main-bg-color);
-  color: var(--text-color);
-}
+  return (
+    <div className="app">
+      <main>
+        <div className="content">
+          <h1>Cloudflare API</h1>
+          <p>API를 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
+          <SearchForm onResultsReceived={setResults} />
+        </div>
+        <div className="image">
+          {results ? (
+            <div className="results-container">
+              <h2 className="results-title">결과</h2>
+              <div className="results-box">
+                <div className="endpoint-results">
+                  {Object.entries(results).map(([endpoint, result]) => (
+                    <div key={endpoint} className="result-group">
+                      {renderResult(endpoint, result)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <img src={cloudflareImage} alt="Cloudflare logo" />
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
 
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2vw;
-  box-sizing: border-box;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 2rem;
-}
-
-.content {
-  flex: 1;
-  margin-right: 2rem;
-}
-
-.image-container {
-  flex: 0 0 300px;
-}
-
-.image-container img {
-  max-width: 100%;
-  height: auto;
-}
-
-.results-section {
-  background-color: var(--result-bg-color);
-  padding: 1rem;
-  border-radius: 5px;
-}
-
-.results-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.result-item {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 1rem;
-  border-radius: 5px;
-}
-
-.result-item h3 {
-  margin-top: 0;
-}
-
-.result-item pre {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-@media (max-width: 768px) {
-  main {
-    flex-direction: column;
-  }
-
-  .content {
-    margin-right: 0;
-    margin-bottom: 2rem;
-  }
-
-  .image-container {
-    flex: 0 0 auto;
-    text-align: center;
-  }
-
-  .results-container {
-    grid-template-columns: 1fr;
-  }
-}
+export default App;
