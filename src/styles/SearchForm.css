@@ -1,66 +1,3 @@
-:root {
-  --main-font: 'Noto Sans KR', sans-serif;
-  --input-bg-color: white;
-  --input-text-color: #333;
-  --button-bg-color: #26c6da;
-  --button-hover-color: #00bcd4;
-  --result-bg-color: rgba(255, 255, 255, 0.1);
-}
-.image {
-  flex: 1;
-  padding-top: 1vw;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;  /* 변경: 결과를 상단에 정렬 */
-  min-height: 400px;  /* 추가: 최소 높이 설정 */
-}
-
-.image img {
-  max-width: 100%;
-  height: auto;
-}
-
-.results-container {
-  width: 100%;
-  max-height: 400px;  /* 추가: 최대 높이 설정 */
-  overflow-y: auto;  /* 추가: 스크롤 가능하도록 설정 */
-  background-color: var(--result-bg-color);
-  border-radius: 5px;
-  padding: 15px;
-}
-
-.results-title {
-  font-size: 16px;
-  margin-bottom: 10px;
-  color: var(--text-color);
-}
-
-.results-box {
-  display: flex;
-  flex-direction: column;
-}
-
-.endpoint-results {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.result-group {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 10px;
-  border-radius: 5px;
-}
-
-.result-item {
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 13px;
-  color: var(--text-color);
-  margin: 0;
-  padding: 3px 0;
-  line-height: 1.2;
-  display: block;
-}
 .search-form-container {
   width: 100%;
   max-width: 400px;
@@ -241,84 +178,12 @@ select,
   background-color: var(--button-hover-color);
 }
 
-/* Results styles */
-.results-container {
-  margin-top: 20px;
-}
-
-.results-title {
-  font-family: var(--main-font);
-  font-size: 16px;
-  margin: 0 0 10px 0;
-  color: white;
-}
-
-.results-box {
-  background-color: var(--result-bg-color);
-  border-radius: 5px;
-  padding: 15px;
-}
-
-.endpoint-results {
-  display: flex;
-  flex-direction: column;
-}
-
-.result-group {
-  margin: 0;
-  padding: 0;
-}
-
-.result-item {
-  font-family: var(--main-font);
-  font-size: 13px;
-  color: white;
-  margin: 0;
-  padding: 3px 0;
-  line-height: 1.2;
-  display: block;
-}
-
-.result-item pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background-color: #f4f4f4;
-  padding: 10px;
-  border-radius: 5px;
-}
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
   font-size: 12px;
   margin: 0;
   padding: 3px 0;
-}
-
-.endpoint-select-wrapper {
-  position: relative;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.select-all-button {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: var(--button-bg-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: var(--main-font);
-  font-size: 12px;
-  transition: background-color 0.3s;
-  z-index: 1;
-}
-
-.select-all-button:hover {
-  background-color: var(--button-hover-color);
 }
 
 @media (max-width: 768px) {
