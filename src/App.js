@@ -249,7 +249,7 @@ const App = () => {
       <main>
         <div className="content">
           <h1>Cloudflare API</h1>
-          <p>API를 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
+          <p>사용량을 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
           <SearchForm onResultsReceived={setResults} />
         </div>
         <div className="image">
