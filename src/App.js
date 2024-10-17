@@ -11,6 +11,41 @@ import {
   formatCPUTime 
 } from './utils';
 
+const DataTransferDownload = ({ data }) => {
+  const downloadCSV = () => {
+    const countryData = data.reduce((acc, item) => {
+      if (!acc[item.country]) {
+        acc[item.country] = { bytes: 0, requests: 0 };
+      }
+      acc[item.country].bytes += item.bytes;
+      acc[item.country].requests += item.requests;
+      return acc;
+    }, {});
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
+
+    Object.entries(countryData).forEach(([country, stats]) => {
+      csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "data_transfer_by_country.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="data-transfer-download result-item">
+      <span>Data Transfer by Country: </span>
+      <button onClick={downloadCSV}>Download CSV</button>
+    </div>
+  );
+};
+
 const App = () => {
   const [results, setResults] = useState(null);
 
