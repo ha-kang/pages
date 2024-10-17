@@ -73,6 +73,7 @@ p {
   justify-content: center;
   align-items: flex-start;
   min-height: 100px; /* 최소 높이 설정 */
+  max-height: calc(100vh - 4vw); /* 상하 패딩을 고려한 최대 높이 설정 */
 }
 
 .results-title {
