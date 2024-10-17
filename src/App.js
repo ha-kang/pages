@@ -4,39 +4,35 @@ import './styles/App.css';
 import cloudflareImage from './images/cloudflare.png';
 
 const App = () => {
-  const [searchResults, setSearchResults] = useState(null);
-
-  const handleSearchComplete = (results) => {
-    setSearchResults(results);
-  };
+  const [results, setResults] = useState(null);
 
   return (
     <div className="app">
-      <header>
-        <h1>Cloudflare API</h1>
-        <p>API를 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
-      </header>
       <main>
         <div className="content">
-          <SearchForm onSearchComplete={handleSearchComplete} />
+          <h1>Cloudflare API</h1>
+          <p>API를 조회할 고객사, 엔드포인트, 기간을 선택하세요.</p>
+          <SearchForm onResultsReceived={setResults} />
         </div>
-        <div className="image-container">
-          <img src={cloudflareImage} alt="Cloudflare logo" />
+        <div className="image">
+          {results ? (
+            <div className="results-container">
+              <h2 className="results-title">결과</h2>
+              <div className="results-box">
+                <div className="endpoint-results">
+                  {Object.entries(results).map(([endpoint, result]) => (
+                    <div key={endpoint} className="result-group">
+                      {renderResult(endpoint, result)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <img src={cloudflareImage} alt="Cloudflare logo" />
+          )}
         </div>
       </main>
-      {searchResults && (
-        <section className="results-section">
-          <h2>검색 결과</h2>
-          <div className="results-container">
-            {Object.entries(searchResults).map(([endpoint, result]) => (
-              <div key={endpoint} className="result-item">
-                <h3>{endpoint}</h3>
-                <pre>{JSON.stringify(result, null, 2)}</pre>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 };
