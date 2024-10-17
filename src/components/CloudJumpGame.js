@@ -13,6 +13,7 @@ const CloudJumpGame = () => {
       const character = characterRef.current;
       let characterBottom = 50;
       let isJumping = false;
+      // eslint-disable-next-line no-unused-vars
       let gravity = 0.9;
       let cloudInterval;
 
@@ -65,7 +66,7 @@ const CloudJumpGame = () => {
             gameOver();
           }
         }
-
+        // eslint-disable-next-line no-unused-vars
         let cloudTimer = setInterval(moveCloud, 20);
         cloudInterval = setInterval(createCloud, 3000);
       }
