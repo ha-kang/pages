@@ -1,3 +1,14 @@
+:root {
+  --main-font: 'Noto Sans KR', sans-serif;
+  --input-bg-color: #ffffff;
+  --input-text-color: #333333;
+  --button-bg-color: #26c6da;
+  --button-hover-color: #00bcd4;
+  --dropdown-bg-color: #ffffff;
+  --dropdown-text-color: #333333;
+  --dropdown-hover-color: rgba(38, 198, 218, 0.1);
+}
+
 .search-form-container {
   width: 100%;
   max-width: 400px;
@@ -54,8 +65,8 @@ select,
 
 /* React-Select customization */
 .select__control {
-  background-color: var(--input-bg-color) !important;
-  border: none !important;
+  background-color: var(--dropdown-bg-color) !important;
+  border: 1px solid var(--button-bg-color) !important;
   border-radius: 5px !important;
   min-height: 48px !important;
   box-shadow: none !important;
@@ -68,7 +79,7 @@ select,
 
 .select__placeholder,
 .select__single-value {
-  color: var(--input-text-color) !important;
+  color: var(--dropdown-text-color) !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
   margin-left: 0 !important;
@@ -79,7 +90,7 @@ select,
 }
 
 .select__dropdown-indicator {
-  color: var(--input-text-color) !important;
+  color: var(--dropdown-text-color) !important;
 }
 
 .select__menu-list {
@@ -90,7 +101,7 @@ select,
 .select__menu {
   position: absolute !important;
   width: 100% !important;
-  background-color: var(--input-bg-color) !important;
+  background-color: var(--dropdown-bg-color) !important;
   border-radius: 5px !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
@@ -98,15 +109,15 @@ select,
 }
 
 .select__option {
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
+  background-color: var(--dropdown-bg-color) !important;
+  color: var(--dropdown-text-color) !important;
   cursor: pointer !important;
   padding: 10px 15px !important;
   font-size: 14px !important;
 }
 
 .select__option--is-focused {
-  background-color: rgba(38, 198, 218, 0.1) !important;
+  background-color: var(--dropdown-hover-color) !important;
 }
 
 .select__option--is-selected {
@@ -140,12 +151,12 @@ select,
 
 .react-datepicker__input-container input {
   padding: 15px;
-  border: none;
+  border: 1px solid var(--button-bg-color);
   border-radius: 5px;
   font-family: var(--main-font);
   font-size: 14px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
+  background-color: var(--dropdown-bg-color);
+  color: var(--dropdown-text-color);
   cursor: pointer;
   outline: none;
   caret-color: transparent;
