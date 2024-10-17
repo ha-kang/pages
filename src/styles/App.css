@@ -52,12 +52,12 @@ p {
 
 .results-container {
   width: 100%;
-  max-height: calc(100vh - 100px); /* 뷰포트 높이에서 상단 여백을 뺀 값 */
+
   height: auto; /* 내용에 따라 자동으로 높이 조절 */
   overflow-y: auto; /* 내용이 max-height를 초과할 경우 스크롤 생성 */
   background-color: var(--result-bg-color);
   border-radius: 5px;
-
+  padding: 15px;
 }
 
 .image {
@@ -88,7 +88,7 @@ p {
 
 .result-group {
   background-color: rgba(255, 255, 255, 0.05);
-  padding: 5px;
+  padding: 10px;
   border-radius: 5px;
 }
 
