@@ -21,14 +21,25 @@ const DataTransferDownload = ({ data }) => {
       acc[item.country].requests += item.requests;
       return acc;
     }, {});
-
+  
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Country,Bytes,Formatted Bytes,Requests,Formatted Requests\n";
-
+  
+    let totalBytes = 0;
+    let totalRequests = 0;
+  
     Object.entries(countryData).forEach(([country, stats]) => {
+      totalBytes += stats.bytes;
+      totalRequests += stats.requests;
       csvContent += `${country},${stats.bytes},"${formatBytes(stats.bytes)}",${stats.requests},"${formatNumber(stats.requests)}"\n`;
     });
-
+  
+    // 빈 줄 추가
+    csvContent += "\n";
+  
+    // 총계 추가
+    csvContent += `Total,${totalBytes},"${formatBytes(totalBytes)}",${totalRequests},"${formatNumber(totalRequests)}"`;
+  
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
