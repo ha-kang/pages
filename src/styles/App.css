@@ -1,17 +1,9 @@
-/* App.css */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap');
 
 :root {
   --main-bg-color: #1a1a2e;
   --text-color: white;
   --result-bg-color: rgba(255, 255, 255, 0.1);
-  --input-bg-color: #ffffff;
-  --input-text-color: #333333;
-  --button-bg-color: #26c6da;
-  --button-hover-color: #00bcd4;
-  --dropdown-bg-color: #ffffff;
-  --dropdown-text-color: #333333;
-  --dropdown-hover-color: rgba(38, 198, 218, 0.1);
 }
 
 body {
@@ -25,7 +17,7 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1vw 3vw;
+  padding: 10vw 0 2vw 3vw;
   box-sizing: border-box;
 }
 
@@ -37,30 +29,21 @@ main {
 
 .content {
   flex: 1;
-  max-width: 45%;
+  max-width: 50%;
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 48px;
   white-space: nowrap;
-  margin-top: 0;
-  margin-bottom: 10px;
+  margin-top: 15px;
+  margin-bottom: 0;
 }
 
 p {
   margin-top: 0;
-  margin-bottom: 10px;
   line-height: 1.4;
 }
 
-.image {
-  flex: 1;
-  padding-top: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-start;
-  min-height: 100px;
-}
 
 .image img {
   max-width: 100%;
@@ -69,11 +52,27 @@ p {
 
 .results-container {
   width: 100%;
-  max-height: calc(100vh - 100px);
-  overflow-y: auto;
+  max-height: calc(100vh - 100px); /* 뷰포트 높이에서 상단 여백을 뺀 값 */
+  height: auto; /* 내용에 따라 자동으로 높이 조절 */
+  overflow-y: auto; /* 내용이 max-height를 초과할 경우 스크롤 생성 */
   background-color: var(--result-bg-color);
   border-radius: 5px;
   padding: 15px;
+}
+
+.image {
+  flex: 1;
+  padding-top: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100px; /* 최소 높이 설정 */
+}
+
+.results-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--text-color);
 }
 
 .results-box {
@@ -103,163 +102,46 @@ p {
   display: block;
 }
 
-/* SearchForm.css */
-.search-form-container {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 15px;
-}
-
-.search-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background-color: transparent;
-  border-radius: 5px;
-  overflow: visible;
-}
-
-.search-form > * {
-  margin-bottom: 8px;
-}
-
-.search-form > *:last-child {
-  margin-bottom: 0;
-}
-
-.basic-select,
-.basic-multi-select,
-.date-picker-wrapper,
-.search-button {
-  width: 100%;
-}
-
-select,
-.react-datepicker__input-container input,
-.search-button {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  font-family: var(--main-font);
-  font-size: 14px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
-  cursor: pointer;
-  outline: none;
-}
-
-/* React-Select customization */
-.select__control {
-  background-color: var(--dropdown-bg-color) !important;
-  border: none !important;
-  border-radius: 5px !important;
-  min-height: 42px !important;
-  box-shadow: none !important;
-}
-
-.select__value-container {
-  padding: 2px 8px !important;
-}
-
-.select__placeholder,
-.select__single-value {
-  color: var(--dropdown-text-color) !important;
-  font-family: var(--main-font) !important;
-  font-size: 14px !important;
-}
-
-.select__indicator-separator {
-  display: none !important;
-}
-
-.select__dropdown-indicator {
-  color: var(--dropdown-text-color) !important;
-}
-
-.select__menu {
-  background-color: var(--dropdown-bg-color) !important;
-  border-radius: 5px !important;
-}
-
-.select__option {
-  background-color: var(--dropdown-bg-color) !important;
-  color: var(--dropdown-text-color) !important;
-}
-
-.select__option--is-focused {
-  background-color: var(--dropdown-hover-color) !important;
-}
-
-.select__option--is-selected {
-  background-color: var(--button-bg-color) !important;
-  color: white !important;
-}
-
-/* Date picker styles */
-.react-datepicker-wrapper, 
-.react-datepicker__input-container,
-.react-datepicker__input-container input {
-  width: 100%;
-  display: block;
-}
-
-.react-datepicker__input-container input {
-  border: none;
-  background-color: var(--dropdown-bg-color);
-  color: var(--dropdown-text-color);
-  text-align: center;
-}
-
-.search-button {
-  background-color: var(--button-bg-color);
-  color: white;
-  border: none;
-  transition: background-color 0.3s;
-  font-weight: normal;
-}
-
-.search-button:hover {
-  background-color: var(--button-hover-color);
-}
-
-.error-message {
-  color: #ff6b6b;
-  font-family: var(--main-font);
-  font-size: 12px;
-  margin: 0;
-  padding: 3px 0;
-}
-
 @media (max-width: 768px) {
   .app {
     padding: 15px;
+    max-width: 100%;
   }
 
   main {
     flex-direction: column;
   }
   
-  .content, .image {
+  .content {
     max-width: 100%;
   }
 
   h1 {
-    font-size: 24px;
+    font-size: 32px;
     text-align: center;
     white-space: normal;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
   }
 
   p {
+    font-size: 16px;
+    line-height: 1.5;
     text-align: center;
+    margin-bottom: 20px;
   }
 
   .image {
     margin-top: 20px;
-    justify-content: center;
   }
 
-  .results-container {
-    max-height: none;
+  .results pre {
+    font-size: 14px;
+    padding: 12px;
+    line-height: 1.4;
   }
 }
