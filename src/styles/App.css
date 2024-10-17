@@ -44,14 +44,6 @@ p {
   line-height: 1.4;
 }
 
-.image {
-  flex: 1;
-  padding-top: 1vw;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 400px;
-}
 
 .image img {
   max-width: 100%;
@@ -60,11 +52,22 @@ p {
 
 .results-container {
   width: 100%;
-  max-height: 400px;
-  overflow-y: auto;
+  min-height: 100px; /* 최소 높이 설정 */
+  max-height: 80vh; /* 최대 높이를 뷰포트 높이의 80%로 제한 */
+  height: auto; /* 내용에 따라 자동으로 높이 조절 */
+  overflow-y: auto; /* 내용이 max-height를 초과할 경우 스크롤 생성 */
   background-color: var(--result-bg-color);
   border-radius: 5px;
   padding: 15px;
+}
+
+.image {
+  flex: 1;
+  padding-top: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100px; /* 최소 높이 설정 */
 }
 
 .results-title {
