@@ -75,18 +75,8 @@ const App = () => {
         break;
       
       case 'bot_management_request':
-        if (result && Array.isArray(result)) {
-          let totalLikelyHuman = 0;
-          result.forEach(zoneResult => {
-            if (zoneResult.result && zoneResult.result.data && zoneResult.result.data.viewer && zoneResult.result.data.viewer.zones) {
-              zoneResult.result.data.viewer.zones.forEach(zone => {
-                if (zone.likely_human && zone.likely_human.length > 0) {
-                  totalLikelyHuman += zone.likely_human[0].count || 0;
-                }
-              });
-            }
-          });
-          return <span className="result-item">Bot management(Likely Human): {formatNumber(totalLikelyHuman)}</span>;
+        if (result && typeof result.totalLikelyHuman !== 'undefined') {
+          return <span className="result-item">Bot management(Likely Human): {formatNumber(result.totalLikelyHuman)}</span>;
         } else {
           return <span className="result-item">Bot management(Likely Human): No data available</span>;
         }
