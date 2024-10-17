@@ -68,6 +68,7 @@ const App = () => {
     setResults(newResults);
   };
 
+  const renderResult = (endpoint, result) => {
     switch (endpoint) {
       case 'ent_zone':
         if (result && typeof result.maximum !== 'undefined' && typeof result.current !== 'undefined') {
