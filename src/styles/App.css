@@ -12,16 +12,14 @@ body {
   padding: 0;
   background-color: var(--main-bg-color);
   color: var(--text-color);
-  overflow: hidden; /* 전체 화면 스크롤 방지 */
-
 }
 
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 5vw 3vw;  /* 상단과 하단 패딩을 5vw로 설정 */
+  padding: 5vw 3vw;
   box-sizing: border-box;
-  min-height: 100vh;  /* 최소 높이를 뷰포트 높이로 설정 */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -30,7 +28,7 @@ main {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  flex: 1;  /* 남은 공간을 모두 차지하도록 설정 */
+  flex: 1;
 }
 
 .content {
@@ -50,7 +48,6 @@ p {
   line-height: 1.4;
 }
 
-
 .image img {
   max-width: 100%;
   height: auto;
@@ -58,9 +55,9 @@ p {
 
 .results-container {
   width: 100%;
-  max-height: calc(95vh - 10vw);  /* 뷰포트 높이에서 상하 패딩을 뺀 값 */
-  height: auto; /* 내용에 따라 자동으로 높이 조절 */
-  overflow-y: auto; /* 내용이 max-height를 초과할 경우 스크롤 생성 */
+  max-height: calc(95vh - 10vw);
+  height: auto;
+  overflow-y: auto;
   background-color: var(--result-bg-color);
   border-radius: 5px;
   padding: 15px;
@@ -72,8 +69,8 @@ p {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100px; /* 최소 높이 설정 */
-  max-height: calc(100vh - 4vw); /* 상하 패딩을 고려한 최대 높이 설정 */
+  min-height: 100px;
+  max-height: calc(100vh - 4vw);
 }
 
 .results-title {
@@ -109,7 +106,6 @@ p {
   display: block;
 }
 
-/* 스크롤바 스타일링 (선택사항) */
 .results-container::-webkit-scrollbar {
   width: 8px;
 }
@@ -124,9 +120,15 @@ p {
 }
 
 @media (max-width: 768px) {
+  body {
+    overflow-y: auto; /* Enable scrolling for the entire page on mobile */
+  }
+
   .app {
     padding: 15px;
     max-width: 100%;
+    height: auto; /* Allow the app container to expand */
+    min-height: 100vh;
   }
 
   main {
@@ -158,6 +160,12 @@ p {
 
   .image {
     margin-top: 20px;
+    max-height: none; /* Remove max-height restriction */
+  }
+
+  .results-container {
+    max-height: none; /* Remove max-height restriction */
+    overflow-y: visible; /* Allow content to expand */
   }
 
   .results pre {
