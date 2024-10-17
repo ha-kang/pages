@@ -4,6 +4,8 @@
   --main-bg-color: #1a1a2e;
   --text-color: white;
   --result-bg-color: rgba(255, 255, 255, 0.1);
+  --button-bg-color: #007aff;
+  --button-text-color: white;
 }
 
 body {
@@ -92,8 +94,9 @@ p {
 
 .result-group {
   background-color: rgba(255, 255, 255, 0.05);
-  padding: 10px;
-  border-radius: 5px;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
 }
 
 .result-item {
@@ -104,6 +107,22 @@ p {
   padding: 3px 0;
   line-height: 1.2;
   display: block;
+}
+
+.download-button {
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #0056b3;
 }
 
 .results-container::-webkit-scrollbar {
@@ -121,13 +140,13 @@ p {
 
 @media (max-width: 768px) {
   body {
-    overflow-y: auto; /* Enable scrolling for the entire page on mobile */
+    overflow-y: auto;
   }
 
   .app {
     padding: 15px;
     max-width: 100%;
-    height: auto; /* Allow the app container to expand */
+    height: auto;
     min-height: 100vh;
   }
 
@@ -160,12 +179,12 @@ p {
 
   .image {
     margin-top: 20px;
-    max-height: none; /* Remove max-height restriction */
+    max-height: none;
   }
 
   .results-container {
-    max-height: none; /* Remove max-height restriction */
-    overflow-y: visible; /* Allow content to expand */
+    max-height: none;
+    overflow-y: visible;
   }
 
   .results pre {
