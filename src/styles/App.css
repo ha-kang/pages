@@ -2,10 +2,10 @@
 
 :root {
   --main-bg-color: #1a1a2e;
-  --text-color: #e0e0e0;
-  --result-bg-color: rgba(255, 255, 255, 0.08);
+  --text-color: white;
+  --result-bg-color: rgba(255, 255, 255, 0.1);
   --button-bg-color: #007aff;
-  --button-hover-color: #0056b3;
+  --button-text-color: white;
 }
 
 body {
@@ -60,10 +60,9 @@ p {
   max-height: calc(95vh - 10vw);
   height: auto;
   overflow-y: auto;
-  background: linear-gradient(to bottom, #2a2a3a, #1a1a2e);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--result-bg-color);
+  border-radius: 5px;
+  padding: 15px;
 }
 
 .image {
@@ -90,47 +89,39 @@ p {
 .endpoint-results {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
 }
 
 .result-group {
-  background-color: var(--result-bg-color);
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.result-group:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
 }
 
 .result-item {
   font-family: 'Noto Sans KR', sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-color);
   margin: 0;
   padding: 3px 0;
-  line-height: 1.4;
+  line-height: 1.2;
   display: block;
 }
 
 .download-button {
   background-color: var(--button-bg-color);
-  color: white;
+  color: var(--button-text-color);
   border: none;
   border-radius: 8px;
   padding: 10px 15px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 .download-button:hover {
-  background-color: var(--button-hover-color);
-  transform: translateY(-1px);
+  background-color: #0056b3;
 }
 
 .results-container::-webkit-scrollbar {
