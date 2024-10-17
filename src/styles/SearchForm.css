@@ -1,10 +1,12 @@
 :root {
   --main-font: 'Noto Sans KR', sans-serif;
-  --input-bg-color: white;
-  --input-text-color: #333;
+  --input-bg-color: #ffffff;
+  --input-text-color: #333333;
   --button-bg-color: #26c6da;
   --button-hover-color: #00bcd4;
-  --result-bg-color: rgba(255, 255, 255, 0.1);
+  --dropdown-bg-color: #ffffff;
+  --dropdown-text-color: #333333;
+  --dropdown-hover-color: rgba(38, 198, 218, 0.1);
 }
 
 .search-form-container {
@@ -63,8 +65,7 @@ select,
 
 /* React-Select customization */
 .select__control {
-  background-color: var(--input-bg-color) !important;
-  border: none !important;
+  background-color: var(--dropdown-bg-color) !important;
   border-radius: 5px !important;
   min-height: 48px !important;
   box-shadow: none !important;
@@ -77,7 +78,7 @@ select,
 
 .select__placeholder,
 .select__single-value {
-  color: var(--input-text-color) !important;
+  color: var(--dropdown-text-color) !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
   margin-left: 0 !important;
@@ -88,7 +89,7 @@ select,
 }
 
 .select__dropdown-indicator {
-  color: var(--input-text-color) !important;
+  color: var(--dropdown-text-color) !important;
 }
 
 .select__menu-list {
@@ -99,7 +100,7 @@ select,
 .select__menu {
   position: absolute !important;
   width: 100% !important;
-  background-color: var(--input-bg-color) !important;
+  background-color: var(--dropdown-bg-color) !important;
   border-radius: 5px !important;
   font-family: var(--main-font) !important;
   font-size: 14px !important;
@@ -107,15 +108,15 @@ select,
 }
 
 .select__option {
-  background-color: var(--input-bg-color) !important;
-  color: var(--input-text-color) !important;
+  background-color: var(--dropdown-bg-color) !important;
+  color: var(--dropdown-text-color) !important;
   cursor: pointer !important;
   padding: 10px 15px !important;
   font-size: 14px !important;
 }
 
 .select__option--is-focused {
-  background-color: rgba(38, 198, 218, 0.1) !important;
+  background-color: var(--dropdown-hover-color) !important;
 }
 
 .select__option--is-selected {
@@ -123,7 +124,7 @@ select,
   color: white !important;
 }
 
-/* Remove blinking cursor */
+/* Remove blinking cursor and prevent keyboard from opening on mobile */
 .select__input-container {
   margin: 0 !important;
   padding: 0 !important;
@@ -133,6 +134,7 @@ select,
 .select__input-container input {
   caret-color: transparent !important;
   cursor: pointer !important;
+  pointer-events: none !important; /* Prevent keyboard from opening on mobile */
 }
 
 /* Date picker styles */
@@ -149,12 +151,11 @@ select,
 
 .react-datepicker__input-container input {
   padding: 15px;
-  border: none;
   border-radius: 5px;
   font-family: var(--main-font);
   font-size: 14px;
-  background-color: var(--input-bg-color);
-  color: var(--input-text-color);
+  background-color: var(--dropdown-bg-color);
+  color: var(--dropdown-text-color);
   cursor: pointer;
   outline: none;
   caret-color: transparent;
@@ -187,86 +188,25 @@ select,
   background-color: var(--button-hover-color);
 }
 
-/* Results styles */
-.results-container {
-  margin-top: 20px;
-}
-
-.results-title {
-  font-family: var(--main-font);
-  font-size: 16px;
-  margin: 0 0 10px 0;
-  color: white;
-}
-
-.results-box {
-  background-color: var(--result-bg-color);
-  border-radius: 5px;
-  padding: 15px;
-}
-
-.endpoint-results {
-  display: flex;
-  flex-direction: column;
-}
-
-.result-group {
-  margin: 0;
-  padding: 0;
-}
-
-.result-item {
-  font-family: var(--main-font);
-  font-size: 13px;
-  color: white;
-  margin: 0;
-  padding: 3px 0;
-  line-height: 1.2;
-  display: block;
-}
-
-.result-item pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  background-color: #f4f4f4;
-  padding: 10px;
-  border-radius: 5px;
-}
 .error-message {
   color: #ff6b6b;
   font-family: var(--main-font);
   font-size: 12px;
-  margin: 0;
+  margin-bottom: 5px;
   padding: 3px 0;
 }
 
-.endpoint-select-wrapper {
-  position: relative;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.select-all-button {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 5px;
-  padding: 5px 10px;
-  background-color: var(--button-bg-color);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: var(--main-font);
-  font-size: 12px;
-  transition: background-color 0.3s;
-  z-index: 1;
-}
-
-.select-all-button:hover {
-  background-color: var(--button-hover-color);
-}
-
 @media (max-width: 768px) {
-  /* Mobile styles remain the same */
+  /* Enable scrolling for mobile */
+  .search-form-container {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* Styles to prevent zooming on iOS */
+  select,
+  .react-datepicker__input-container input,
+  .search-button {
+    font-size: 16px;
+  }
 }

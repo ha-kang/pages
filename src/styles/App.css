@@ -4,6 +4,8 @@
   --main-bg-color: #1a1a2e;
   --text-color: white;
   --result-bg-color: rgba(255, 255, 255, 0.1);
+  --button-bg-color: #007aff;
+  --button-text-color: white;
 }
 
 body {
@@ -17,14 +19,18 @@ body {
 .app {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10vw 0 2vw 3vw;
+  padding: 5vw 3vw;
   box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 main {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex: 1;
 }
 
 .content {
@@ -44,13 +50,19 @@ p {
   line-height: 1.4;
 }
 
-pre {
+.image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.results-container {
+  width: 100%;
+  max-height: calc(95vh - 10vw);
+  height: auto;
+  overflow-y: auto;
   background-color: var(--result-bg-color);
-  padding: 15px;
   border-radius: 5px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: break-word;
+  padding: 15px;
 }
 
 .image {
@@ -58,18 +70,83 @@ pre {
   padding-top: 1vw;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  min-height: 100px;
+  max-height: calc(100vh - 4vw);
 }
 
-.image img {
-  max-width: 100%;
-  height: auto;
+.results-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.results-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.endpoint-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-group {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.result-item {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  color: var(--text-color);
+  margin: 0;
+  padding: 3px 0;
+  line-height: 1.2;
+  display: block;
+}
+
+.download-button {
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border: none;
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: #0056b3;
+}
+
+.results-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.results-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.results-container::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+  }
+
   .app {
     padding: 15px;
     max-width: 100%;
+    height: auto;
+    min-height: 100vh;
   }
 
   main {
@@ -101,6 +178,12 @@ pre {
 
   .image {
     margin-top: 20px;
+    max-height: none;
+  }
+
+  .results-container {
+    max-height: none;
+    overflow-y: visible;
   }
 
   .results pre {
