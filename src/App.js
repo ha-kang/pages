@@ -41,7 +41,7 @@ const DataTransferDownload = ({ data }) => {
   return (
     <div className="data-transfer-download result-item">
       <span>Data Transfer by Country: </span>
-      <button onClick={downloadCSV}>Download CSV</button>
+      <button className="download-button" onClick={downloadCSV}>Download CSV</button>
     </div>
   );
 };
