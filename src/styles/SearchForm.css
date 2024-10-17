@@ -192,7 +192,7 @@ select,
   color: #ff6b6b;
   font-family: var(--main-font);
   font-size: 12px;
-  margin: 0;
+  margin-bottom: 5px;
   padding: 3px 0;
 }
 
