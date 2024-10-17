@@ -124,7 +124,7 @@ select,
   color: white !important;
 }
 
-/* Remove blinking cursor */
+/* Remove blinking cursor and prevent keyboard from opening on mobile */
 .select__input-container {
   margin: 0 !important;
   padding: 0 !important;
@@ -134,6 +134,7 @@ select,
 .select__input-container input {
   caret-color: transparent !important;
   cursor: pointer !important;
+  pointer-events: none !important; /* Prevent keyboard from opening on mobile */
 }
 
 /* Date picker styles */
@@ -196,5 +197,16 @@ select,
 }
 
 @media (max-width: 768px) {
-  /* Mobile styles remain the same */
+  /* Enable scrolling for mobile */
+  .search-form-container {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  /* Styles to prevent zooming on iOS */
+  select,
+  .react-datepicker__input-container input,
+  .search-button {
+    font-size: 16px;
+  }
 }
