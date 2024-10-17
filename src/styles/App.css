@@ -113,8 +113,8 @@ p {
   color: var(--button-text-color);
   border: none;
   border-radius: 8px;
-  padding: 10px 15px;
-  font-size: 14px;
+  padding: 5px 10px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
