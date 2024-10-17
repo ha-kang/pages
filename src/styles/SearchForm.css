@@ -12,7 +12,6 @@
 .search-form-container {
   width: 100%;
   max-width: 400px;
-  margin-bottom: 15px;
 }
 
 .search-form {
@@ -25,7 +24,7 @@
 }
 
 .search-form > * {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .search-form > *:last-child {
@@ -67,7 +66,6 @@ select,
 /* React-Select customization */
 .select__control {
   background-color: var(--dropdown-bg-color) !important;
-  border: 1px solid var(--button-bg-color) !important;
   border-radius: 5px !important;
   min-height: 48px !important;
   box-shadow: none !important;
@@ -152,7 +150,6 @@ select,
 
 .react-datepicker__input-container input {
   padding: 15px;
-  border: 1px solid var(--button-bg-color);
   border-radius: 5px;
   font-family: var(--main-font);
   font-size: 14px;
