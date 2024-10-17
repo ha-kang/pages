@@ -6,7 +6,61 @@
   --button-hover-color: #00bcd4;
   --result-bg-color: rgba(255, 255, 255, 0.1);
 }
+.image {
+  flex: 1;
+  padding-top: 1vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;  /* 변경: 결과를 상단에 정렬 */
+  min-height: 400px;  /* 추가: 최소 높이 설정 */
+}
 
+.image img {
+  max-width: 100%;
+  height: auto;
+}
+
+.results-container {
+  width: 100%;
+  max-height: 400px;  /* 추가: 최대 높이 설정 */
+  overflow-y: auto;  /* 추가: 스크롤 가능하도록 설정 */
+  background-color: var(--result-bg-color);
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.results-title {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: var(--text-color);
+}
+
+.results-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.endpoint-results {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.result-group {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.result-item {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 13px;
+  color: var(--text-color);
+  margin: 0;
+  padding: 3px 0;
+  line-height: 1.2;
+  display: block;
+}
 .search-form-container {
   width: 100%;
   max-width: 400px;
